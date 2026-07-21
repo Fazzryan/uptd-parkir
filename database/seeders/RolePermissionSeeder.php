@@ -34,6 +34,26 @@ class RolePermissionSeeder extends Seeder
             'create-indikator',
             'edit-indikator',
             'delete-indikator',
+           
+            'view-wilayah-parkir',
+            'create-wilayah-parkir',
+            'edit-wilayah-parkir',
+            'delete-wilayah-parkir',
+
+            'view-struktur-organisasi',
+            'create-struktur-organisasi',
+            'edit-struktur-organisasi',
+            'delete-struktur-organisasi',
+
+            'view-tarif-parkir',
+            'create-tarif-parkir',
+            'edit-tarif-parkir',
+            'delete-tarif-parkir',
+
+            'view-panduan-jukir',
+            'create-panduan-jukir',
+            'edit-panduan-jukir',
+            'delete-panduan-jukir',
         ];
 
         foreach ($permissions as $permission) {
@@ -46,10 +66,25 @@ class RolePermissionSeeder extends Seeder
 
         $userRole = Role::firstOrCreate(['name' => 'user']);
         $userRole->givePermissionTo([
-            'view-eviden',
-            'create-eviden',
-            'edit-eviden',
-            'delete-eviden',
+            'view-wilayah-parkir',
+            'create-wilayah-parkir',
+            'edit-wilayah-parkir',
+            'delete-wilayah-parkir',
+
+            'view-struktur-organisasi',
+            'create-struktur-organisasi',
+            'edit-struktur-organisasi',
+            'delete-struktur-organisasi',
+
+            'view-tarif-parkir',
+            'create-tarif-parkir',
+            'edit-tarif-parkir',
+            'delete-tarif-parkir',
+
+            'view-panduan-jukir',
+            'create-panduan-jukir',
+            'edit-panduan-jukir',
+            'delete-panduan-jukir',
         ]);
 
         // 3. Buat User Contoh & Assign Role
@@ -73,82 +108,5 @@ class RolePermissionSeeder extends Seeder
             ]
         );
         $user->assignRole($userRole);
-
-        // 4. Data User Biasa (Tanpa SKPD)
-        $users = [
-            [
-                'username' => 'user',
-                'password' => 'password',
-                'name' => 'User',
-            ],
-            [
-                'username' => 'bappeda',
-                'password' => 'Bappeda@2025',
-                'name' => 'BAPPEDA',
-            ],
-            [
-                'username' => 'dukcapil',
-                'password' => 'Dukcapil@2025',
-                'name' => 'Disdukcapil',
-            ],
-            [
-                'username' => 'dinkes',
-                'password' => 'Dinkes@2025',
-                'name' => 'Dinas Kesehatan',
-            ],
-            [
-                'username' => 'bpkpd',
-                'password' => 'Bpkpd@2025',
-                'name' => 'BPKPD',
-            ],
-            [
-                'username' => 'inspektorat',
-                'password' => 'Inspektorat@2025',
-                'name' => 'Inspektorat',
-            ],
-            [
-                'username' => 'setdaorg',
-                'password' => 'SetdaOrg@2025',
-                'name' => 'Setda Organisasi',
-            ],
-            [
-                'username' => 'setdalpse',
-                'password' => 'SetdaLpse@2025',
-                'name' => 'Setda LPSE',
-            ],
-            [
-                'username' => 'setdahukum',
-                'password' => 'SetdaHukum@2025',
-                'name' => 'Setda Hukum',
-            ],
-            [
-                'username' => 'setdaarsip',
-                'password' => 'SetdaArsip@2025',
-                'name' => 'Setda Kearsipan',
-            ],
-            [
-                'username' => 'dpmptsp',
-                'password' => 'dpmptsp@2025',
-                'name' => 'DPMPTSP',
-            ],
-            [
-                'username' => 'bkpsdm',
-                'password' => 'Bkpsdm@2025',
-                'name' => 'BKPSDM',
-            ],
-        ];
-
-        foreach ($users as $userData) {
-            $user = User::firstOrCreate(
-                ['username' => $userData['username']],
-                [
-                    'name' => $userData['name'],
-                    'email' => $userData['username'] . '@spbe.local',
-                    'password' => bcrypt($userData['password']),
-                ]
-            );
-
-            $user->assignRole($userRole);
-        }
     }
 }

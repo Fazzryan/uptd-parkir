@@ -1,3 +1,38 @@
+export interface StrukturOrganisasiPersonel {
+    id: number;
+    nama: string;
+    nip: string;
+    jabatan: string;
+    foto: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface WilayahParkir {
+    id: number;
+    kecamatan: string;
+    nama_jalan: string;
+    latitude: string;
+    longitude: string;
+    created_at?: string;
+    updated_at?: string;
+}
+export interface TarifParkirKarcis {
+    id: number;
+    foto: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface PanduanJukir {
+    id: number;
+    foto: string;
+    deskripsi: string;
+    teks_info: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
 export interface Permission {
     id: number;
     name: string;
@@ -24,46 +59,6 @@ export interface User {
     roles: Role[] | string[];
     permissions?: string[];
     profile_photo_path?: string;
-    created_at?: string;
-    updated_at?: string;
-}
-
-export interface Skpd {
-    id: number;
-    nama_skpd: string;
-    alamat: string;
-    created_at?: string;
-    updated_at?: string;
-}
-
-export interface NilaiIndeks {
-    id: number;
-    indeks_spbe_id: number;
-    tahun: number;
-    nilai: number;
-    created_at?: string;
-    updated_at?: string;
-}
-
-export interface IndeksSpbe {
-    id: number;
-    nama_indeks: string;
-    kode?: string | null;
-    parent_id?: number | null;
-    jenis: 'indeks' | 'domain' | 'aspek' | 'indikator';
-    urutan: number;
-    created_at?: string;
-    updated_at?: string;
-    children?: IndeksSpbe[];
-    nilai_indeks?: NilaiIndeks[];
-}
-
-export interface Kebijakan {
-    id: number;
-    judul: string;
-    file_path: string;
-    deskripsi?: string | null;
-    urutan: number;
     created_at?: string;
     updated_at?: string;
 }

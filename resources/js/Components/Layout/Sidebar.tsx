@@ -11,14 +11,11 @@ import {
     LayoutDashboard,
     Users,
     Settings,
-    Building2,
-    Shield,
     LogOut,
     Menu,
     X,
     ChevronDown,
     CircleCheck,
-    Target,
     FileCheck,
     FileText,
     CircleGauge,
@@ -26,6 +23,10 @@ import {
     Sun,
     User,
     Home,
+    MapPin,
+    Network,
+    BookOpen,
+    Receipt,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -61,7 +62,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     const user = auth?.user;
     const roles = auth?.roles || [];
     const permissions = auth?.permissions || [];
-    const appName = app_settings?.app_name || "SPBE TASIKMALAYA";
+    const appName = app_settings?.app_name || "DASHBOARD UPTD";
 
     // User Menu & Dark Mode Logic
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -159,7 +160,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-[15px] group 
                         ${
                             route().current("be.dashboard")
-                                ? "bg-brand-green-50 dark:bg-slate-800 text-brand-green-600 dark:text-brand-green-400"
+                                ? "bg-brand-blue-50 dark:bg-slate-800 text-brand-blue-600 dark:text-brand-blue-400"
                                 : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
                         }`}
                 >
@@ -168,8 +169,8 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                         strokeWidth={2}
                         className={`${
                             route().current("be.dashboard")
-                                ? "text-brand-green-600 dark:text-brand-green-400"
-                                : "text-slate-400 dark:text-slate-500 group-hover:text-brand-green-500"
+                                ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
                         }`}
                     />
                     Dashboard
@@ -179,14 +180,106 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                     Master Data
                 </p>
 
+                {permissions.includes("view-struktur-organisasi") && (
+                    <Link
+                        href={route("be.struktur-organisasi.index")}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-[15px] group 
+                        ${
+                            route().current("be.struktur-organisasi.*")
+                                ? "bg-brand-blue-50 dark:bg-slate-800 text-brand-blue-600 dark:text-brand-blue-400"
+                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        }`}
+                    >
+                        <Network
+                            size={20}
+                            strokeWidth={2}
+                            className={`${
+                                route().current("be.struktur-organisasi.*")
+                                    ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                    : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
+                            }`}
+                        />
+                        Struktur Organisasi
+                    </Link>
+                )}
+
+                {permissions.includes("view-tarif-parkir") && (
+                    <Link
+                        href={route("be.tarif-parkir.index")}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-[15px] group 
+                        ${
+                            route().current("be.tarif-parkir.*")
+                                ? "bg-brand-blue-50 dark:bg-slate-800 text-brand-blue-600 dark:text-brand-blue-400"
+                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        }`}
+                    >
+                        <Receipt
+                            size={20}
+                            strokeWidth={2}
+                            className={`${
+                                route().current("be.tarif-parkir.*")
+                                    ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                    : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
+                            }`}
+                        />
+                        Tarif Parkir
+                    </Link>
+                )}
+
+                {permissions.includes("view-wilayah-parkir") && (
+                    <Link
+                        href={route("be.wilayah-parkir.index")}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-[15px] group 
+                        ${
+                            route().current("be.wilayah-parkir.*")
+                                ? "bg-brand-blue-50 dark:bg-slate-800 text-brand-blue-600 dark:text-brand-blue-400"
+                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        }`}
+                    >
+                        <MapPin
+                            size={20}
+                            strokeWidth={2}
+                            className={`${
+                                route().current("be.wilayah-parkir.*")
+                                    ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                    : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
+                            }`}
+                        />
+                        Wilayah Parkir
+                    </Link>
+                )}
+
+                {permissions.includes("view-panduan-jukir") && (
+                    <Link
+                        href={route("be.panduan-jukir.index")}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-[15px] group 
+                        ${
+                            route().current("be.panduan-jukir.*")
+                                ? "bg-brand-blue-50 dark:bg-slate-800 text-brand-blue-600 dark:text-brand-blue-400"
+                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        }`}
+                    >
+                        <BookOpen
+                            size={20}
+                            strokeWidth={2}
+                            className={`${
+                                route().current("be.panduan-jukir.*")
+                                    ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                    : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
+                            }`}
+                        />
+                        Panduan Jukir
+                    </Link>
+                )}
+
                 {/* Data Eviden */}
-                {permissions.includes("view-eviden") && (
+                {/* {permissions.includes("view-eviden") && (
                     <Link
                         href={route("be.eviden.index")}
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-[15px] group 
                         ${
                             route().current("be.eviden.*")
-                                ? "bg-brand-green-50 dark:bg-slate-800 text-brand-green-600 dark:text-brand-green-400"
+                                ? "bg-brand-blue-50 dark:bg-slate-800 text-brand-blue-600 dark:text-brand-blue-400"
                                 : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
                         }`}
                     >
@@ -195,22 +288,22 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                             strokeWidth={2}
                             className={`${
                                 route().current("be.eviden.*")
-                                    ? "text-brand-green-600 dark:text-brand-green-400"
-                                    : "text-slate-400 dark:text-slate-500 group-hover:text-brand-green-500"
+                                    ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                    : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
                             }`}
                         />
                         Data Eviden
                     </Link>
-                )}
+                )} */}
 
                 {/* Data Indikator */}
-                {permissions.includes("view-indikator") && (
+                {/* {permissions.includes("view-indikator") && (
                     <Link
                         href={route("be.indikator.index")}
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-[15px] group 
                         ${
                             route().current("be.indikator.*")
-                                ? "bg-brand-green-50 dark:bg-slate-800 text-brand-green-600 dark:text-brand-green-400"
+                                ? "bg-brand-blue-50 dark:bg-slate-800 text-brand-blue-600 dark:text-brand-blue-400"
                                 : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
                         }`}
                     >
@@ -219,13 +312,13 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                             strokeWidth={2}
                             className={`${
                                 route().current("be.indikator.*")
-                                    ? "text-brand-green-600 dark:text-brand-green-400"
-                                    : "text-slate-400 dark:text-slate-500 group-hover:text-brand-green-500"
+                                    ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                    : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
                             }`}
                         />
                         Data Indikator
                     </Link>
-                )}
+                )} */}
 
                 {/* User Management Dropdown */}
                 {permissions.includes("view-users") && (
@@ -235,7 +328,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                             className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium text-[15px] transition-all group
                             ${
                                 route().current("be.users.*")
-                                    ? "text-brand-green-600 dark:text-brand-green-400"
+                                    ? "text-brand-blue-600 dark:text-brand-blue-400"
                                     : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
                             }`}
                         >
@@ -245,8 +338,8 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                                     strokeWidth={2}
                                     className={`${
                                         route().current("be.users.*")
-                                            ? "text-brand-green-600 dark:text-brand-green-400"
-                                            : "text-slate-400 dark:text-slate-500 group-hover:text-brand-green-500"
+                                            ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                            : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
                                     }`}
                                 />
                                 User Management
@@ -271,8 +364,8 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                                     href={route("be.users.index")}
                                     className={`block py-2 px-4 text-sm rounded-lg transition-colors ${
                                         route().current("be.users.*")
-                                            ? "text-brand-green-600 dark:text-brand-green-400 font-semibold bg-brand-green-50/50 dark:bg-slate-800/50"
-                                            : "text-slate-500 dark:text-slate-400 hover:text-brand-green-600 dark:hover:text-brand-green-400"
+                                            ? "text-brand-blue-600 dark:text-brand-blue-400 font-semibold bg-brand-blue-50/50 dark:bg-slate-800/50"
+                                            : "text-slate-500 dark:text-slate-400 hover:text-brand-blue-600 dark:hover:text-brand-blue-400"
                                     }`}
                                 >
                                     User
@@ -282,8 +375,8 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                                         href={route("be.roles.index")}
                                         className={`block py-2 px-4 text-sm rounded-lg transition-colors ${
                                             route().current("be.roles.*")
-                                                ? "text-brand-green-600 dark:text-brand-green-400 font-semibold bg-brand-green-50/50 dark:bg-slate-800/50"
-                                                : "text-slate-500 dark:text-slate-400 hover:text-brand-green-600 dark:hover:text-brand-green-400"
+                                                ? "text-brand-blue-600 dark:text-brand-blue-400 font-semibold bg-brand-blue-50/50 dark:bg-slate-800/50"
+                                                : "text-slate-500 dark:text-slate-400 hover:text-brand-blue-600 dark:hover:text-brand-blue-400"
                                         }`}
                                     >
                                         Role
@@ -306,7 +399,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium text-[15px] transition-all group
                                 ${
                                     route().current("be.settings.*")
-                                        ? "text-brand-green-600 dark:text-brand-green-400"
+                                        ? "text-brand-blue-600 dark:text-brand-blue-400"
                                         : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
                                 }`}
                             >
@@ -316,8 +409,8 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                                         strokeWidth={2}
                                         className={`${
                                             route().current("be.settings.*")
-                                                ? "text-brand-green-600 dark:text-brand-green-400"
-                                                : "text-slate-400 dark:text-slate-500 group-hover:text-brand-green-500"
+                                                ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                                : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
                                         }`}
                                     />
                                     Pengaturan
@@ -346,8 +439,8 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                                             route().current(
                                                 "be.settings.profile",
                                             )
-                                                ? "text-brand-green-600 dark:text-brand-green-400 font-semibold bg-brand-green-50/50 dark:bg-slate-800/50"
-                                                : "text-slate-500 dark:text-slate-400 hover:text-brand-green-600 dark:hover:text-brand-green-400"
+                                                ? "text-brand-blue-600 dark:text-brand-blue-400 font-semibold bg-brand-blue-50/50 dark:bg-slate-800/50"
+                                                : "text-slate-500 dark:text-slate-400 hover:text-brand-blue-600 dark:hover:text-brand-blue-400"
                                         }`}
                                     >
                                         Profil Saya
@@ -356,8 +449,8 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                                         href={route("be.settings.app")}
                                         className={`block py-2 px-4 text-sm rounded-lg transition-colors ${
                                             route().current("be.settings.app")
-                                                ? "text-brand-green-600 dark:text-brand-green-400 font-semibold bg-brand-green-50/50 dark:bg-slate-800/50"
-                                                : "text-slate-500 dark:text-slate-400 hover:text-brand-green-600 dark:hover:text-brand-green-400"
+                                                ? "text-brand-blue-600 dark:text-brand-blue-400 font-semibold bg-brand-blue-50/50 dark:bg-slate-800/50"
+                                                : "text-slate-500 dark:text-slate-400 hover:text-brand-blue-600 dark:hover:text-brand-blue-400"
                                         }`}
                                     >
                                         Aplikasi
@@ -378,7 +471,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                         className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group cursor-pointer"
                     >
                         <div className="flex items-center gap-3 min-w-0 overflow-hidden">
-                            <div className="w-9 h-9 shrink-0 rounded-full bg-brand-green-100 dark:bg-brand-green-900/50 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-brand-green-600 dark:text-brand-green-400 font-bold overflow-hidden shadow-sm">
+                            <div className="w-9 h-9 shrink-0 rounded-full bg-brand-blue-100 dark:bg-brand-blue-900/50 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-brand-blue-600 dark:text-brand-blue-400 font-bold overflow-hidden shadow-sm">
                                 {user?.profile_photo_path ? (
                                     <img
                                         src={`/storage/${user.profile_photo_path}`}

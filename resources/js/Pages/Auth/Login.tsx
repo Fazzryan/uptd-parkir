@@ -41,7 +41,7 @@ export default function Login() {
                             />
                         </div>
                         <h2 className="font-bold uppercase tracking-widest text-blue-700 dark:text-blue-500 mb-1">
-                            Monitoring SPBE Kabupaten Tasikmalaya
+                            UPTD PARKIR
                         </h2>
                         <p className="text-slate-500 dark:text-slate-400 font-semibold">
                             Pemerintah Kabupaten Tasikmalaya

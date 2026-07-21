@@ -23,7 +23,7 @@ export default function App({ settings }: AppProps) {
     });
 
     const [previewLogo, setPreviewLogo] = useState<string | null>(
-        settings.app_logo ? `/storage/${settings.app_logo}` : null
+        settings.app_logo ? `/storage/${settings.app_logo}` : null,
     );
     const logoInput = useRef<HTMLInputElement>(null);
 
@@ -124,7 +124,7 @@ export default function App({ settings }: AppProps) {
                                         setData("app_name", e.target.value)
                                     }
                                     className="w-full py-2"
-                                    placeholder="Contoh: SPBE Dashboard"
+                                    placeholder="Contoh: Dashboard"
                                 />
                                 {errors.app_name && (
                                     <p className="text-xs text-rose-500 mt-1">

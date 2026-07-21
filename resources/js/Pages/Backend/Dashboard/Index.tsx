@@ -134,15 +134,15 @@ export default function Dashboard() {
 
     return (
         <MainLayout>
-            <Head title="Dashboard SPBE" />
+            <Head title="Dashboard" />
 
             {/* Header Dashboard */}
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
-                    Dashboard Evaluasi SPBE
+                    Dashboard
                 </h1>
                 <p className="text-slate-500 text-sm dark:text-slate-400">
-                    Monitoring Pengumpulan Eviden Kabupaten Tasikmalaya
+                    Monitoring Pengelolaan Parkir Kabupaten Tasikmalaya
                 </p>
             </div>
 

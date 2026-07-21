@@ -11,6 +11,10 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Backend\IndikatorController;
 use App\Http\Controllers\Backend\EvidenController;
 use App\Http\Controllers\Backend\DashboardController;
+use App\Http\Controllers\Backend\PanduanJukirController;
+use App\Http\Controllers\Backend\WilayahParkirController;
+use App\Http\Controllers\Backend\TarifParkirKarcisController;
+use App\Http\Controllers\Backend\StrukturOrganisasiController;
 
 use App\Http\Controllers\Backend\Api\ApiEvidenceController;    
 
@@ -35,6 +39,17 @@ Route::middleware(['auth'])->prefix('dashboard')->name('be.')->group(function ()
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
 
+    Route::resource('panduan-jukir', PanduanJukirController::class)
+        ->names('panduan-jukir');
+    
+        Route::resource('wilayah-parkir', WilayahParkirController::class)
+        ->names('wilayah-parkir');
+
+        Route::resource('tarif-parkir', TarifParkirKarcisController::class)
+        ->names('tarif-parkir');
+
+        Route::resource('struktur-organisasi', StrukturOrganisasiController::class)
+        ->names('struktur-organisasi');
 
     // Manajemen Users (Gunakan plural 'users')
     Route::resource('users', UserController::class)
