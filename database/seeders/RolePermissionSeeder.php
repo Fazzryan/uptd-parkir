@@ -25,16 +25,6 @@ class RolePermissionSeeder extends Seeder
             'view-profile',
             'edit-profile',
 
-            'view-eviden',
-            'create-eviden',
-            'edit-eviden',
-            'delete-eviden',
-
-            'view-indikator',
-            'create-indikator',
-            'edit-indikator',
-            'delete-indikator',
-           
             'view-wilayah-parkir',
             'create-wilayah-parkir',
             'edit-wilayah-parkir',
@@ -54,6 +44,16 @@ class RolePermissionSeeder extends Seeder
             'create-panduan-jukir',
             'edit-panduan-jukir',
             'delete-panduan-jukir',
+
+            'view-galeri-foto',
+            'create-galeri-foto',
+            'edit-galeri-foto',
+            'delete-galeri-foto',
+
+            'view-berita',
+            'create-berita',
+            'edit-berita',
+            'delete-berita',
         ];
 
         foreach ($permissions as $permission) {
@@ -85,12 +85,21 @@ class RolePermissionSeeder extends Seeder
             'create-panduan-jukir',
             'edit-panduan-jukir',
             'delete-panduan-jukir',
+
+            'view-galeri-foto',
+            'create-galeri-foto',
+            'edit-galeri-foto',
+            'delete-galeri-foto',
+
+            'view-berita',
+            'create-berita',
+            'edit-berita',
+            'delete-berita',
         ]);
 
-        // 3. Buat User Contoh & Assign Role
         // 3. Buat User Admin IP
         $admin = User::firstOrCreate(
-            ['username' => 'admin'], // Kunci pencarian
+            ['username' => 'admin'],
             [
                 'name' => 'Admin IP',
                 'email' => 'admin@gmail.com',
@@ -100,7 +109,7 @@ class RolePermissionSeeder extends Seeder
         $admin->assignRole($adminRole);
         
         $user = User::firstOrCreate(
-            ['username' => 'user'], // Kunci pencarian
+            ['username' => 'user'],
             [
                 'name' => 'User',
                 'email' => 'user@gmail.com',

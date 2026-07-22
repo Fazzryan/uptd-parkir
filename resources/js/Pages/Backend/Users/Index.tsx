@@ -116,7 +116,7 @@ export default function Index({ users, filters }: IndexProps) {
                         <Button
                             variant="primary"
                             href={route("be.users.create")}
-                            className="shadow-lg shadow-indigo-100 dark:shadow-none"
+                            className="shadow-lg shadow-brand-blue-100 dark:shadow-none"
                         >
                             <span>Tambah User</span>
                         </Button>
@@ -177,7 +177,7 @@ export default function Index({ users, filters }: IndexProps) {
                             headerClassName: "w-64",
                             render: (user: User | any) => (
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs border border-indigo-100 uppercase">
+                                    <div className="w-10 h-10 rounded-full bg-brand-blue-50 text-brand-blue-600 flex items-center justify-center font-bold text-xs border border-brand-blue-100 uppercase">
                                         {user.name.substring(0, 2)}
                                     </div>
                                     <div>
@@ -232,7 +232,7 @@ export default function Index({ users, filters }: IndexProps) {
                                                 "be.users.edit",
                                                 user.id,
                                             )}
-                                            className="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl active:scale-90 transition-all cursor-pointer inline-flex items-center"
+                                            className="p-2.5 text-slate-400 hover:text-brand-blue-600 hover:bg-brand-blue-50 rounded-xl active:scale-90 transition-all cursor-pointer inline-flex items-center"
                                         >
                                             <Edit2 size={16} />
                                         </Link>
@@ -281,7 +281,7 @@ export default function Index({ users, filters }: IndexProps) {
                             onChange={(e) =>
                                 setPerPage(parseInt(e.target.value))
                             }
-                            className="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-3 focus:ring-indigo-500/10 focus:border-indigo-500 block py-1.5 px-3 transition-all outline-none cursor-pointer dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600"
+                            className="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-3 focus:ring-brand-blue-500/10 focus:border-brand-blue-500 block py-1.5 px-3 transition-all outline-none cursor-pointer dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600"
                         >
                             <option value="5">5</option>
                             <option value="10">10</option>

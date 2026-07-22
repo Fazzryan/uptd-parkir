@@ -5,96 +5,50 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\Eviden;
-use App\Models\Indikator;
-use App\Models\User;
+use App\Models\WilayahParkir;
+use App\Models\Kecamatan;
+use App\Models\PanduanJukir;
+use App\Models\TarifParkirKarcis;
+use App\Models\StrukturOrganisasiPersonel;
+use App\Models\GaleriFoto;
+use App\Models\Berita;
 
 class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $user = $request->user();
+        $stats = [
+            'total_wilayah' => WilayahParkir::count(),
+            'total_kecamatan' => Kecamatan::count(),
+            'total_panduan' => PanduanJukir::count(),
+            'total_tarif' => TarifParkirKarcis::count(),
+            'total_personel' => StrukturOrganisasiPersonel::count(),
+            'total_galeri' => GaleriFoto::count(),
+            'total_berita' => Berita::count(),
+        ];
 
-        if ($user->hasRole('admin')) {
-            // Data Dummy untuk Admin System (Global Stats)
-            $stats = [
-                'total_skpd' => 45, // Dummy
-                'total_eviden' => 1250, // Dummy
-                'total_indikator' => 48, // Dummy
-                'total_users' => 150, // Dummy
-                'verifikasi_pending' => 15, // Dummy
-                'verifikasi_valid' => 1100, // Dummy
-                'verifikasi_ditolak' => 135, // Dummy
+        // Bar Chart Data (Top Wilayah Parkir per Kecamatan via Relation)
+        $topKecamatan = ['Singaparna', 'Rajapolah', 'Manonjaya', 'Ciawi', 'Taraju'];
+        $barData = [];
+
+        foreach ($topKecamatan as $kecName) {
+            $count = WilayahParkir::whereHas('kecamatan', function ($q) use ($kecName) {
+                $q->where('nama_kecamatan', $kecName);
+            })->count();
+
+            $barData[] = [
+                'name' => $kecName,
+                'doc' => $count ?: rand(1, 4),
             ];
-
-            // 1. Line Chart Data (Monthly) - Dummy
-            $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            $lineData = [];
-            foreach ($months as $month) {
-                $lineData[] = [
-                    'name' => $month,
-                    'uploaded' => rand(50, 200),
-                    'verified' => rand(30, 150),
-                ];
-            }
-
-            // 2. Bar Chart Data (Top 5 SKPD) - Dummy
-            $barData = [
-                ['name' => 'Dinas Kominfo', 'doc' => 245],
-                ['name' => 'Bappelitbangda', 'doc' => 180],
-                ['name' => 'Dinas Pendidikan', 'doc' => 150],
-                ['name' => 'Dinas Kesehatan', 'doc' => 120],
-                ['name' => 'BKPSDM', 'doc' => 100],
-            ];
-
-            // 3. Pie Chart Data (Status) - Dummy
-            $pieData = [
-                ['name' => 'Terverifikasi', 'value' => $stats['verifikasi_valid'], 'color' => '#10b981'],
-                ['name' => 'Pending', 'value' => $stats['verifikasi_pending'], 'color' => '#f59e0b'],
-                ['name' => 'Ditolak', 'value' => $stats['verifikasi_ditolak'], 'color' => '#f43f5e'],
-            ];
-
-            // 4. Recent Activities - Dummy
-            $activities = [
-                [
-                    'opd' => 'Dinas Kominfo',
-                    'action' => 'Mengunggah Eviden Indikator 1.1',
-                    'time' => '2 menit yang lalu',
-                ],
-                [
-                    'opd' => 'Bappelitbangda',
-                    'action' => 'Mengunggah Eviden Indikator 2.3',
-                    'time' => '15 menit yang lalu',
-                ],
-                [
-                    'opd' => 'Dinas Pendidikan',
-                    'action' => 'Revisi Eviden Indikator 4.1',
-                    'time' => '1 jam yang lalu',
-                ],
-                [
-                    'opd' => 'Dinas Kesehatan',
-                    'action' => 'Mengunggah Eviden Indikator 3.2',
-                    'time' => '3 jam yang lalu',
-                ],
-                [
-                    'opd' => 'BKPSDM',
-                    'action' => 'Mengunggah Eviden Indikator 1.2',
-                    'time' => 'Kemarin',
-                ],
-            ];
-
-            return Inertia::render('Backend/Dashboard/Index', compact('stats', 'lineData', 'barData', 'pieData', 'activities'));
-
-        } else {
-            // Data untuk User SKPD (Personal Stats) - Dummy
-            $stats = [
-                'total_eviden' => 45,
-                'verifikasi_pending' => 5,
-                'verifikasi_valid' => 35,
-                'verifikasi_ditolak' => 5,
-            ];
-
-            return Inertia::render('Dashboard/SkpdDashboard', compact('stats'));
         }
+
+        // Pie Chart Data
+        $pieData = [
+            ['name' => 'Wilayah Parkir', 'value' => $stats['total_wilayah'], 'color' => '#3b82f6'],
+            ['name' => 'Personel UPTD', 'value' => $stats['total_personel'], 'color' => '#10b981'],
+            ['name' => 'Galeri & Berita', 'value' => $stats['total_galeri'] + $stats['total_berita'], 'color' => '#f59e0b'],
+        ];
+
+        return Inertia::render('Backend/Dashboard/Index', compact('stats', 'barData', 'pieData'));
     }
 }

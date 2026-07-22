@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('indikator', function (Blueprint $table) {
+        Schema::create('galeri_fotos', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_indikator');
+            $table->string('kategori', 50);
+            $table->string('caption', 255);
+            $table->date('tanggal');
+            $table->string('foto')->nullable();
             $table->timestamps();
         });
     }
@@ -23,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('indikator');
+        Schema::dropIfExists('galeri_fotos');
     }
 };

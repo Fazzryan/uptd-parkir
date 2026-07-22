@@ -47,8 +47,8 @@ export default function AdminDashboard({
             title: "Total SKPD",
             value: stats.total_skpd.toString(),
             icon: Building,
-            color: "bg-indigo-500",
-            className: "border-l-4 border-indigo-500",
+            color: "bg-brand-blue-500",
+            className: "border-l-4 border-brand-blue-500",
             textColor: "white",
             description: "Terdaftar dalam sistem",
             period: "Total",
@@ -185,8 +185,8 @@ export default function AdminDashboard({
                                     )}
 
                                     <div className="relative shrink-0 z-10">
-                                        <div className="w-5 h-5 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center dark:bg-indigo-900/20 dark:border-indigo-500/30">
-                                            <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-sm shadow-indigo-500/50"></div>
+                                        <div className="w-5 h-5 rounded-full bg-brand-blue-50 border border-brand-blue-100 flex items-center justify-center dark:bg-brand-blue-900/20 dark:border-brand-blue-500/30">
+                                            <div className="w-2 h-2 rounded-full bg-brand-blue-500 shadow-sm shadow-brand-blue-500/50"></div>
                                         </div>
                                     </div>
 

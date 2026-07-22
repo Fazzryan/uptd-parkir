@@ -19,6 +19,13 @@ class DatabaseSeeder extends Seeder
 
             RolePermissionSeeder::class,
             IndikatorSeeder::class,
+            KecamatanSeeder::class,
+            WilayahParkirSeeder::class,
+            PanduanJukirSeeder::class,
+            TarifParkirKarcisSeeder::class,
+            StrukturOrganisasiPersonelSeeder::class,
+            GaleriFotoSeeder::class,
+            BeritaSeeder::class,
         ]);
     }
 }

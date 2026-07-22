@@ -107,7 +107,7 @@ export default function Welcome({
                     </span>
                     <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-white tracking-tight mb-8">
                         Transformasi Digital <br className="hidden md:block" />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-brand-blue-300">
                             Pemerintahan Modern
                         </span>
                     </h1>
@@ -124,7 +124,7 @@ export default function Welcome({
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
                         {/* Total Index Card */}
-                        <div className="lg:col-span-1 bg-gradient-to-br from-blue-700 to-indigo-800 rounded-3xl p-8 text-white shadow-2xl shadow-blue-900/20 relative overflow-hidden group">
+                        <div className="lg:col-span-1 bg-gradient-to-br from-blue-700 to-brand-blue-800 rounded-3xl p-8 text-white shadow-2xl shadow-blue-900/20 relative overflow-hidden group">
                             <div className="absolute top-0 right-0 -mt-8 -mr-8 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-500"></div>
                             <div className="relative z-10">
                                 <div className="flex items-center gap-3 mb-4 text-blue-100">
@@ -308,7 +308,7 @@ export default function Welcome({
                                     rel="noreferrer"
                                     className="group bg-white p-6 rounded-2xl border border-slate-100 hover:border-blue-200 shadow-sm hover:shadow-xl hover:shadow-blue-900/5 transition-all duration-300 relative overflow-hidden"
                                 >
-                                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-bl-[100px] -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-brand-blue-50 rounded-bl-[100px] -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
 
                                     <div className="relative z-10 flex flex-col h-full">
                                         <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 shadow-sm">

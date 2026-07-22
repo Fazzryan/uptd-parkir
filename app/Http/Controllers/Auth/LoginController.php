@@ -28,6 +28,9 @@ class LoginController extends Controller
         $credentials = $request->validate([
             'username' => ['required', 'string'],
             'password' => ['required'],
+        ], [
+            'username.required' => 'Username harus diisi.',
+            'password.required' => 'Password harus diisi.',
         ]);
 
         // Rate limiting: max 5 percobaan per menit per kombinasi username+IP
@@ -54,7 +57,7 @@ class LoginController extends Controller
         RateLimiter::hit($throttleKey);
 
         throw ValidationException::withMessages([
-            'username' => trans('auth.failed'),
+            'username' => 'Username atau password yang Anda masukkan salah.',
         ]);
     }
 
@@ -72,4 +75,3 @@ class LoginController extends Controller
         return redirect('/');
     }
 }
-

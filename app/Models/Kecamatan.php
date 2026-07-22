@@ -5,21 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class WilayahParkir extends Model
+class Kecamatan extends Model
 {
     use HasFactory;
 
-    protected $table = 'wilayah_parkir';
-
     protected $fillable = [
-        'kecamatan_id',
-        'nama_jalan',
+        'id_kecamatan',
+        'nama_kecamatan',
         'latitude',
         'longitude',
+        'alamat',
     ];
 
-    public function kecamatan()
+    public function wilayahParkir()
     {
-        return $this->belongsTo(Kecamatan::class, 'kecamatan_id');
+        return $this->hasMany(WilayahParkir::class, 'kecamatan_id');
     }
 }

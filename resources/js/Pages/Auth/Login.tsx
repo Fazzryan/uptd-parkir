@@ -2,7 +2,7 @@ import React from "react";
 import { Head, useForm } from "@inertiajs/react";
 import TextInput from "@/Components/Form/TextInput";
 import Button from "@/Components/UI/Button";
-import { User, Lock, Shield } from "lucide-react";
+import { User, Lock, AlertCircle } from "lucide-react";
 import Card from "@/Components/UI/Card";
 
 export default function Login() {
@@ -35,7 +35,7 @@ export default function Login() {
                                 onError={(e) => {
                                     e.currentTarget.style.display = "none";
                                     e.currentTarget.nextElementSibling?.classList.remove(
-                                        "hidden",
+                                        "hidden"
                                     );
                                 }}
                             />
@@ -48,29 +48,35 @@ export default function Login() {
                         </p>
                     </div>
 
+                    {/* General Error Alert */}
+                    {(errors.username || errors.password) && (
+                        <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 dark:bg-rose-950/40 dark:border-rose-900/50 dark:text-rose-300 text-sm flex items-start gap-3 animate-in fade-in duration-300">
+                            <AlertCircle size={18} className="shrink-0 mt-0.5 text-rose-600 dark:text-rose-400" />
+                            <div className="font-medium">
+                                {errors.username || errors.password}
+                            </div>
+                        </div>
+                    )}
+
                     <form onSubmit={submit}>
-                        <div className="space-y-5">
+                        <div className="space-y-4">
                             <div>
                                 <label className="text-sm font-bold text-slate-700 dark:text-slate-300 block mb-1">
                                     Username
                                 </label>
                                 <TextInput
                                     type="text"
-                                    placeholder="username"
+                                    placeholder="Masukkan username"
                                     value={data.username}
                                     onChange={(e) =>
                                         setData("username", e.target.value)
                                     }
                                     iconLeft={<User size={18} />}
-                                    required
                                     autoFocus
+                                    error={errors.username}
+                                    containerClassName="relative w-full"
                                     className="dark:bg-slate-800 dark:border-slate-700 dark:text-white"
                                 />
-                                {errors.username && (
-                                    <p className="text-rose-500 text-xs mt-1 font-medium">
-                                        {errors.username}
-                                    </p>
-                                )}
                             </div>
 
                             <div>
@@ -85,14 +91,10 @@ export default function Login() {
                                         setData("password", e.target.value)
                                     }
                                     iconLeft={<Lock size={18} />}
-                                    required
+                                    error={errors.password}
+                                    containerClassName="relative w-full"
                                     className="dark:bg-slate-800 dark:border-slate-700 dark:text-white"
                                 />
-                                {errors.password && (
-                                    <p className="text-rose-500 text-xs mt-1 font-medium">
-                                        {errors.password}
-                                    </p>
-                                )}
                             </div>
 
                             <Button
@@ -101,7 +103,7 @@ export default function Login() {
                                 disabled={processing}
                                 className="w-full bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700 ring-blue-100 dark:ring-blue-900 !py-3 !rounded-xl shadow-lg shadow-blue-800/20 dark:shadow-none active:scale-95 space-x-2 mt-2 font-semibold tracking-wide"
                             >
-                                {processing ? "Memproses" : "Masuk"}
+                                {processing ? "Memproses..." : "Masuk"}
                             </Button>
                         </div>
                     </form>

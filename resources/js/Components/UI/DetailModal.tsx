@@ -118,7 +118,7 @@ export default function DetailModal({
                                     onClick={() => setActiveImageIndex(idx)}
                                     className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
                                         activeImageIndex === idx
-                                            ? "border-indigo-500 ring-2 ring-indigo-500/20"
+                                            ? "border-brand-blue-500 ring-2 ring-brand-blue-500/20"
                                             : "border-transparent hover:border-slate-300 dark:hover:border-slate-600"
                                     }`}
                                 >
@@ -154,7 +154,7 @@ export default function DetailModal({
                                                         {info.icon && (
                                                             <info.icon
                                                                 size={16}
-                                                                className="text-indigo-500"
+                                                                className="text-brand-blue-500"
                                                             />
                                                         )}
                                                         <span>{info.text}</span>
@@ -180,7 +180,7 @@ export default function DetailModal({
                                 {section.icon && (
                                     <section.icon
                                         size={18}
-                                        className="text-indigo-500"
+                                        className="text-brand-blue-500"
                                     />
                                 )}
                                 {section.title}
@@ -209,7 +209,7 @@ export default function DetailModal({
                                     href={`https://www.google.com/maps/search/?api=1&query=${coordinates.latitude},${coordinates.longitude}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-700 font-medium hover:underline"
+                                    className="inline-flex items-center gap-2 text-sm text-brand-blue-600 hover:text-brand-blue-700 font-medium hover:underline"
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"

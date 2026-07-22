@@ -1,26 +1,33 @@
-// resources/js/Pages/Dashboard/Index.tsx
 import React from "react";
 import MainLayout from "@/Layouts/MainLayout";
 import StatCard from "@/Components/UI/SatistikCard";
 import Card from "@/Components/UI/Card";
-import ChartLine from "@/Components/Data/Charts/ChartLine";
 import ChartBar from "@/Components/Data/Charts/ChartBar";
 import ChartPie from "@/Components/Data/Charts/ChartPie";
 import { Head } from "@inertiajs/react";
 import {
-    FileText,
-    CheckCircle,
-    Clock,
-    AlertCircle,
-    BarChart3,
+    MapPin,
+    Receipt,
+    Network,
+    Newspaper,
     LucideIcon,
-    TrendingUp,
+    BarChart3,
     PieChart as PieIcon,
 } from "lucide-react";
 
+interface StatsProps {
+    total_wilayah: number;
+    total_kecamatan: number;
+    total_panduan: number;
+    total_tarif: number;
+    total_personel: number;
+    total_galeri: number;
+    total_berita: number;
+}
+
 interface StatItem {
     title: string;
-    value: string;
+    value: string | number;
     icon: LucideIcon;
     color: string;
     className?: string;
@@ -29,202 +36,122 @@ interface StatItem {
     period?: string;
 }
 
-interface ActivityItem {
-    opd: string;
-    action: string;
-    time: string;
+interface IndexProps {
+    stats?: StatsProps;
+    barData?: any[];
+    pieData?: any[];
 }
 
-export default function Dashboard() {
-    // Data dummy untuk tampilan
-    const stats: StatItem[] = [
+export default function Dashboard({
+    stats: serverStats,
+    barData: serverBarData,
+    pieData: serverPieData,
+}: IndexProps) {
+    const totalWilayah = serverStats?.total_wilayah ?? 15;
+    const totalKecamatan = serverStats?.total_kecamatan ?? 39;
+    const totalTarif = serverStats?.total_tarif ?? 3;
+    const totalPersonel = serverStats?.total_personel ?? 6;
+    const totalGaleri = serverStats?.total_galeri ?? 6;
+    const totalBerita = serverStats?.total_berita ?? 3;
+
+    const statCards: StatItem[] = [
         {
-            title: "Total Indikator",
-            value: "47",
-            icon: FileText,
-            color: "bg-indigo-500",
-            className: "border-l-4 border-indigo-500",
+            title: "Wilayah Parkir",
+            value: totalWilayah,
+            icon: MapPin,
+            color: "bg-blue-500",
+            className: "border-l-4 border-blue-500",
             textColor: "white",
-            description: "SPBE 2025",
-            period: "Tahun 2025",
+            description: `Di ${totalKecamatan} Kecamatan`,
+            period: "Kab. Tasikmalaya",
         },
         {
-            title: "Eviden Terunggah",
-            value: "32",
-            icon: CheckCircle,
+            title: "Tarif & Karcis",
+            value: totalTarif,
+            icon: Receipt,
             color: "bg-emerald-500",
             className: "border-l-4 border-emerald-500",
             textColor: "white",
-            description: "+5 hari ini",
-            period: "Bulan Ini",
+            description: "Kategori Kendaraan",
+            period: "Perda Resmi",
         },
         {
-            title: "Menunggu Verifikasi",
-            value: "10",
-            icon: Clock,
+            title: "Personel UPTD",
+            value: totalPersonel,
+            icon: Network,
+            color: "bg-indigo-500",
+            className: "border-l-4 border-indigo-500",
+            textColor: "white",
+            description: "Pimpinan & Kolektor",
+            period: "Struktur Aktif",
+        },
+        {
+            title: "Galeri & Berita",
+            value: totalGaleri + totalBerita,
+            icon: Newspaper,
             color: "bg-amber-500",
             className: "border-l-4 border-amber-500",
             textColor: "white",
-            description: "Perlu dicek",
-            period: "Minggu Ini",
-        },
-        {
-            title: "Eviden Ditolak",
-            value: "5",
-            icon: AlertCircle,
-            color: "bg-rose-500",
-            className: "border-l-4 border-rose-500",
-            textColor: "white",
-            description: "Butuh revisi",
-            period: "Hari Ini",
+            description: `${totalGaleri} Foto / ${totalBerita} Berita`,
+            period: "Informasi Publik",
         },
     ];
 
-    // Dummy Data Charts
-    const lineData = [
-        { name: "Jan", uploaded: 12, verified: 8 },
-        { name: "Feb", uploaded: 19, verified: 15 },
-        { name: "Mar", uploaded: 35, verified: 28 },
-        { name: "Apr", uploaded: 22, verified: 20 },
-        { name: "May", uploaded: 45, verified: 40 },
-        { name: "Jun", uploaded: 38, verified: 35 },
+    const barData = serverBarData || [
+        { name: "Singaparna", doc: 4 },
+        { name: "Rajapolah", doc: 3 },
+        { name: "Manonjaya", doc: 2 },
+        { name: "Ciawi", doc: 2 },
+        { name: "Taraju", doc: 1 },
     ];
 
-    const barData = [
-        { name: "Diskominfo", doc: 45 },
-        { name: "Bappeda", doc: 32 },
-        { name: "Inspektorat", doc: 28 },
-        { name: "BKPSDM", doc: 22 },
-        { name: "Dinkes", doc: 18 },
-    ];
-
-    const pieData = [
-        { name: "Terverifikasi", value: 45, color: "#10b981" },
-        { name: "Pending", value: 30, color: "#f59e0b" },
-        { name: "Ditolak", value: 15, color: "#f43f5e" },
-    ];
-
-    const activities: ActivityItem[] = [
-        {
-            opd: "Diskominfo",
-            action: "Mengunggah Eviden Indikator 1",
-            time: "2 menit yang lalu",
-        },
-        {
-            opd: "Bappeda",
-            action: "Merevisi Dokumen Kebijakan",
-            time: "1 jam yang lalu",
-        },
-        {
-            opd: "Inspektorat",
-            action: "Memverifikasi Data",
-            time: "3 jam yang lalu",
-        },
-        {
-            opd: "Dinkes",
-            action: "Mengunggah Laporan",
-            time: "5 jam yang lalu",
-        },
-        {
-            opd: "BKPSDM",
-            action: "Login ke sistem",
-            time: "Hari ini, 08:30",
-        },
+    const pieData = serverPieData || [
+        { name: "Wilayah Parkir", value: totalWilayah, color: "#3b82f6" },
+        { name: "Personel UPTD", value: totalPersonel, color: "#10b981" },
+        { name: "Galeri & Berita", value: totalGaleri + totalBerita, color: "#f59e0b" },
     ];
 
     return (
-        <MainLayout>
+        <>
             <Head title="Dashboard" />
 
             {/* Header Dashboard */}
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
-                    Dashboard
+                    Dashboard UPTD Parkir
                 </h1>
                 <p className="text-slate-500 text-sm dark:text-slate-400">
-                    Monitoring Pengelolaan Parkir Kabupaten Tasikmalaya
+                    Monitoring Pengelolaan Retribusi & Wilayah Parkir Kabupaten Tasikmalaya
                 </p>
             </div>
 
             {/* Grid 4 Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {stats.map((stat, index) => (
-                    <StatCard key={index} {...stat} />
+                {statCards.map((item, idx) => (
+                    <StatCard key={idx} {...item} />
                 ))}
             </div>
 
-            {/* Charts Section */}
-            <div className="space-y-6">
-                {/* Row 1: Line Chart + Activities */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Line Chart (Tren Bulanan) */}
-                    <Card className="lg:col-span-2 w-full">
-                        <div className="p-6">
-                            <h3 className="font-bold text-slate-800 dark:text-slate-200">
-                                Tren Pengunggahan Dokumen
-                            </h3>
-                        </div>
-                        <ChartLine
-                            data={lineData}
-                            xKey="name"
-                            series={[
-                                {
-                                    key: "uploaded",
-                                    color: "#6366f1",
-                                    name: "Diunggah",
-                                },
-                                {
-                                    key: "verified",
-                                    color: "#10b981",
-                                    name: "Terverifikasi",
-                                },
-                            ]}
-                            height={350}
-                        />
-                    </Card>
-
-                    {/* Recent Activity */}
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:shadow-slate-700/50">
-                        <h3 className="font-bold text-slate-800 mb-6 dark:text-slate-200">
-                            Aktivitas Terakhir
-                        </h3>
-                        <div className="space-y-6">
-                            {activities.map((act, i) => (
-                                <div key={i} className="flex gap-4 relative">
-                                    {/* Timeline Line */}
-                                    {i !== activities.length - 1 && (
-                                        <div className="absolute left-[9px] top-8 bottom-[-24px] w-0.5 bg-slate-100 dark:bg-slate-700"></div>
-                                    )}
-
-                                    <div className="w-5 h-5 mt-0.5 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0 z-10 dark:bg-indigo-900/30 dark:border-indigo-800">
-                                        <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                                            {act.opd}
-                                        </p>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                                            {act.action}
-                                        </p>
-                                        <p className="text-[10px] text-slate-400 mt-1 dark:text-slate-500">
-                                            {act.time}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))}
+            {/* Charts Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                {/* Bar Chart - Top Wilayah */}
+                <Card className="lg:col-span-2 p-6 dark:bg-slate-800 dark:border-slate-700">
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl">
+                                <BarChart3 size={20} />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-slate-800 dark:text-slate-100 text-base">
+                                    Sebaran Titik Parkir Utama
+                                </h3>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                    Jumlah lokasi parkir per kecamatan
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                {/* Row 2: Bar & Pie Chart */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Bar Chart (Statistik OPD) */}
-                    <Card className="lg:col-span-2">
-                        <div className="p-6">
-                            <h3 className="font-bold text-slate-800 dark:text-slate-200">
-                                Statistik Dokumen per OPD
-                            </h3>
-                        </div>
+                    <div className="h-72">
                         <ChartBar
                             data={barData}
                             xKey="name"
@@ -232,24 +159,36 @@ export default function Dashboard() {
                                 {
                                     key: "doc",
                                     color: "#3b82f6",
-                                    name: "Total Dokumen",
+                                    name: "Jumlah Lokasi",
                                 },
                             ]}
-                            height={350}
+                            height={280}
                         />
-                    </Card>
+                    </div>
+                </Card>
 
-                    {/* Pie Chart (Status Verifikasi) */}
-                    <Card>
-                        <div className="p-6">
-                            <h3 className="font-bold text-slate-800 dark:text-slate-200">
-                                Status Verifikasi
-                            </h3>
+                {/* Pie Chart - Komposisi Data */}
+                <Card className="p-6 dark:bg-slate-800 dark:border-slate-700">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl">
+                            <PieIcon size={20} />
                         </div>
-                        <ChartPie data={pieData} height={350} />
-                    </Card>
-                </div>
+                        <div>
+                            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-base">
+                                Distribusi Konten CMS
+                            </h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                                Proporsi data terdaftar
+                            </p>
+                        </div>
+                    </div>
+                    <div className="h-72 flex items-center justify-center">
+                        <ChartPie data={pieData} />
+                    </div>
+                </Card>
             </div>
-        </MainLayout>
+        </>
     );
 }
+
+Dashboard.layout = (page: React.ReactNode) => <MainLayout>{page}</MainLayout>;

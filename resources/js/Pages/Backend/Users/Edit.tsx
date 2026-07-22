@@ -49,7 +49,7 @@ export default function Edit({ user, roles, userRoles }: EditProps) {
             <div className="flex items-center gap-4 mb-8">
                 <Link
                     href={route("be.users.index")}
-                    className="p-2 bg-white border border-slate-200 rounded-xl text-slate-500 hover:text-indigo-600 hover:border-indigo-100 transition-all shadow-sm dark:bg-slate-700 dark:border-slate-600"
+                    className="p-2 bg-white border border-slate-200 rounded-xl text-slate-500 hover:text-brand-blue-600 hover:border-brand-blue-100 transition-all shadow-sm dark:bg-slate-700 dark:border-slate-600"
                 >
                     <ChevronLeft size={20} />
                 </Link>
@@ -168,7 +168,7 @@ export default function Edit({ user, roles, userRoles }: EditProps) {
                                 type="submit"
                                 variant="primary"
                                 disabled={processing}
-                                className="shadow-lg shadow-indigo-100 dark:shadow-none"
+                                className="shadow-lg shadow-brand-blue-100 dark:shadow-none"
                             >
                                 <span>
                                     {processing ? "Menyimpan" : "Perbarui"}
@@ -197,7 +197,7 @@ export default function Edit({ user, roles, userRoles }: EditProps) {
                                         flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all dark:bg-slate-700/20 dark:border-slate-600
                                         ${
                                             data.roles.includes(role.name)
-                                                ? "border-indigo-500 bg-indigo-50/50 ring-4 ring-indigo-500/5 dark:border-indigo-600 dark:bg-indigo-50/5 dark:ring-indigo-500/5"
+                                                ? "border-brand-blue-500 bg-brand-blue-50/50 ring-4 ring-brand-blue-500/5 dark:border-brand-blue-600 dark:bg-brand-blue-50/5 dark:ring-brand-blue-500/5"
                                                 : "border-slate-100 hover:border-slate-200"
                                         }
                                     `}
@@ -205,7 +205,7 @@ export default function Edit({ user, roles, userRoles }: EditProps) {
                                     <div className="flex items-center gap-3">
                                         <input
                                             type="checkbox"
-                                            className="w-5 h-5 rounded-lg border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                            className="w-5 h-5 rounded-lg border-slate-300 text-brand-blue-600 focus:ring-brand-blue-500"
                                             checked={data.roles.includes(
                                                 role.name,
                                             )}
@@ -219,7 +219,7 @@ export default function Edit({ user, roles, userRoles }: EditProps) {
                                                     data.roles.includes(
                                                         role.name,
                                                     )
-                                                        ? "text-indigo-700"
+                                                        ? "text-brand-blue-700"
                                                         : "text-slate-700"
                                                 }`}
                                             >
@@ -241,11 +241,11 @@ export default function Edit({ user, roles, userRoles }: EditProps) {
                     </Card>
 
                     {/* Information Box */}
-                    <div className="p-6 bg-indigo-50 rounded-3xl border border-indigo-100 dark:bg-indigo-700/20 dark:border-indigo-600">
-                        <h4 className="text-sm font-bold text-indigo-800 mb-2 dark:text-indigo-200">
+                    <div className="p-6 bg-brand-blue-50 rounded-3xl border border-brand-blue-100 dark:bg-brand-blue-700/20 dark:border-brand-blue-600">
+                        <h4 className="text-sm font-bold text-brand-blue-800 mb-2 dark:text-brand-blue-200">
                             Informasi
                         </h4>
-                        <p className="text-xs text-indigo-700/80 leading-relaxed dark:text-indigo-200">
+                        <p className="text-xs text-brand-blue-700/80 leading-relaxed dark:text-brand-blue-200">
                             Password hanya perlu diisi jika Anda ingin mengganti
                             password user. Jika dibiarkan kosong, password lama
                             tetap akan digunakan.

@@ -5,16 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TarifParkirKarcis extends Model
+class GaleriFoto extends Model
 {
     use HasFactory;
 
-    protected $table = 'tarif_parkir_karcis';
+    protected $table = 'galeri_fotos';
 
     protected $fillable = [
-        'kategori_kendaraan',
-        'nominal_tarif',
-        'keterangan',
+        'kategori',
+        'caption',
+        'tanggal',
         'foto',
+    ];
+
+    protected $casts = [
+        'tanggal' => 'date:Y-m-d',
     ];
 }

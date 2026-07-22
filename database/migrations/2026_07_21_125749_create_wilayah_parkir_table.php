@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('wilayah_parkir', function (Blueprint $table) {
             $table->id();
-            $table->string('kecamatan', 50);
-            $table->string('nama_jalan', 50);
-            $table->string('latitude', 20);
-            $table->string('longitude', 20);
+            $table->foreignId('kecamatan_id')->nullable()->constrained('kecamatans')->nullOnDelete();
+            $table->string('nama_jalan');
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
             $table->timestamps();
         });
     }

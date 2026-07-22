@@ -87,7 +87,7 @@ export default function Profile({ status, auth }: ProfileProps) {
                 <div>
                     <div className="flex items-center gap-2 mb-4">
                         <UserIcon
-                            className="text-indigo-600 dark:text-indigo-400"
+                            className="text-brand-blue-600 dark:text-brand-blue-400"
                             size={20}
                         />
                         <h2 className="text-lg font-bold text-slate-700 dark:text-slate-200">
@@ -106,7 +106,7 @@ export default function Profile({ status, auth }: ProfileProps) {
                                         {data.photo ? (
                                             <img
                                                 src={URL.createObjectURL(
-                                                    data.photo
+                                                    data.photo,
                                                 )}
                                                 alt="Profile"
                                                 className="w-full h-full object-cover"
@@ -210,7 +210,7 @@ export default function Profile({ status, auth }: ProfileProps) {
                                     type="submit"
                                     variant="primary"
                                     disabled={processing}
-                                    className="shadow-lg shadow-indigo-100 dark:shadow-none"
+                                    className="shadow-lg shadow-brand-blue-100 dark:shadow-none"
                                 >
                                     <span>Simpan Profil</span>
                                 </Button>
@@ -225,7 +225,7 @@ export default function Profile({ status, auth }: ProfileProps) {
                     <div>
                         <div className="flex items-center gap-2 mb-4">
                             <Lock
-                                className="text-indigo-600 dark:text-indigo-400"
+                                className="text-brand-blue-600 dark:text-brand-blue-400"
                                 size={20}
                             />
                             <h2 className="text-lg font-bold text-slate-700 dark:text-slate-200">
@@ -247,7 +247,7 @@ export default function Profile({ status, auth }: ProfileProps) {
                                         onChange={(e) =>
                                             setPasswordData(
                                                 "current_password",
-                                                e.target.value
+                                                e.target.value,
                                             )
                                         }
                                         className="w-full"
@@ -270,7 +270,7 @@ export default function Profile({ status, auth }: ProfileProps) {
                                         onChange={(e) =>
                                             setPasswordData(
                                                 "password",
-                                                e.target.value
+                                                e.target.value,
                                             )
                                         }
                                         className="w-full"
@@ -295,7 +295,7 @@ export default function Profile({ status, auth }: ProfileProps) {
                                         onChange={(e) =>
                                             setPasswordData(
                                                 "password_confirmation",
-                                                e.target.value
+                                                e.target.value,
                                             )
                                         }
                                         className="w-full"

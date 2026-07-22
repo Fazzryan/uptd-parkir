@@ -4,23 +4,33 @@ import Card from "@/Components/UI/Card";
 import Table from "@/Components/Data/Table";
 import Button from "@/Components/UI/Button";
 import TextInput from "@/Components/Form/TextInput";
+import TextArea from "@/Components/Form/TextArea";
 import Pagination from "@/Components/Data/Pagination";
 import ConfirmationModal from "@/Components/UI/ConfirmationModal";
 import Modal from "@/Components/UI/Modal";
 import { Head, useForm, usePage, router } from "@inertiajs/react";
-import { Edit2, Trash2, Search, RotateCcw, Upload, Ticket } from "lucide-react";
-import { PaginatedData, TarifParkirKarcis } from "@/types/model";
+import {
+    Edit2,
+    Trash2,
+    Search,
+    RotateCcw,
+    Newspaper,
+    Upload,
+    Calendar,
+} from "lucide-react";
+import { PaginatedData, Berita } from "@/types/model";
 import axios from "axios";
 
 interface IndexProps {
-    tarif: PaginatedData<TarifParkirKarcis>;
+    berita: PaginatedData<Berita>;
     filters: {
         search?: string;
+        kategori?: string;
         per_page?: number | string;
     };
 }
 
-export default function Index({ tarif, filters }: IndexProps) {
+export default function Index({ berita, filters }: IndexProps) {
     const auth = usePage<any>().props.auth || {};
     const permissions: string[] = auth.permissions || [];
     const roles: string[] = auth.roles || [];
@@ -29,28 +39,27 @@ export default function Index({ tarif, filters }: IndexProps) {
         roles.includes("admin") ||
         roles.includes("user") ||
         permissions.length === 0 ||
-        permissions.includes("edit-tarif-parkir");
+        permissions.includes("edit-berita");
 
     const canDelete =
         roles.includes("admin") ||
         roles.includes("user") ||
         permissions.length === 0 ||
-        permissions.includes("delete-tarif-parkir");
+        permissions.includes("delete-berita");
 
-    const [localTarif, setLocalTarif] =
-        useState<PaginatedData<TarifParkirKarcis>>(tarif);
+    const [localBerita, setLocalBerita] = useState<PaginatedData<Berita>>(berita);
     const [search, setSearch] = useState(filters.search || "");
+    const [kategoriFilter, setKategoriFilter] = useState(filters.kategori || "Semua");
     const [perPage, setPerPage] = useState(filters.per_page || 10);
 
     useEffect(() => {
-        setLocalTarif(tarif);
-    }, [tarif]);
+        setLocalBerita(berita);
+    }, [berita]);
 
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
-    const [selectedTarif, setSelectedTarif] =
-        useState<TarifParkirKarcis | null>(null);
+    const [selectedBerita, setSelectedBerita] = useState<Berita | null>(null);
 
     // Image Preview State
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -58,42 +67,43 @@ export default function Index({ tarif, filters }: IndexProps) {
 
     // Confirmation Modal State
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [itemToDelete, setItemToDelete] = useState<TarifParkirKarcis | null>(
-        null,
-    );
+    const [itemToDelete, setItemToDelete] = useState<Berita | null>(null);
 
     // Form Hook
-    const { data, setData, post, processing, errors, reset, clearErrors } =
-        useForm<{
-            kategori_kendaraan: string;
-            nominal_tarif: number | string;
-            keterangan: string;
-            foto: File | null;
-            _method?: string;
-        }>({
-            kategori_kendaraan: "",
-            nominal_tarif: "",
-            keterangan: "",
-            foto: null,
-        });
+    const {
+        data,
+        setData,
+        post,
+        processing,
+        errors,
+        reset,
+        clearErrors,
+    } = useForm<{
+        judul: string;
+        kategori: string;
+        tanggal: string;
+        ringkasan: string;
+        isi: string;
+        foto: File | null;
+        _method?: string;
+    }>({
+        judul: "",
+        kategori: "Penertiban",
+        tanggal: new Date().toISOString().split("T")[0],
+        ringkasan: "",
+        isi: "",
+        foto: null,
+    });
 
     const [isLoading, setIsLoading] = useState(false);
     const isFirstRender = useRef(true);
-
-    const formatRupiah = (amount: number) => {
-        return new Intl.NumberFormat("id-ID", {
-            style: "currency",
-            currency: "IDR",
-            minimumFractionDigits: 0,
-        }).format(amount);
-    };
 
     const fetchData = (url: string, params: any = {}) => {
         setIsLoading(true);
         axios
             .get(url, { params, headers: { Accept: "application/json" } })
             .then((res) => {
-                setLocalTarif(res.data);
+                setLocalBerita(res.data);
             })
             .catch((err) => console.error("Error fetching data:", err))
             .finally(() => setIsLoading(false));
@@ -107,31 +117,34 @@ export default function Index({ tarif, filters }: IndexProps) {
         }
 
         const timeout = setTimeout(() => {
-            fetchData(route("be.tarif-parkir.index"), {
+            fetchData(route("be.berita.index"), {
                 search,
+                kategori: kategoriFilter,
                 per_page: perPage,
             });
         }, 300);
         return () => clearTimeout(timeout);
-    }, [search, perPage]);
+    }, [search, kategoriFilter, perPage]);
 
     // Handlers
     const openCreateModal = () => {
         setIsEditMode(false);
-        setSelectedTarif(null);
+        setSelectedBerita(null);
         setPreviewUrl(null);
         reset();
         clearErrors();
         setIsModalOpen(true);
     };
 
-    const openEditModal = (item: TarifParkirKarcis) => {
+    const openEditModal = (item: Berita) => {
         setIsEditMode(true);
-        setSelectedTarif(item);
+        setSelectedBerita(item);
         setData({
-            kategori_kendaraan: item.kategori_kendaraan,
-            nominal_tarif: item.nominal_tarif,
-            keterangan: item.keterangan || "",
+            judul: item.judul,
+            kategori: item.kategori,
+            tanggal: item.tanggal ? String(item.tanggal).split("T")[0] : new Date().toISOString().split("T")[0],
+            ringkasan: item.ringkasan || "",
+            isi: item.isi || "",
             foto: null,
         });
         setPreviewUrl(item.foto ? `/storage/${item.foto}` : null);
@@ -145,7 +158,7 @@ export default function Index({ tarif, filters }: IndexProps) {
         reset();
     };
 
-    const openDeleteModal = (item: TarifParkirKarcis) => {
+    const openDeleteModal = (item: Berita) => {
         setItemToDelete(item);
         setShowDeleteModal(true);
     };
@@ -153,7 +166,7 @@ export default function Index({ tarif, filters }: IndexProps) {
     const handleDelete = () => {
         if (!itemToDelete) return;
 
-        router.delete(route("be.tarif-parkir.destroy", itemToDelete.id), {
+        router.delete(route("be.berita.destroy", itemToDelete.id), {
             onSuccess: () => {
                 setShowDeleteModal(false);
                 setItemToDelete(null);
@@ -171,22 +184,24 @@ export default function Index({ tarif, filters }: IndexProps) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (isEditMode && selectedTarif) {
+        if (isEditMode && selectedBerita) {
             router.post(
-                route("be.tarif-parkir.update", selectedTarif.id),
+                route("be.berita.update", selectedBerita.id),
                 {
                     _method: "put",
-                    kategori_kendaraan: data.kategori_kendaraan,
-                    nominal_tarif: data.nominal_tarif,
-                    keterangan: data.keterangan,
+                    judul: data.judul,
+                    kategori: data.kategori,
+                    tanggal: data.tanggal,
+                    ringkasan: data.ringkasan,
+                    isi: data.isi,
                     foto: data.foto,
                 },
                 {
                     onSuccess: () => closeModal(),
-                },
+                }
             );
         } else {
-            post(route("be.tarif-parkir.store"), {
+            post(route("be.berita.store"), {
                 onSuccess: () => closeModal(),
             });
         }
@@ -194,21 +209,22 @@ export default function Index({ tarif, filters }: IndexProps) {
 
     const handleResetFilter = () => {
         setSearch("");
+        setKategoriFilter("Semua");
         setPerPage(10);
     };
 
     return (
         <>
-            <Head title="Manajemen Tarif Parkir & Karcis" />
+            <Head title="Manajemen Berita & Pengumuman" />
 
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-800 tracking-tight dark:text-slate-200">
-                        Manajemen Tarif Parkir & Karcis
+                        Manajemen Berita & Pengumuman
                     </h1>
                     <p className="text-sm text-slate-500 dark:text-slate-400">
-                        Kelola data tarif retribusi dan contoh karcis resmi UPTD
+                        Kelola publikasi berita resmi, pengumuman, dan informasi UPTD
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -217,7 +233,7 @@ export default function Index({ tarif, filters }: IndexProps) {
                         onClick={openCreateModal}
                         className="shadow-lg shadow-brand-blue-100 dark:shadow-none"
                     >
-                        <span>Tambah Tarif / Karcis</span>
+                        <span>Tambah Berita / Pengumuman</span>
                     </Button>
                 </div>
             </div>
@@ -230,14 +246,28 @@ export default function Index({ tarif, filters }: IndexProps) {
                             iconLeft={<Search size={18} />}
                             className="w-full font-medium dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600"
                             containerClassName="relative w-full"
-                            placeholder="Cari kategori / tarif..."
+                            placeholder="Cari judul berita..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
 
+                    {/* Filter Kategori */}
+                    <div className="w-full md:w-56">
+                        <select
+                            value={kategoriFilter}
+                            onChange={(e) => setKategoriFilter(e.target.value)}
+                            className="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl py-2.5 px-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none cursor-pointer dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600"
+                        >
+                            <option value="Semua">Semua Kategori</option>
+                            <option value="Penertiban">Penertiban</option>
+                            <option value="Pengumuman">Pengumuman</option>
+                            <option value="Sosialisasi">Sosialisasi</option>
+                        </select>
+                    </div>
+
                     {/* Reset Button */}
-                    {search && (
+                    {(search || kategoriFilter !== "Semua") && (
                         <Button
                             variant="danger"
                             onClick={handleResetFilter}
@@ -258,60 +288,70 @@ export default function Index({ tarif, filters }: IndexProps) {
                             className:
                                 "text-center text-sm font-medium text-slate-400 dark:text-slate-200 w-16",
                             headerClassName: "text-center w-16",
-                            render: (_: TarifParkirKarcis, index: number) =>
-                                (localTarif.current_page - 1) *
-                                    localTarif.per_page +
+                            render: (_: Berita, index: number) =>
+                                (localBerita.current_page - 1) * localBerita.per_page +
                                 index +
                                 1,
                         },
                         {
-                            header: "Foto Karcis",
+                            header: "Gambar Header",
                             className: "w-32 text-center",
                             headerClassName: "text-center w-32",
-                            render: (item: TarifParkirKarcis) => (
+                            render: (item: Berita) => (
                                 <div className="flex items-center justify-center">
                                     {item.foto ? (
                                         <img
                                             src={`/storage/${item.foto}`}
-                                            alt={item.kategori_kendaraan}
-                                            className="h-14 w-14 object-cover rounded-xl border border-slate-200 shadow-sm dark:border-slate-700"
+                                            alt={item.judul}
+                                            className="h-14 w-20 object-cover rounded-xl border border-slate-200 shadow-sm dark:border-slate-700"
                                         />
                                     ) : (
-                                        <div className="h-14 w-14 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400">
-                                            <Ticket size={20} />
+                                        <div className="h-14 w-20 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400">
+                                            <Newspaper size={20} />
                                         </div>
                                     )}
                                 </div>
                             ),
                         },
                         {
-                            header: "Kategori Kendaraan",
+                            header: "Judul & Ringkasan",
                             className:
-                                "text-slate-800 font-bold dark:text-slate-200",
-                            render: (item: TarifParkirKarcis) =>
-                                item.kategori_kendaraan,
+                                "text-slate-800 dark:text-slate-200 max-w-md",
+                            render: (item: Berita) => (
+                                <div>
+                                    <p className="font-bold text-slate-800 dark:text-slate-200 line-clamp-1">
+                                        {item.judul}
+                                    </p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5">
+                                        {item.ringkasan || "-"}
+                                    </p>
+                                </div>
+                            ),
                         },
                         {
-                            header: "Nominal Tarif",
-                            className: "w-44",
-                            render: (item: TarifParkirKarcis) => (
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-extrabold bg-brand-blue-50 text-brand-blue-700 dark:bg-brand-blue-900/40 dark:text-brand-blue-300">
-                                    {formatRupiah(item.nominal_tarif)}
+                            header: "Kategori",
+                            className: "w-40",
+                            render: (item: Berita) => (
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                                    {item.kategori}
                                 </span>
                             ),
                         },
                         {
-                            header: "Keterangan",
-                            className:
-                                "text-slate-600 dark:text-slate-300 text-sm",
-                            render: (item: TarifParkirKarcis) =>
-                                item.keterangan || "-",
+                            header: "Tanggal Publikasi",
+                            className: "text-slate-600 dark:text-slate-300 text-sm w-44",
+                            render: (item: Berita) => (
+                                <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                                    <Calendar size={14} className="text-slate-400" />
+                                    <span>{String(item.tanggal).split("T")[0]}</span>
+                                </div>
+                            ),
                         },
                         {
                             header: "Aksi",
                             headerClassName: "text-center w-32",
                             className: "text-center",
-                            render: (item: TarifParkirKarcis) => (
+                            render: (item: Berita) => (
                                 <div className="flex items-center justify-center gap-2">
                                     {canEdit && (
                                         <button
@@ -323,9 +363,7 @@ export default function Index({ tarif, filters }: IndexProps) {
                                     )}
                                     {canDelete && (
                                         <button
-                                            onClick={() =>
-                                                openDeleteModal(item)
-                                            }
+                                            onClick={() => openDeleteModal(item)}
                                             className="p-2.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl active:scale-90 transition-all cursor-pointer dark:hover:bg-slate-700 dark:hover:text-rose-400"
                                         >
                                             <Trash2 size={16} />
@@ -335,7 +373,7 @@ export default function Index({ tarif, filters }: IndexProps) {
                             ),
                         },
                     ]}
-                    data={localTarif.data}
+                    data={localBerita.data}
                 />
 
                 {/* Pagination Section */}
@@ -344,15 +382,15 @@ export default function Index({ tarif, filters }: IndexProps) {
                     <p className="text-sm text-slate-500 dark:text-slate-200">
                         Menampilkan{" "}
                         <span className="font-bold text-slate-800 dark:text-slate-200">
-                            {localTarif.from ?? 0}
+                            {localBerita.from ?? 0}
                         </span>{" "}
                         sampai{" "}
                         <span className="font-bold text-slate-800 dark:text-slate-200">
-                            {localTarif.to ?? 0}
+                            {localBerita.to ?? 0}
                         </span>{" "}
                         dari{" "}
                         <span className="font-bold text-slate-800 dark:text-slate-200">
-                            {localTarif.total}
+                            {localBerita.total}
                         </span>{" "}
                         data
                     </p>
@@ -362,9 +400,7 @@ export default function Index({ tarif, filters }: IndexProps) {
                         <span>Tampilkan</span>
                         <select
                             value={perPage}
-                            onChange={(e) =>
-                                setPerPage(parseInt(e.target.value))
-                            }
+                            onChange={(e) => setPerPage(parseInt(e.target.value))}
                             className="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-3 focus:ring-brand-green-500/10 focus:border-brand-green-500 block py-1.5 px-3 transition-all outline-none cursor-pointer dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600"
                         >
                             <option value="5">5</option>
@@ -377,7 +413,7 @@ export default function Index({ tarif, filters }: IndexProps) {
 
                     {/* Kanan: Pagination */}
                     <Pagination
-                        links={localTarif.links}
+                        links={localBerita.links}
                         onPageChange={(url) => fetchData(url)}
                     />
                 </div>
@@ -387,10 +423,8 @@ export default function Index({ tarif, filters }: IndexProps) {
             <Modal
                 show={isModalOpen}
                 onClose={closeModal}
-                title={
-                    isEditMode ? "Edit Tarif & Karcis" : "Tambah Tarif & Karcis"
-                }
-                maxWidth="xl"
+                title={isEditMode ? "Edit Berita / Pengumuman" : "Tambah Berita / Pengumuman"}
+                maxWidth="2xl"
                 footer={
                     <>
                         <Button
@@ -413,70 +447,91 @@ export default function Index({ tarif, filters }: IndexProps) {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300">
-                            Kategori Kendaraan
+                            Judul Berita / Pengumuman
                         </label>
                         <TextInput
                             type="text"
-                            placeholder="Contoh: Sepeda Motor (Roda 2)"
-                            value={data.kategori_kendaraan}
-                            onChange={(e) =>
-                                setData("kategori_kendaraan", e.target.value)
-                            }
+                            placeholder="Contoh: Penertiban jukir tidak berseragam di kawasan Alun-alun Singaparna"
+                            value={data.judul}
+                            onChange={(e) => setData("judul", e.target.value)}
                             className="w-full text-sm"
-                            error={errors.kategori_kendaraan}
+                            error={errors.judul}
                         />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300">
-                                Nominal Tarif (Rp)
+                                Kategori
                             </label>
-                            <TextInput
-                                type="number"
-                                placeholder="Contoh: 2000"
-                                value={data.nominal_tarif}
-                                onChange={(e) =>
-                                    setData("nominal_tarif", e.target.value)
-                                }
-                                className="w-full text-sm"
-                                error={errors.nominal_tarif}
-                            />
+                            <select
+                                value={data.kategori}
+                                onChange={(e) => setData("kategori", e.target.value)}
+                                className="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none cursor-pointer dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600"
+                            >
+                                <option value="Penertiban">Penertiban</option>
+                                <option value="Pengumuman">Pengumuman</option>
+                                <option value="Sosialisasi">Sosialisasi</option>
+                            </select>
+                            {errors.kategori && (
+                                <p className="text-xs text-rose-500 mt-1">{errors.kategori}</p>
+                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300">
-                                Keterangan / Satuan
+                                Tanggal Publikasi
                             </label>
                             <TextInput
-                                type="text"
-                                placeholder="Contoh: / sekali parkir"
-                                value={data.keterangan}
-                                onChange={(e) =>
-                                    setData("keterangan", e.target.value)
-                                }
+                                type="date"
+                                value={data.tanggal}
+                                onChange={(e) => setData("tanggal", e.target.value)}
                                 className="w-full text-sm"
-                                error={errors.keterangan}
+                                error={errors.tanggal}
                             />
                         </div>
                     </div>
 
                     <div>
+                        <TextArea
+                            label="Ringkasan Berita"
+                            rows={2}
+                            placeholder="Ringkasan singkat yang akan tampil pada kartu berita di frontend..."
+                            value={data.ringkasan}
+                            onChange={(e) => setData("ringkasan", e.target.value)}
+                            error={errors.ringkasan}
+                            containerClassName="relative w-full"
+                            variant="primary"
+                        />
+                    </div>
+
+                    <div>
+                        <TextArea
+                            label="Isi Berita Lengkap"
+                            rows={5}
+                            placeholder="Tuliskan isi berita atau pengumuman secara lengkap di sini..."
+                            value={data.isi}
+                            onChange={(e) => setData("isi", e.target.value)}
+                            error={errors.isi}
+                            containerClassName="relative w-full"
+                            variant="primary"
+                        />
+                    </div>
+
+                    <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300">
-                            Foto Karcis Resmi
+                            Gambar / Foto Header Berita
                         </label>
                         <div className="flex items-center gap-4">
                             {previewUrl ? (
                                 <img
                                     src={previewUrl}
-                                    alt="Preview Karcis"
-                                    className="h-20 w-20 object-cover rounded-xl border border-slate-200 shadow-sm dark:border-slate-700"
+                                    alt="Preview"
+                                    className="h-20 w-28 object-cover rounded-xl border border-slate-200 shadow-sm dark:border-slate-700"
                                 />
                             ) : (
-                                <div className="h-20 w-20 rounded-xl bg-slate-100 dark:bg-slate-700 flex flex-col items-center justify-center text-slate-400 border border-dashed border-slate-300 dark:border-slate-600">
-                                    <Ticket size={24} />
-                                    <span className="text-[10px] mt-1">
-                                        Preview
-                                    </span>
+                                <div className="h-20 w-28 rounded-xl bg-slate-100 dark:bg-slate-700 flex flex-col items-center justify-center text-slate-400 border border-dashed border-slate-300 dark:border-slate-600">
+                                    <Newspaper size={24} />
+                                    <span className="text-[10px] mt-1">Preview</span>
                                 </div>
                             )}
 
@@ -491,13 +546,11 @@ export default function Index({ tarif, filters }: IndexProps) {
                                 <Button
                                     type="button"
                                     variant="secondary"
-                                    onClick={() =>
-                                        fileInputRef.current?.click()
-                                    }
+                                    onClick={() => fileInputRef.current?.click()}
                                     className="flex items-center gap-2"
                                 >
                                     <Upload size={16} />
-                                    <span>Pilih Foto Karcis</span>
+                                    <span>Pilih Gambar</span>
                                 </Button>
                                 <p className="text-xs text-slate-400 mt-1">
                                     Format: JPG, PNG, WEBP. Maks: 2MB.
@@ -505,9 +558,7 @@ export default function Index({ tarif, filters }: IndexProps) {
                             </div>
                         </div>
                         {errors.foto && (
-                            <p className="text-xs text-rose-500 mt-1">
-                                {errors.foto}
-                            </p>
+                            <p className="text-xs text-rose-500 mt-1">{errors.foto}</p>
                         )}
                     </div>
                 </form>
@@ -517,8 +568,8 @@ export default function Index({ tarif, filters }: IndexProps) {
             <ConfirmationModal
                 show={showDeleteModal}
                 processing={processing}
-                title="Hapus Tarif & Karcis"
-                message={`Apakah Anda yakin ingin menghapus data tarif "${itemToDelete?.kategori_kendaraan}"? Tindakan ini tidak dapat dibatalkan.`}
+                title="Hapus Berita"
+                message={`Apakah Anda yakin ingin menghapus berita "${itemToDelete?.judul}"? Tindakan ini tidak dapat dibatalkan.`}
                 onConfirm={handleDelete}
                 onCancel={() => setShowDeleteModal(false)}
             />

@@ -6,21 +6,32 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\WilayahParkir;
+use App\Models\Kecamatan;
 
 class WilayahParkirController extends Controller
 {
     public function index()
     {
-        $query = WilayahParkir::query();
+        $query = WilayahParkir::query()->with('kecamatan');
 
-        if (request('search')) {
-            $query->where('nama_jalan', 'like', '%' . request('search') . '%')
-            ->orWhere('kecamatan', 'like', '%' . request('search') . '%');
+        if ($search = request('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_jalan', 'like', '%' . $search . '%')
+                  ->orWhereHas('kecamatan', function ($k) use ($search) {
+                      $k->where('nama_kecamatan', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        if ($kecamatanId = request('kecamatan_id')) {
+            $query->where('kecamatan_id', $kecamatanId);
         }
 
         $wilayah = $query
             ->paginate(request('per_page', 10))
             ->withQueryString();
+
+        $kecamatanList = Kecamatan::orderBy('nama_kecamatan', 'asc')->get();
 
         if (request()->wantsJson()) {
             return response()->json($wilayah);
@@ -28,29 +39,24 @@ class WilayahParkirController extends Controller
         
         return Inertia::render('Backend/WilayahParkir/Index', [
             'wilayah' => $wilayah,
-            'filters' => request()->only(['search', 'per_page']),
+            'kecamatanList' => $kecamatanList,
+            'filters' => request()->only(['search', 'kecamatan_id', 'per_page']),
         ]);
     }
     
     public function store(Request $request) {
         $validated = $request->validate([
-            'kecamatan' => 'required|string|max:255',
+            'kecamatan_id' => 'required|exists:kecamatans,id',
             'nama_jalan' => 'required|string|max:255',
             'latitude' => 'required|string|max:255',
             'longitude' => 'required|string|max:255',
         ], [
-            'kecamatan.required' => 'Kecamatan harus diisi.',
-            'kecamatan.string' => 'Kecamatan harus berupa string.',
-            'kecamatan.max' => 'Kecamatan maksimal 255 karakter.',
+            'kecamatan_id.required' => 'Kecamatan harus dipilih.',
+            'kecamatan_id.exists' => 'Kecamatan yang dipilih tidak valid.',
             'nama_jalan.required' => 'Nama jalan harus diisi.',
-            'nama_jalan.string' => 'Nama jalan harus berupa string.',
             'nama_jalan.max' => 'Nama jalan maksimal 255 karakter.',
             'latitude.required' => 'Latitude harus diisi.',
-            'latitude.string' => 'Latitude harus berupa string.',
-            'latitude.max' => 'Latitude maksimal 255 karakter.',
             'longitude.required' => 'Longitude harus diisi.',
-            'longitude.string' => 'Longitude harus berupa string.',
-            'longitude.max' => 'Longitude maksimal 255 karakter.',
         ]);
 
         WilayahParkir::create($validated);
@@ -58,35 +64,28 @@ class WilayahParkirController extends Controller
         return redirect()->back()->with('success', 'Wilayah parkir berhasil ditambahkan.');
     }
 
-    public function update(Request $request, WilayahParkir $wilayah) {
+    public function update(Request $request, WilayahParkir $wilayah_parkir) {
         $validated = $request->validate([
-            'kecamatan' => 'required|string|unique:wilayah_parkir,kecamatan,' . $wilayah->id . '|max:255',
+            'kecamatan_id' => 'required|exists:kecamatans,id',
             'nama_jalan' => 'required|string|max:255',
             'latitude' => 'required|string|max:255',
             'longitude' => 'required|string|max:255',
         ], [
-            'kecamatan.required' => 'Kecamatan harus diisi.',
-            'kecamatan.string' => 'Kecamatan harus berupa string.',
-            'kecamatan.unique' => 'Kecamatan sudah ada.',
-            'kecamatan.max' => 'Kecamatan maksimal 255 karakter.',
+            'kecamatan_id.required' => 'Kecamatan harus dipilih.',
+            'kecamatan_id.exists' => 'Kecamatan yang dipilih tidak valid.',
             'nama_jalan.required' => 'Nama jalan harus diisi.',
-            'nama_jalan.string' => 'Nama jalan harus berupa string.',
             'nama_jalan.max' => 'Nama jalan maksimal 255 karakter.',
             'latitude.required' => 'Latitude harus diisi.',
-            'latitude.string' => 'Latitude harus berupa string.',
-            'latitude.max' => 'Latitude maksimal 255 karakter.',
             'longitude.required' => 'Longitude harus diisi.',
-            'longitude.string' => 'Longitude harus berupa string.',
-            'longitude.max' => 'Longitude maksimal 255 karakter.',
         ]);
 
-        $wilayah->update($validated);
+        $wilayah_parkir->update($validated);
 
         return redirect()->back()->with('success', 'Wilayah parkir berhasil diperbarui.');
     }
 
-    public function destroy(WilayahParkir $wilayah) {
-        $wilayah->delete();
+    public function destroy(WilayahParkir $wilayah_parkir) {
+        $wilayah_parkir->delete();
 
         return redirect()->back()->with('success', 'Wilayah parkir berhasil dihapus.');
     }

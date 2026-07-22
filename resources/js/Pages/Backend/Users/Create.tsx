@@ -47,7 +47,7 @@ export default function Create({ roles }: CreateProps) {
             <div className="flex items-center gap-4 mb-8">
                 <Link
                     href={route("be.users.index")}
-                    className="p-2 bg-white border border-slate-200 rounded-xl text-slate-500 hover:text-indigo-600 hover:border-indigo-100 transition-all shadow-sm dark:bg-slate-700 dark:border-slate-600"
+                    className="p-2 bg-white border border-slate-200 rounded-xl text-slate-500 hover:text-brand-blue-600 hover:border-brand-blue-100 transition-all shadow-sm dark:bg-slate-700 dark:border-slate-600"
                 >
                     <ArrowLeft size={20} />
                 </Link>
@@ -167,7 +167,7 @@ export default function Create({ roles }: CreateProps) {
                                 type="submit"
                                 variant="primary"
                                 disabled={processing}
-                                className="shadow-lg shadow-indigo-100 dark:shadow-none"
+                                className="shadow-lg shadow-brand-blue-100 dark:shadow-none"
                             >
                                 <span>
                                     {processing ? "Menyimpan" : "Simpan"}
@@ -196,7 +196,7 @@ export default function Create({ roles }: CreateProps) {
                                         flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all dark:bg-slate-700/20 dark:border-slate-600
                                         ${
                                             data.roles.includes(role.name)
-                                                ? "border-indigo-500 bg-indigo-50/50 ring-4 ring-indigo-500/5"
+                                                ? "border-brand-blue-500 bg-brand-blue-50/50 ring-4 ring-brand-blue-500/5"
                                                 : "border-slate-100 hover:border-slate-200"
                                         }
                                     `}
@@ -204,7 +204,7 @@ export default function Create({ roles }: CreateProps) {
                                     <div className="flex items-center gap-3">
                                         <input
                                             type="checkbox"
-                                            className="w-5 h-5 rounded-lg border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:text-indigo-600 dark:focus:ring-indigo-500"
+                                            className="w-5 h-5 rounded-lg border-slate-300 text-brand-blue-600 focus:ring-brand-blue-500 dark:border-slate-600 dark:text-brand-blue-600 dark:focus:ring-brand-blue-500"
                                             checked={data.roles.includes(
                                                 role.name,
                                             )}
@@ -218,7 +218,7 @@ export default function Create({ roles }: CreateProps) {
                                                     data.roles.includes(
                                                         role.name,
                                                     )
-                                                        ? "text-indigo-700 dark:text-indigo-600"
+                                                        ? "text-brand-blue-700 dark:text-brand-blue-600"
                                                         : "text-slate-700 dark:text-slate-600"
                                                 }`}
                                             >

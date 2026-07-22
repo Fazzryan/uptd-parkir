@@ -60,7 +60,7 @@ export default function App({ settings }: AppProps) {
                 <div>
                     <div className="flex items-center gap-2 mb-4">
                         <AppWindow
-                            className="text-indigo-600 dark:text-indigo-400"
+                            className="text-brand-blue-600 dark:text-brand-blue-400"
                             size={20}
                         />
                         <h2 className="text-lg font-bold text-slate-700 dark:text-slate-200">
@@ -75,7 +75,7 @@ export default function App({ settings }: AppProps) {
                                     Logo Aplikasi
                                 </label>
                                 <div
-                                    className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-500/50 transition-colors"
+                                    className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-brand-blue-200 dark:hover:border-brand-blue-500/50 transition-colors"
                                     onClick={() => logoInput.current?.click()}
                                 >
                                     {previewLogo ? (
@@ -87,7 +87,7 @@ export default function App({ settings }: AppProps) {
                                             />
                                         </div>
                                     ) : (
-                                        <div className="w-12 h-12 bg-indigo-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-indigo-500 dark:text-indigo-400 mb-3 mx-auto">
+                                        <div className="w-12 h-12 bg-brand-blue-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-brand-blue-500 dark:text-brand-blue-400 mb-3 mx-auto">
                                             <Upload size={20} />
                                         </div>
                                     )}
@@ -181,7 +181,7 @@ export default function App({ settings }: AppProps) {
                                     type="submit"
                                     variant="primary"
                                     disabled={processing}
-                                    className="shadow-lg shadow-indigo-100 dark:shadow-none"
+                                    className="shadow-lg shadow-brand-blue-100 dark:shadow-none"
                                 >
                                     {/* <Save size={18} /> */}
                                     <span>Simpan Konfigurasi</span>
@@ -194,7 +194,7 @@ export default function App({ settings }: AppProps) {
                 <div>
                     <div className="flex items-center gap-2 mb-4">
                         <Palette
-                            className="text-indigo-600 dark:text-indigo-400"
+                            className="text-brand-blue-600 dark:text-brand-blue-400"
                             size={20}
                         />
                         <h2 className="text-lg font-bold text-slate-700 dark:text-slate-200">
@@ -217,7 +217,7 @@ export default function App({ settings }: AppProps) {
                                 </div>
                                 <div className="space-y-2">
                                     <div
-                                        className="h-8 rounded-lg bg-indigo-50 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 px-3 flex items-center font-bold text-xs"
+                                        className="h-8 rounded-lg bg-brand-blue-50 dark:bg-slate-800 text-brand-blue-600 dark:text-brand-blue-400 px-3 flex items-center font-bold text-xs"
                                         style={{
                                             color: data.primary_color,
                                             backgroundColor: `${data.primary_color}1a`,
@@ -240,7 +240,7 @@ export default function App({ settings }: AppProps) {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div
-                                        className="h-24 bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 border-t-4 border-indigo-500"
+                                        className="h-24 bg-white dark:bg-slate-900 rounded-xl shadow-sm p-4 border-t-4 border-brand-blue-500"
                                         style={{
                                             borderColor: data.primary_color,
                                         }}

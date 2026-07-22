@@ -61,7 +61,7 @@ export default function TextInput({
                 <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:text-indigo-600 transition-colors flex items-center cursor-pointer"
+                    className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:text-brand-blue-600 transition-colors flex items-center cursor-pointer"
                 >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>

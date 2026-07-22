@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('file_eviden', function (Blueprint $table) {
+        Schema::create('kecamatans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('eviden_id')->constrained('eviden')->onDelete('cascade');
-            $table->string('file_path');
-            $table->string('file_type'); // Changed enum to string for flexibility or use specific enum if strict
-            $table->string('original_name');
+            $table->string('id_kecamatan')->nullable()->unique();
+            $table->string('nama_kecamatan');
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
+            $table->text('alamat')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('file_eviden');
+        Schema::dropIfExists('kecamatans');
     }
 };

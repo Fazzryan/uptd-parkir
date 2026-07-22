@@ -81,10 +81,13 @@ export default function SelectSearch({
     };
 
     const selectedVariants: Record<SelectVariant, string> = {
-        primary: "bg-brand-blue-50 text-brand-blue-700 dark:bg-brand-blue-900/20 dark:text-brand-blue-400",
-        success: "bg-brand-green-50 text-brand-green-700 dark:bg-brand-green-900/20 dark:text-brand-green-400",
+        primary:
+            "bg-brand-blue-50 text-brand-blue-700 dark:bg-brand-blue-900/20 dark:text-brand-blue-400",
+        success:
+            "bg-brand-green-50 text-brand-green-700 dark:bg-brand-green-900/20 dark:text-brand-green-400",
         danger: "bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400",
-        warning: "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400",
+        warning:
+            "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400",
     };
 
     const searchFocusVariants: Record<SelectVariant, string> = {
@@ -97,7 +100,7 @@ export default function SelectSearch({
     return (
         <div className={`relative w-full ${className}`} ref={wrapperRef}>
             {label && (
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     {label}
                 </label>
             )}
@@ -125,7 +128,7 @@ export default function SelectSearch({
                     <div className="flex items-center gap-2 overflow-hidden">
                         {/* Selected Value or Placeholder */}
                         <span
-                            className={`block truncate ${!selectedOption ? "text-slate-500 dark:text-slate-400" : "text-slate-900 dark:text-slate-200"}`}
+                            className={`block truncate text-sm ${!selectedOption ? "text-slate-500 dark:text-slate-400" : "text-slate-900 dark:text-slate-200"}`}
                         >
                             {selectedOption
                                 ? selectedOption.label

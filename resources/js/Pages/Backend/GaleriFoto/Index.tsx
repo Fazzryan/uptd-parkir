@@ -7,30 +7,29 @@ import TextInput from "@/Components/Form/TextInput";
 import Pagination from "@/Components/Data/Pagination";
 import ConfirmationModal from "@/Components/UI/ConfirmationModal";
 import Modal from "@/Components/UI/Modal";
-import SelectSearch from "@/Components/Form/SelectSearch";
 import { Head, useForm, usePage, router } from "@inertiajs/react";
 import {
     Edit2,
     Trash2,
     Search,
-    MapPin,
     RotateCcw,
-    ExternalLink,
+    Image as ImageIcon,
+    Upload,
+    Calendar,
 } from "lucide-react";
-import { PaginatedData, WilayahParkir, Kecamatan } from "@/types/model";
+import { PaginatedData, GaleriFoto } from "@/types/model";
 import axios from "axios";
 
 interface IndexProps {
-    wilayah: PaginatedData<WilayahParkir>;
-    kecamatanList: Kecamatan[];
+    galeri: PaginatedData<GaleriFoto>;
     filters: {
         search?: string;
-        kecamatan_id?: number | string;
+        kategori?: string;
         per_page?: number | string;
     };
 }
 
-export default function Index({ wilayah, kecamatanList = [], filters }: IndexProps) {
+export default function Index({ galeri, filters }: IndexProps) {
     const auth = usePage<any>().props.auth || {};
     const permissions: string[] = auth.permissions || [];
     const roles: string[] = auth.roles || [];
@@ -39,53 +38,56 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
         roles.includes("admin") ||
         roles.includes("user") ||
         permissions.length === 0 ||
-        permissions.includes("edit-wilayah-parkir");
+        permissions.includes("edit-galeri-foto");
 
     const canDelete =
         roles.includes("admin") ||
         roles.includes("user") ||
         permissions.length === 0 ||
-        permissions.includes("delete-wilayah-parkir");
+        permissions.includes("delete-galeri-foto");
 
-    const [localWilayah, setLocalWilayah] = useState<PaginatedData<WilayahParkir>>(wilayah);
+    const [localGaleri, setLocalGaleri] = useState<PaginatedData<GaleriFoto>>(galeri);
     const [search, setSearch] = useState(filters.search || "");
-    const [selectedKecamatanId, setSelectedKecamatanId] = useState<number | string>(filters.kecamatan_id || "");
+    const [kategoriFilter, setKategoriFilter] = useState(filters.kategori || "Semua");
     const [perPage, setPerPage] = useState(filters.per_page || 10);
 
     useEffect(() => {
-        setLocalWilayah(wilayah);
-    }, [wilayah]);
-
-    // Opsi untuk SelectSearch Kecamatan
-    const kecamatanOptions = kecamatanList.map((k) => ({
-        value: String(k.id),
-        label: k.nama_kecamatan,
-    }));
+        setLocalGaleri(galeri);
+    }, [galeri]);
 
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
-    const [selectedWilayah, setSelectedWilayah] = useState<WilayahParkir | null>(null);
+    const [selectedGaleri, setSelectedGaleri] = useState<GaleriFoto | null>(null);
+
+    // Image Preview State
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     // Confirmation Modal State
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [itemToDelete, setItemToDelete] = useState<WilayahParkir | null>(null);
+    const [itemToDelete, setItemToDelete] = useState<GaleriFoto | null>(null);
 
     // Form Hook
     const {
         data,
         setData,
         post,
-        put,
         processing,
         errors,
         reset,
         clearErrors,
-    } = useForm({
-        kecamatan_id: "" as number | string,
-        nama_jalan: "",
-        latitude: "",
-        longitude: "",
+    } = useForm<{
+        caption: string;
+        kategori: string;
+        tanggal: string;
+        foto: File | null;
+        _method?: string;
+    }>({
+        caption: "",
+        kategori: "Penertiban",
+        tanggal: new Date().toISOString().split("T")[0],
+        foto: null,
     });
 
     const [isLoading, setIsLoading] = useState(false);
@@ -96,7 +98,7 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
         axios
             .get(url, { params, headers: { Accept: "application/json" } })
             .then((res) => {
-                setLocalWilayah(res.data);
+                setLocalGaleri(res.data);
             })
             .catch((err) => console.error("Error fetching data:", err))
             .finally(() => setIsLoading(false));
@@ -110,43 +112,46 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
         }
 
         const timeout = setTimeout(() => {
-            fetchData(route("be.wilayah-parkir.index"), {
+            fetchData(route("be.galeri-foto.index"), {
                 search,
-                kecamatan_id: selectedKecamatanId,
+                kategori: kategoriFilter,
                 per_page: perPage,
             });
         }, 300);
         return () => clearTimeout(timeout);
-    }, [search, selectedKecamatanId, perPage]);
+    }, [search, kategoriFilter, perPage]);
 
     // Handlers
     const openCreateModal = () => {
         setIsEditMode(false);
-        setSelectedWilayah(null);
+        setSelectedGaleri(null);
+        setPreviewUrl(null);
         reset();
         clearErrors();
         setIsModalOpen(true);
     };
 
-    const openEditModal = (item: WilayahParkir) => {
+    const openEditModal = (item: GaleriFoto) => {
         setIsEditMode(true);
-        setSelectedWilayah(item);
+        setSelectedGaleri(item);
         setData({
-            kecamatan_id: item.kecamatan_id ? String(item.kecamatan_id) : "",
-            nama_jalan: item.nama_jalan,
-            latitude: item.latitude,
-            longitude: item.longitude,
+            caption: item.caption,
+            kategori: item.kategori,
+            tanggal: item.tanggal ? String(item.tanggal).split("T")[0] : new Date().toISOString().split("T")[0],
+            foto: null,
         });
+        setPreviewUrl(item.foto ? `/storage/${item.foto}` : null);
         clearErrors();
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
+        setPreviewUrl(null);
         reset();
     };
 
-    const openDeleteModal = (item: WilayahParkir) => {
+    const openDeleteModal = (item: GaleriFoto) => {
         setItemToDelete(item);
         setShowDeleteModal(true);
     };
@@ -154,7 +159,7 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
     const handleDelete = () => {
         if (!itemToDelete) return;
 
-        router.delete(route("be.wilayah-parkir.destroy", itemToDelete.id), {
+        router.delete(route("be.galeri-foto.destroy", itemToDelete.id), {
             onSuccess: () => {
                 setShowDeleteModal(false);
                 setItemToDelete(null);
@@ -162,14 +167,32 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
         });
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] || null;
+        if (file) {
+            setData("foto", file);
+            setPreviewUrl(URL.createObjectURL(file));
+        }
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (isEditMode && selectedWilayah) {
-            put(route("be.wilayah-parkir.update", selectedWilayah.id), {
-                onSuccess: () => closeModal(),
-            });
+        if (isEditMode && selectedGaleri) {
+            router.post(
+                route("be.galeri-foto.update", selectedGaleri.id),
+                {
+                    _method: "put",
+                    caption: data.caption,
+                    kategori: data.kategori,
+                    tanggal: data.tanggal,
+                    foto: data.foto,
+                },
+                {
+                    onSuccess: () => closeModal(),
+                }
+            );
         } else {
-            post(route("be.wilayah-parkir.store"), {
+            post(route("be.galeri-foto.store"), {
                 onSuccess: () => closeModal(),
             });
         }
@@ -177,31 +200,31 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
 
     const handleResetFilter = () => {
         setSearch("");
-        setSelectedKecamatanId("");
+        setKategoriFilter("Semua");
         setPerPage(10);
     };
 
     return (
         <>
-            <Head title="Manajemen Wilayah Parkir" />
+            <Head title="Manajemen Galeri Foto" />
 
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-800 tracking-tight dark:text-slate-200">
-                        Manajemen Wilayah Parkir
+                        Manajemen Galeri Foto
                     </h1>
                     <p className="text-sm text-slate-500 dark:text-slate-400">
-                        Kelola data titik lokasi dan titik koordinat parkir Kabupaten Tasikmalaya
+                        Kelola dokumentasi foto kegiatan penertiban, pembinaan, dan acara UPTD
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
                     <Button
                         variant="primary"
                         onClick={openCreateModal}
-                        className="shadow-lg shadow-indigo-100 dark:shadow-none"
+                        className="shadow-lg shadow-brand-blue-100 dark:shadow-none"
                     >
-                        <span>Tambah Wilayah Parkir</span>
+                        <span>Tambah Foto Galeri</span>
                     </Button>
                 </div>
             </div>
@@ -214,25 +237,29 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
                             iconLeft={<Search size={18} />}
                             className="w-full font-medium dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600"
                             containerClassName="relative w-full"
-                            placeholder="Cari lokasi jalan..."
+                            placeholder="Cari caption foto..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
 
-                    {/* Filter Kecamatan */}
-                    <div className="w-full md:w-64 relative z-30">
-                        <SelectSearch
-                            options={kecamatanOptions}
-                            value={String(selectedKecamatanId)}
-                            onChange={(val) => setSelectedKecamatanId(val)}
-                            placeholder="Filter Kecamatan..."
-                            isSearchable
-                        />
+                    {/* Filter Kategori */}
+                    <div className="w-full md:w-56">
+                        <select
+                            value={kategoriFilter}
+                            onChange={(e) => setKategoriFilter(e.target.value)}
+                            className="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl py-2.5 px-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none cursor-pointer dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600"
+                        >
+                            <option value="Semua">Semua Kategori</option>
+                            <option value="Penertiban">Penertiban</option>
+                            <option value="Pembinaan">Pembinaan</option>
+                            <option value="Sosialisasi">Sosialisasi</option>
+                            <option value="Kegiatan">Kegiatan</option>
+                        </select>
                     </div>
 
                     {/* Reset Button */}
-                    {(search || selectedKecamatanId) && (
+                    {(search || kategoriFilter !== "Semua") && (
                         <Button
                             variant="danger"
                             onClick={handleResetFilter}
@@ -253,44 +280,53 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
                             className:
                                 "text-center text-sm font-medium text-slate-400 dark:text-slate-200 w-16",
                             headerClassName: "text-center w-16",
-                            render: (_: WilayahParkir, index: number) =>
-                                (localWilayah.current_page - 1) * localWilayah.per_page +
+                            render: (_: GaleriFoto, index: number) =>
+                                (localGaleri.current_page - 1) * localGaleri.per_page +
                                 index +
                                 1,
                         },
                         {
-                            header: "Kecamatan",
-                            className:
-                                "text-slate-800 font-bold dark:text-slate-200 w-48",
-                            render: (item: WilayahParkir) =>
-                                item.kecamatan?.nama_kecamatan || "-",
-                        },
-                        {
-                            header: "Nama Jalan / Titik Lokasi",
-                            className:
-                                "text-slate-700 dark:text-slate-300 font-medium",
-                            render: (item: WilayahParkir) => item.nama_jalan,
-                        },
-                        {
-                            header: "Koordinat (Lat, Long)",
-                            className: "w-56 text-slate-500 text-xs font-mono dark:text-slate-400",
-                            render: (item: WilayahParkir) => (
-                                <div className="flex items-center gap-2">
-                                    <MapPin size={14} className="text-indigo-500 shrink-0" />
-                                    <span>
-                                        {item.latitude}, {item.longitude}
-                                    </span>
-                                    {item.latitude && item.longitude && (
-                                        <a
-                                            href={`https://www.google.com/maps?q=${item.latitude},${item.longitude}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 ml-1"
-                                            title="Buka di Google Maps"
-                                        >
-                                            <ExternalLink size={14} />
-                                        </a>
+                            header: "Foto",
+                            className: "w-32 text-center",
+                            headerClassName: "text-center w-32",
+                            render: (item: GaleriFoto) => (
+                                <div className="flex items-center justify-center">
+                                    {item.foto ? (
+                                        <img
+                                            src={`/storage/${item.foto}`}
+                                            alt={item.caption}
+                                            className="h-14 w-20 object-cover rounded-xl border border-slate-200 shadow-sm dark:border-slate-700"
+                                        />
+                                    ) : (
+                                        <div className="h-14 w-20 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400">
+                                            <ImageIcon size={20} />
+                                        </div>
                                     )}
+                                </div>
+                            ),
+                        },
+                        {
+                            header: "Caption / Keterangan",
+                            className:
+                                "text-slate-800 font-bold dark:text-slate-200",
+                            render: (item: GaleriFoto) => item.caption,
+                        },
+                        {
+                            header: "Kategori",
+                            className: "w-40",
+                            render: (item: GaleriFoto) => (
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-brand-blue-50 text-brand-blue-700 dark:bg-brand-blue-900/30 dark:text-brand-blue-300">
+                                    {item.kategori}
+                                </span>
+                            ),
+                        },
+                        {
+                            header: "Tanggal Kegiatan",
+                            className: "text-slate-600 dark:text-slate-300 text-sm w-44",
+                            render: (item: GaleriFoto) => (
+                                <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                                    <Calendar size={14} className="text-slate-400" />
+                                    <span>{String(item.tanggal).split("T")[0]}</span>
                                 </div>
                             ),
                         },
@@ -298,12 +334,12 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
                             header: "Aksi",
                             headerClassName: "text-center w-32",
                             className: "text-center",
-                            render: (item: WilayahParkir) => (
+                            render: (item: GaleriFoto) => (
                                 <div className="flex items-center justify-center gap-2">
                                     {canEdit && (
                                         <button
                                             onClick={() => openEditModal(item)}
-                                            className="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl active:scale-90 transition-all cursor-pointer dark:hover:bg-slate-700 dark:hover:text-indigo-400"
+                                            className="p-2.5 text-slate-400 hover:text-brand-blue-600 hover:bg-brand-blue-50 rounded-xl active:scale-90 transition-all cursor-pointer dark:hover:bg-slate-700 dark:hover:text-brand-blue-400"
                                         >
                                             <Edit2 size={16} />
                                         </button>
@@ -320,7 +356,7 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
                             ),
                         },
                     ]}
-                    data={localWilayah.data}
+                    data={localGaleri.data}
                 />
 
                 {/* Pagination Section */}
@@ -329,15 +365,15 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
                     <p className="text-sm text-slate-500 dark:text-slate-200">
                         Menampilkan{" "}
                         <span className="font-bold text-slate-800 dark:text-slate-200">
-                            {localWilayah.from ?? 0}
+                            {localGaleri.from ?? 0}
                         </span>{" "}
                         sampai{" "}
                         <span className="font-bold text-slate-800 dark:text-slate-200">
-                            {localWilayah.to ?? 0}
+                            {localGaleri.to ?? 0}
                         </span>{" "}
                         dari{" "}
                         <span className="font-bold text-slate-800 dark:text-slate-200">
-                            {localWilayah.total}
+                            {localGaleri.total}
                         </span>{" "}
                         data
                     </p>
@@ -360,7 +396,7 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
 
                     {/* Kanan: Pagination */}
                     <Pagination
-                        links={localWilayah.links}
+                        links={localGaleri.links}
                         onPageChange={(url) => fetchData(url)}
                     />
                 </div>
@@ -370,7 +406,7 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
             <Modal
                 show={isModalOpen}
                 onClose={closeModal}
-                title={isEditMode ? "Edit Wilayah Parkir" : "Tambah Wilayah Parkir"}
+                title={isEditMode ? "Edit Galeri Foto" : "Tambah Galeri Foto"}
                 maxWidth="xl"
                 footer={
                     <>
@@ -394,61 +430,94 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300">
-                            Kecamatan
-                        </label>
-                        <SelectSearch
-                            options={kecamatanOptions}
-                            value={String(data.kecamatan_id)}
-                            onChange={(val) => setData("kecamatan_id", val)}
-                            placeholder="Pilih Kecamatan..."
-                            isSearchable
-                        />
-                        {errors.kecamatan_id && (
-                            <p className="text-xs text-rose-500 mt-1">{errors.kecamatan_id}</p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300">
-                            Nama Jalan / Titik Lokasi
+                            Caption / Deskripsi Foto
                         </label>
                         <TextInput
                             type="text"
-                            placeholder="Contoh: Jl. Raya Singaparna No. 45"
-                            value={data.nama_jalan}
-                            onChange={(e) => setData("nama_jalan", e.target.value)}
+                            placeholder="Contoh: Penertiban jukir tidak berseragam di Singaparna"
+                            value={data.caption}
+                            onChange={(e) => setData("caption", e.target.value)}
                             className="w-full text-sm"
-                            error={errors.nama_jalan}
+                            error={errors.caption}
                         />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300">
-                                Latitude
+                                Kategori
                             </label>
-                            <TextInput
-                                type="text"
-                                placeholder="Contoh: -7.352400"
-                                value={data.latitude}
-                                onChange={(e) => setData("latitude", e.target.value)}
-                                className="w-full text-sm"
-                                error={errors.latitude}
-                            />
+                            <select
+                                value={data.kategori}
+                                onChange={(e) => setData("kategori", e.target.value)}
+                                className="w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none cursor-pointer dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600"
+                            >
+                                <option value="Penertiban">Penertiban</option>
+                                <option value="Pembinaan">Pembinaan</option>
+                                <option value="Sosialisasi">Sosialisasi</option>
+                                <option value="Kegiatan">Kegiatan</option>
+                            </select>
+                            {errors.kategori && (
+                                <p className="text-xs text-rose-500 mt-1">{errors.kategori}</p>
+                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300">
-                                Longitude
+                                Tanggal Kegiatan
                             </label>
                             <TextInput
-                                type="text"
-                                placeholder="Contoh: 108.112300"
-                                value={data.longitude}
-                                onChange={(e) => setData("longitude", e.target.value)}
+                                type="date"
+                                value={data.tanggal}
+                                onChange={(e) => setData("tanggal", e.target.value)}
                                 className="w-full text-sm"
-                                error={errors.longitude}
+                                error={errors.tanggal}
                             />
                         </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300">
+                            Foto Kegiatan
+                        </label>
+                        <div className="flex items-center gap-4">
+                            {previewUrl ? (
+                                <img
+                                    src={previewUrl}
+                                    alt="Preview"
+                                    className="h-20 w-28 object-cover rounded-xl border border-slate-200 shadow-sm dark:border-slate-700"
+                                />
+                            ) : (
+                                <div className="h-20 w-28 rounded-xl bg-slate-100 dark:bg-slate-700 flex flex-col items-center justify-center text-slate-400 border border-dashed border-slate-300 dark:border-slate-600">
+                                    <ImageIcon size={24} />
+                                    <span className="text-[10px] mt-1">Preview</span>
+                                </div>
+                            )}
+
+                            <div className="flex-1">
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleFileChange}
+                                    accept="image/jpeg,image/png,image/jpg,image/webp"
+                                    className="hidden"
+                                />
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="flex items-center gap-2"
+                                >
+                                    <Upload size={16} />
+                                    <span>Pilih Foto</span>
+                                </Button>
+                                <p className="text-xs text-slate-400 mt-1">
+                                    Format: JPG, PNG, WEBP. Maks: 2MB.
+                                </p>
+                            </div>
+                        </div>
+                        {errors.foto && (
+                            <p className="text-xs text-rose-500 mt-1">{errors.foto}</p>
+                        )}
                     </div>
                 </form>
             </Modal>
@@ -457,8 +526,8 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
             <ConfirmationModal
                 show={showDeleteModal}
                 processing={processing}
-                title="Hapus Wilayah Parkir"
-                message={`Apakah Anda yakin ingin menghapus wilayah parkir "${itemToDelete?.nama_jalan}"? Tindakan ini tidak dapat dibatalkan.`}
+                title="Hapus Galeri Foto"
+                message={`Apakah Anda yakin ingin menghapus foto "${itemToDelete?.caption}"? Tindakan ini tidak dapat dibatalkan.`}
                 onConfirm={handleDelete}
                 onCancel={() => setShowDeleteModal(false)}
             />

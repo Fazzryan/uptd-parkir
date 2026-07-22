@@ -10,16 +10,31 @@ export interface StrukturOrganisasiPersonel {
 
 export interface WilayahParkir {
     id: number;
-    kecamatan: string;
+    kecamatan_id?: number | string;
     nama_jalan: string;
     latitude: string;
     longitude: string;
+    kecamatan?: Kecamatan;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface Kecamatan {
+    id: number;
+    id_kecamatan?: string;
+    nama_kecamatan: string;
+    latitude?: string;
+    longitude?: string;
+    alamat?: string;
     created_at?: string;
     updated_at?: string;
 }
 export interface TarifParkirKarcis {
     id: number;
-    foto: string;
+    kategori_kendaraan: string;
+    nominal_tarif: number;
+    keterangan?: string;
+    foto?: string;
     created_at?: string;
     updated_at?: string;
 }
@@ -29,6 +44,29 @@ export interface PanduanJukir {
     foto: string;
     deskripsi: string;
     teks_info: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface GaleriFoto {
+    id: number;
+    kategori: string;
+    caption: string;
+    tanggal: string;
+    foto?: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface Berita {
+    id: number;
+    judul: string;
+    slug?: string;
+    kategori: string;
+    tanggal: string;
+    ringkasan?: string;
+    isi?: string;
+    foto?: string;
     created_at?: string;
     updated_at?: string;
 }

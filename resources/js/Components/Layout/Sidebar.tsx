@@ -27,6 +27,8 @@ import {
     Network,
     BookOpen,
     Receipt,
+    Image as ImageIcon,
+    Newspaper,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -272,126 +274,141 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                     </Link>
                 )}
 
-                {/* Data Eviden */}
-                {/* {permissions.includes("view-eviden") && (
-                    <Link
-                        href={route("be.eviden.index")}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-[15px] group 
-                        ${
-                            route().current("be.eviden.*")
-                                ? "bg-brand-blue-50 dark:bg-slate-800 text-brand-blue-600 dark:text-brand-blue-400"
-                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
-                        }`}
-                    >
-                        <FileText
-                            size={20}
-                            strokeWidth={2}
-                            className={`${
-                                route().current("be.eviden.*")
-                                    ? "text-brand-blue-600 dark:text-brand-blue-400"
-                                    : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
-                            }`}
-                        />
-                        Data Eviden
-                    </Link>
-                )} */}
+                {(permissions.length === 0 ||
+                    permissions.includes("view-galeri-foto") ||
+                    permissions.includes("view-berita")) && (
+                    <p className="px-4 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 mt-4">
+                        Informasi & Publikasi
+                    </p>
+                )}
 
-                {/* Data Indikator */}
-                {/* {permissions.includes("view-indikator") && (
+                {(permissions.length === 0 ||
+                    permissions.includes("view-galeri-foto")) && (
                     <Link
-                        href={route("be.indikator.index")}
+                        href={route("be.galeri-foto.index")}
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-[15px] group 
                         ${
-                            route().current("be.indikator.*")
+                            route().current("be.galeri-foto.*")
                                 ? "bg-brand-blue-50 dark:bg-slate-800 text-brand-blue-600 dark:text-brand-blue-400"
                                 : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
                         }`}
                     >
-                        <CircleGauge
+                        <ImageIcon
                             size={20}
                             strokeWidth={2}
                             className={`${
-                                route().current("be.indikator.*")
+                                route().current("be.galeri-foto.*")
                                     ? "text-brand-blue-600 dark:text-brand-blue-400"
                                     : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
                             }`}
                         />
-                        Data Indikator
+                        Galeri Foto
                     </Link>
-                )} */}
+                )}
+
+                {(permissions.length === 0 ||
+                    permissions.includes("view-berita")) && (
+                    <Link
+                        href={route("be.berita.index")}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-[15px] group 
+                        ${
+                            route().current("be.berita.*")
+                                ? "bg-brand-blue-50 dark:bg-slate-800 text-brand-blue-600 dark:text-brand-blue-400"
+                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        }`}
+                    >
+                        <Newspaper
+                            size={20}
+                            strokeWidth={2}
+                            className={`${
+                                route().current("be.berita.*")
+                                    ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                    : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
+                            }`}
+                        />
+                        Berita & Pengumuman
+                    </Link>
+                )}
 
                 {/* User Management Dropdown */}
-                {permissions.includes("view-users") && (
-                    <div>
-                        <button
-                            onClick={() => toggleMenu("userManagement")}
-                            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium text-[15px] transition-all group
-                            ${
-                                route().current("be.users.*")
-                                    ? "text-brand-blue-600 dark:text-brand-blue-400"
-                                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
-                            }`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <Users
-                                    size={20}
-                                    strokeWidth={2}
-                                    className={`${
-                                        route().current("be.users.*")
-                                            ? "text-brand-blue-600 dark:text-brand-blue-400"
-                                            : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
-                                    }`}
-                                />
-                                User Management
-                            </div>
-                            <ChevronDown
-                                size={16}
-                                className={`transition-transform duration-300 ${
-                                    openMenus.userManagement ? "rotate-180" : ""
-                                }`}
-                            />
-                        </button>
-
-                        <div
-                            className={`overflow-hidden transition-all duration-300 ${
-                                openMenus.userManagement
-                                    ? "max-h-40"
-                                    : "max-h-0"
-                            }`}
-                        >
-                            <div className="ml-9 border-slate-100 dark:border-slate-800 mt-1 space-y-1">
-                                <Link
-                                    href={route("be.users.index")}
-                                    className={`block py-2 px-4 text-sm rounded-lg transition-colors ${
-                                        route().current("be.users.*")
-                                            ? "text-brand-blue-600 dark:text-brand-blue-400 font-semibold bg-brand-blue-50/50 dark:bg-slate-800/50"
-                                            : "text-slate-500 dark:text-slate-400 hover:text-brand-blue-600 dark:hover:text-brand-blue-400"
-                                    }`}
-                                >
-                                    User
-                                </Link>
-                                {permissions.includes("manage-roles") && (
-                                    <Link
-                                        href={route("be.roles.index")}
-                                        className={`block py-2 px-4 text-sm rounded-lg transition-colors ${
-                                            route().current("be.roles.*")
-                                                ? "text-brand-blue-600 dark:text-brand-blue-400 font-semibold bg-brand-blue-50/50 dark:bg-slate-800/50"
-                                                : "text-slate-500 dark:text-slate-400 hover:text-brand-blue-600 dark:hover:text-brand-blue-400"
-                                        }`}
-                                    >
-                                        Role
-                                    </Link>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                )}
 
                 {roles.includes("admin") && (
                     <>
                         <p className="px-4 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 mt-4">
                             Sistem
                         </p>
+
+                        {permissions.includes("view-users") && (
+                            <div>
+                                <button
+                                    onClick={() => toggleMenu("userManagement")}
+                                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium text-[15px] transition-all group
+                            ${
+                                route().current("be.users.*")
+                                    ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                            }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <Users
+                                            size={20}
+                                            strokeWidth={2}
+                                            className={`${
+                                                route().current("be.users.*")
+                                                    ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                                    : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
+                                            }`}
+                                        />
+                                        User Management
+                                    </div>
+                                    <ChevronDown
+                                        size={16}
+                                        className={`transition-transform duration-300 ${
+                                            openMenus.userManagement
+                                                ? "rotate-180"
+                                                : ""
+                                        }`}
+                                    />
+                                </button>
+
+                                <div
+                                    className={`overflow-hidden transition-all duration-300 ${
+                                        openMenus.userManagement
+                                            ? "max-h-40"
+                                            : "max-h-0"
+                                    }`}
+                                >
+                                    <div className="ml-9 border-slate-100 dark:border-slate-800 mt-1 space-y-1">
+                                        <Link
+                                            href={route("be.users.index")}
+                                            className={`block py-2 px-4 text-sm rounded-lg transition-colors ${
+                                                route().current("be.users.*")
+                                                    ? "text-brand-blue-600 dark:text-brand-blue-400 font-semibold bg-brand-blue-50/50 dark:bg-slate-800/50"
+                                                    : "text-slate-500 dark:text-slate-400 hover:text-brand-blue-600 dark:hover:text-brand-blue-400"
+                                            }`}
+                                        >
+                                            User
+                                        </Link>
+                                        {permissions.includes(
+                                            "manage-roles",
+                                        ) && (
+                                            <Link
+                                                href={route("be.roles.index")}
+                                                className={`block py-2 px-4 text-sm rounded-lg transition-colors ${
+                                                    route().current(
+                                                        "be.roles.*",
+                                                    )
+                                                        ? "text-brand-blue-600 dark:text-brand-blue-400 font-semibold bg-brand-blue-50/50 dark:bg-slate-800/50"
+                                                        : "text-slate-500 dark:text-slate-400 hover:text-brand-blue-600 dark:hover:text-brand-blue-400"
+                                                }`}
+                                            >
+                                                Role
+                                            </Link>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         <div>
                             <button

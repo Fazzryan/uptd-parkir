@@ -110,20 +110,18 @@ export default function Edit({ role, permissions }: EditProps) {
                                             name.includes("role")
                                         )
                                             group = "User & Role Management";
-                                        else if (name.includes("skpd"))
-                                            group = "Data SKPD";
-                                        else if (name.includes("indikator"))
-                                            group = "Manajemen Indikator";
-                                        else if (name.includes("aspek"))
-                                            group = "Manajemen Aspek";
-                                        else if (name.includes("periode"))
-                                            group = "Pengaturan Periode";
-                                        else if (name.includes("kebijakan"))
-                                            group = "Kebijakan SPBE";
-                                        else if (name.includes("indeks-spbe"))
-                                            group = "Nilai Indeks SPBE";
-                                        else if (name.includes("eviden"))
-                                            group = "Data Eviden";
+                                        else if (name.includes("wilayah-parkir"))
+                                            group = "Wilayah Parkir";
+                                        else if (name.includes("struktur-organisasi"))
+                                            group = "Struktur Organisasi";
+                                        else if (name.includes("tarif-parkir"))
+                                            group = "Tarif Parkir & Karcis";
+                                        else if (name.includes("panduan-jukir"))
+                                            group = "Panduan Jukir";
+                                        else if (name.includes("galeri-foto"))
+                                            group = "Galeri Foto";
+                                        else if (name.includes("berita"))
+                                            group = "Berita & Pengumuman";
                                         else if (name.includes("profile"))
                                             group = "Profil User";
 
