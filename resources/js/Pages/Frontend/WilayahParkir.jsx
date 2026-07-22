@@ -12,6 +12,7 @@ import {
   Navigation,
   SearchX,
 } from "lucide-react";
+import Footer from "./Layouts/Footer";
 
 /**
  * Halaman: Wilayah Parkir Resmi
@@ -272,42 +273,7 @@ export default function WilayahParkir() {
       </main>
 
       {/* ================= FOOTER ================= */}
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-10">
-          <div className="grid gap-8 sm:grid-cols-3">
-            <div>
-              <p className="font-bold text-blue-900" style={{ fontFamily: PRIMARY_FONT }}>
-                UPTD Pengelola Parkir
-              </p>
-              <p className="mt-1 text-sm text-slate-500">
-                Dinas Perhubungan Komunikasi dan Informatika Kabupaten Tasikmalaya
-              </p>
-            </div>
-            <div className="space-y-2 text-sm text-slate-600">
-              <div className="flex items-start gap-2">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-blue-700" />
-                <span>Kantor UPTD Parkir, Kab. Tasikmalaya (alamat lengkap — menyusul)</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 shrink-0 text-blue-700" />
-                <span>(0265) 000-0000</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 shrink-0 text-blue-700" />
-                <span>uptdparkir@tasikmalayakab.go.id</span>
-              </div>
-            </div>
-            <div className="overflow-hidden rounded-xl bg-slate-100">
-              <div className="flex h-32 items-center justify-center text-xs text-slate-400">
-                Peta lokasi kantor (Google Maps embed)
-              </div>
-            </div>
-          </div>
-          <div className="mt-8 border-t border-slate-100 pt-6 text-center text-xs text-slate-400">
-            © 2026 UPTD Pengelola Parkir · Pemerintah Kabupaten Tasikmalaya
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       {/* ================= FLOATING WHATSAPP - PENGADUAN ================= */}
       <a
