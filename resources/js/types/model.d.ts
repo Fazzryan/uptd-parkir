@@ -31,9 +31,12 @@ export interface Kecamatan {
 }
 export interface TarifParkirKarcis {
     id: number;
-    kategori_kendaraan: string;
-    nominal_tarif: number;
+    jenis_kendaraan?: string;
+    kategori_kendaraan?: string;
+    tarif?: number;
+    nominal_tarif?: number;
     keterangan?: string;
+    contoh_karcis?: string;
     foto?: string;
     created_at?: string;
     updated_at?: string;
@@ -41,9 +44,19 @@ export interface TarifParkirKarcis {
 
 export interface PanduanJukir {
     id: number;
+    judul?: string;
+    foto?: string;
+    deskripsi?: string;
+    teks_info?: string;
+    urutan?: number;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface GaleriFotoItem {
+    id: number;
+    galeri_foto_id?: number;
     foto: string;
-    deskripsi: string;
-    teks_info: string;
     created_at?: string;
     updated_at?: string;
 }
@@ -54,6 +67,8 @@ export interface GaleriFoto {
     caption: string;
     tanggal: string;
     foto?: string;
+    fotos?: string[];
+    items?: GaleriFotoItem[];
     created_at?: string;
     updated_at?: string;
 }
@@ -103,9 +118,13 @@ export interface User {
 
 // ... existing code ...
 export interface AppSettings {
-    app_name: string;
-    app_logo: string | null;
-    primary_color: string;
+    app_name?: string;
+    app_logo?: string | null;
+    primary_color?: string;
+    wa_number?: string;
+    wa_message?: string;
+    teks_hak_pengguna_parkir?: string;
+    [key: string]: any;
 }
 
 export interface PaginationLink {

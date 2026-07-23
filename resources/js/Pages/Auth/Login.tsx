@@ -35,12 +35,12 @@ export default function Login() {
                                 onError={(e) => {
                                     e.currentTarget.style.display = "none";
                                     e.currentTarget.nextElementSibling?.classList.remove(
-                                        "hidden"
+                                        "hidden",
                                     );
                                 }}
                             />
                         </div>
-                        <h2 className="font-bold uppercase tracking-widest text-blue-700 dark:text-blue-500 mb-1">
+                        <h2 className="font-bold uppercase tracking-widest text-brand-blue-700 dark:text-blue-500 mb-1">
                             UPTD PARKIR
                         </h2>
                         <p className="text-slate-500 dark:text-slate-400 font-semibold">
@@ -51,7 +51,10 @@ export default function Login() {
                     {/* General Error Alert */}
                     {(errors.username || errors.password) && (
                         <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 dark:bg-rose-950/40 dark:border-rose-900/50 dark:text-rose-300 text-sm flex items-start gap-3 animate-in fade-in duration-300">
-                            <AlertCircle size={18} className="shrink-0 mt-0.5 text-rose-600 dark:text-rose-400" />
+                            <AlertCircle
+                                size={18}
+                                className="shrink-0 mt-0.5 text-rose-600 dark:text-rose-400"
+                            />
                             <div className="font-medium">
                                 {errors.username || errors.password}
                             </div>

@@ -20,11 +20,15 @@ export default function Navbar() {
 
     const navLinks = [
         // { label: "Beranda", href: route("fe.beranda") },
-        { label: "Wilayah Parkir", href: "/#wilayah", icon: MapPin },
-        { label: "Tarif & Karcis", href: "/#tarif", icon: Receipt },
-        { label: "Panduan Jukir", href: "/#panduan", icon: BookOpen },
-        { label: "Struktur Organisasi", href: "/#struktur", icon: Network },
-        { label: "Galeri & Berita", href: "/#galeri", icon: Camera },
+        { label: "Wilayah Parkir", href: "/wilayah-parkir", icon: MapPin },
+        { label: "Tarif & Karcis", href: "/tarif-parkir", icon: Receipt },
+        { label: "Panduan Jukir", href: "/panduan-jukir", icon: BookOpen },
+        {
+            label: "Struktur Organisasi",
+            href: "/struktur-organisasi",
+            icon: Network,
+        },
+        { label: "Galeri & Berita", href: "/dokumentasi", icon: Camera },
     ];
 
     return (
@@ -79,17 +83,15 @@ export default function Navbar() {
                         {auth?.user ? (
                             <Link
                                 href={route("be.dashboard")}
-                                className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-blue-900 bg-amber-400 hover:bg-amber-300 rounded-full transition-all duration-200 shadow-md active:scale-95"
+                                className="inline-flex items-center gap-2 px-4 py-2 text-[13px] font-bold text-white bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-700 hover:to-amber-600 rounded-full transition duration-200 shadow-md"
                             >
-                                <LayoutDashboard size={15} />
                                 <span>Dashboard Admin</span>
                             </Link>
                         ) : (
                             <Link
                                 href={route("login")}
-                                className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-blue-700 hover:bg-blue-600 border border-blue-500 rounded-full transition-all duration-200 shadow-md active:scale-95"
+                                className="inline-flex items-center gap-2 px-4 py-2 text-[13px] font-bold text-white bg-blue-700 hover:bg-blue-600 border border-blue-500 rounded-full transition-all duration-200 shadow-md active:scale-95"
                             >
-                                <LogIn size={15} />
                                 <span>Masuk</span>
                             </Link>
                         )}
@@ -167,7 +169,7 @@ export default function Navbar() {
                             {auth?.user ? (
                                 <Link
                                     href={route("be.dashboard")}
-                                    className="flex items-center justify-center gap-2 w-full py-2.5 text-xs font-bold text-blue-900 bg-amber-400 rounded-xl shadow active:scale-95"
+                                    className="flex items-center justify-center gap-2 w-full py-2.5 text-xs font-bold text-blue-900 bg-brand-yellow-400 rounded-xl shadow active:scale-95"
                                 >
                                     <LayoutDashboard size={16} />
                                     <span>Dashboard Admin</span>

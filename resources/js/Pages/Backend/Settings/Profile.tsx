@@ -55,7 +55,7 @@ export default function Profile({ status, auth }: ProfileProps) {
 
     const submitPassword: FormEventHandler = (e) => {
         e.preventDefault();
-        putPassword(route("be.settings.password.update"), {
+        putPassword(route("be.settings.profile.password"), {
             preserveScroll: true,
             onSuccess: () => resetPassword(),
         });

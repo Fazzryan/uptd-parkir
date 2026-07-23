@@ -5,6 +5,7 @@ import Table from "@/Components/Data/Table";
 import Button from "@/Components/UI/Button";
 import TextInput from "@/Components/Form/TextInput";
 import TextArea from "@/Components/Form/TextArea";
+import RichTextEditor from "@/Components/Form/RichTextEditor";
 import Pagination from "@/Components/Data/Pagination";
 import ConfirmationModal from "@/Components/UI/ConfirmationModal";
 import Modal from "@/Components/UI/Modal";
@@ -505,15 +506,12 @@ export default function Index({ berita, filters }: IndexProps) {
                     </div>
 
                     <div>
-                        <TextArea
+                        <RichTextEditor
                             label="Isi Berita Lengkap"
-                            rows={5}
                             placeholder="Tuliskan isi berita atau pengumuman secara lengkap di sini..."
                             value={data.isi}
-                            onChange={(e) => setData("isi", e.target.value)}
+                            onChange={(html) => setData("isi", html)}
                             error={errors.isi}
-                            containerClassName="relative w-full"
-                            variant="primary"
                         />
                     </div>
 

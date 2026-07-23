@@ -98,6 +98,9 @@ class ConfigController extends Controller
             'app_name' => 'required|string|max:255',
             'app_logo' => 'nullable|image|max:2048', // 2MB
             'primary_color' => 'nullable|string|max:7', // Hex color
+            'wa_number' => 'nullable|string|max:50',
+            'wa_message' => 'nullable|string|max:1000',
+            'teks_hak_pengguna_parkir' => 'nullable|string|max:1000',
         ]);
 
         // Simpan App Name
@@ -111,6 +114,30 @@ class ConfigController extends Controller
              DB::table('settings')->updateOrInsert(
                 ['key' => 'primary_color'],
                 ['value' => $validated['primary_color'], 'updated_at' => now()]
+            );
+        }
+
+        // Simpan WA Number
+        if (array_key_exists('wa_number', $validated)) {
+            DB::table('settings')->updateOrInsert(
+                ['key' => 'wa_number'],
+                ['value' => $validated['wa_number'], 'updated_at' => now()]
+            );
+        }
+
+        // Simpan WA Message
+        if (array_key_exists('wa_message', $validated)) {
+            DB::table('settings')->updateOrInsert(
+                ['key' => 'wa_message'],
+                ['value' => $validated['wa_message'], 'updated_at' => now()]
+            );
+        }
+
+        // Simpan Teks Hak Pengguna Parkir
+        if (array_key_exists('teks_hak_pengguna_parkir', $validated)) {
+            DB::table('settings')->updateOrInsert(
+                ['key' => 'teks_hak_pengguna_parkir'],
+                ['value' => $validated['teks_hak_pengguna_parkir'], 'updated_at' => now()]
             );
         }
 

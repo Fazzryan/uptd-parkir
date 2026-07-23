@@ -16,10 +16,20 @@ export default function App({ settings }: AppProps) {
         app_name: string;
         primary_color: string;
         app_logo: File | null;
+        wa_number: string;
+        wa_message: string;
+        teks_hak_pengguna_parkir: string;
     }>({
-        app_name: settings.app_name || "SPBE Tasikmalaya",
+        app_name: settings.app_name || "UPTD Pengelola Parkir",
         primary_color: settings.primary_color || "#4f46e5",
         app_logo: null,
+        wa_number: settings.wa_number || "6281234567890",
+        wa_message:
+            settings.wa_message ||
+            "Halo UPTD Parkir Kab. Tasikmalaya, saya ingin membuat laporan.\n#Nama: \n#Lokasi Kejadian: \n#Jenis Pelanggaran (Tarif Getok/Jukir Liar/Tanpa Karcis): \n#Bukti Foto/Video: ",
+        teks_hak_pengguna_parkir:
+            settings.teks_hak_pengguna_parkir ||
+            "Masyarakat berhak menolak membayar retribusi parkir apabila petugas/juru parkir tidak mengenakan seragam atribut resmi atau tidak menyerahkan karcis resmi bercetak Pemerintah Kabupaten Tasikmalaya.",
     });
 
     const [previewLogo, setPreviewLogo] = useState<string | null>(
@@ -134,6 +144,81 @@ export default function App({ settings }: AppProps) {
                                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                                     Nama ini akan muncul di tab browser dan
                                     sidebar.
+                                </p>
+                            </div>
+
+                            {/* Nomor WhatsApp Pengaduan */}
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                                    Nomor WhatsApp Pengaduan
+                                </label>
+                                <TextInput
+                                    type="text"
+                                    value={data.wa_number}
+                                    onChange={(e) =>
+                                        setData("wa_number", e.target.value)
+                                    }
+                                    className="w-full py-2"
+                                    placeholder="Contoh: 6281234567890"
+                                />
+                                {errors.wa_number && (
+                                    <p className="text-xs text-rose-500 mt-1">
+                                        {errors.wa_number}
+                                    </p>
+                                )}
+                                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                                    Format nomor internasional tanpa tanda + (contoh: 6281234567890).
+                                </p>
+                            </div>
+
+                            {/* Pesan Teks WhatsApp Default */}
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                                    Pesan Teks WhatsApp Default
+                                </label>
+                                <textarea
+                                    value={data.wa_message}
+                                    onChange={(e) =>
+                                        setData("wa_message", e.target.value)
+                                    }
+                                    rows={4}
+                                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 text-sm text-slate-800 dark:text-slate-200 focus:border-brand-blue-500 focus:ring-1 focus:ring-brand-blue-500 transition-colors"
+                                    placeholder="Format draft pesan otomatis pengaduan WhatsApp..."
+                                />
+                                {errors.wa_message && (
+                                    <p className="text-xs text-rose-500 mt-1">
+                                        {errors.wa_message}
+                                    </p>
+                                )}
+                                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                                    Draft format pesan awal saat pengunjung mengklik tombol Floating WhatsApp.
+                                </p>
+                            </div>
+
+                            {/* Teks Imbauan Hak Pengguna Parkir */}
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                                    Teks Imbauan Hak Pengguna Parkir
+                                </label>
+                                <textarea
+                                    value={data.teks_hak_pengguna_parkir}
+                                    onChange={(e) =>
+                                        setData(
+                                            "teks_hak_pengguna_parkir",
+                                            e.target.value
+                                        )
+                                    }
+                                    rows={4}
+                                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 text-sm text-slate-800 dark:text-slate-200 focus:border-brand-blue-500 focus:ring-1 focus:ring-brand-blue-500 transition-colors"
+                                    placeholder="Teks imbauan hak pengguna parkir..."
+                                />
+                                {errors.teks_hak_pengguna_parkir && (
+                                    <p className="text-xs text-rose-500 mt-1">
+                                        {errors.teks_hak_pengguna_parkir}
+                                    </p>
+                                )}
+                                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                                    Teks imbauan resmi ini akan ditampilkan pada banner Hak Pengguna Parkir di Beranda &amp; Panduan Jukir.
                                 </p>
                             </div>
 

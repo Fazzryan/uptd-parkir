@@ -15,8 +15,21 @@ use App\Http\Controllers\Backend\StrukturOrganisasiController;
 use App\Http\Controllers\Backend\GaleriFotoController;
 use App\Http\Controllers\Backend\BeritaController;
 
+use App\Http\Controllers\Frontend\FeDokumentasiController;
+use App\Http\Controllers\Frontend\FePanduanJukirController;
+use App\Http\Controllers\Frontend\FeStrukturOrganisasiController;
+use App\Http\Controllers\Frontend\FeTarifKarcisController;
+use App\Http\Controllers\Frontend\FeWilayahParkirController;
+
 Route::as('fe.')->group(function () {
     Route::get('/', [IndexController::class, 'index'])->name('beranda');
+
+    Route::get('/dokumentasi', [FeDokumentasiController::class, 'index'])->name('dokumentasi');
+    Route::get('/berita/{id}', [FeDokumentasiController::class, 'detail'])->name('berita.detail');
+    Route::get('/panduan-jukir', [FePanduanJukirController::class, 'index'])->name('panduan-jukir');
+    Route::get('/struktur-organisasi', [FeStrukturOrganisasiController::class, 'index'])->name('struktur-organisasi');
+    Route::get('/tarif-parkir', [FeTarifKarcisController::class, 'index'])->name('tarif-parkir');
+    Route::get('/wilayah-parkir', [FeWilayahParkirController::class, 'index'])->name('wilayah-parkir');
 });
 
 Route::middleware('guest')->group(function () {
@@ -27,13 +40,13 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [LoginController::class, 'destroy'])->name('logout')->middleware('auth');
 
 Route::middleware(['auth'])->prefix('dashboard')->name('be.')->group(function () {
-    
+
     // Dashboard Utama
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('panduan-jukir', PanduanJukirController::class)
         ->names('panduan-jukir');
-    
+
     Route::resource('wilayah-parkir', WilayahParkirController::class)
         ->names('wilayah-parkir');
 
@@ -61,11 +74,11 @@ Route::middleware(['auth'])->prefix('dashboard')->name('be.')->group(function ()
     Route::prefix('settings')->name('settings.')->group(function () {
         // Profile Routes
         Route::get('/profile', [ConfigController::class, 'profile'])->name('profile');
-        Route::put('/profile', [ConfigController::class, 'updateProfile'])->name('profile.update');
+        Route::match(['put', 'patch'], '/profile', [ConfigController::class, 'updateProfile'])->name('profile.update');
         Route::put('/profile/password', [ConfigController::class, 'updatePassword'])->name('profile.password');
 
-        // App Routes (Admin Only)
-        Route::middleware('role:admin')->group(function () {
+        // App Routes
+        Route::middleware('role:admin|user')->group(function () {
             Route::get('/app', [ConfigController::class, 'app'])->name('app');
             Route::post('/app', [ConfigController::class, 'updateApp'])->name('app.update');
         });

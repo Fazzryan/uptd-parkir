@@ -50,10 +50,16 @@ class HandleInertiaRequests extends Middleware
             'app_settings' => function () {
                 return \Illuminate\Support\Facades\Cache::remember('app_settings', 3600, function () {
                     return \Illuminate\Support\Facades\DB::table('settings')
-                        ->whereIn('key', ['app_name', 'app_logo'])
+                        ->whereIn('key', ['app_name', 'app_logo', 'primary_color', 'wa_number', 'wa_message', 'teks_hak_pengguna_parkir'])
                         ->pluck('value', 'key');
                 });
             },
+            'visitor_stats' => fn () => [
+                'today' => \App\Models\Pengunjung::whereDate('tanggal', now()->toDateString())->count(),
+                'thisWeek' => \App\Models\Pengunjung::whereBetween('tanggal', [now()->startOfWeek()->toDateString(), now()->endOfWeek()->toDateString()])->count(),
+                'thisMonth' => \App\Models\Pengunjung::whereMonth('tanggal', now()->month)->whereYear('tanggal', now()->year)->count(),
+                'total' => \App\Models\Pengunjung::count(),
+            ],
         ];
     }
 }

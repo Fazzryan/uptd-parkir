@@ -224,7 +224,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                                     : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
                             }`}
                         />
-                        Tarif Parkir
+                        Tarif Parkir & Karcis
                     </Link>
                 )}
 
@@ -332,151 +332,148 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
                 {/* User Management Dropdown */}
 
-                {roles.includes("admin") && (
-                    <>
-                        <p className="px-4 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 mt-4">
-                            Sistem
-                        </p>
+                {/* Sistem & Pengaturan Menu */}
+                <p className="px-4 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 mt-4">
+                    Sistem
+                </p>
 
-                        {permissions.includes("view-users") && (
-                            <div>
-                                <button
-                                    onClick={() => toggleMenu("userManagement")}
-                                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium text-[15px] transition-all group
-                            ${
-                                route().current("be.users.*")
-                                    ? "text-brand-blue-600 dark:text-brand-blue-400"
-                                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
-                            }`}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <Users
-                                            size={20}
-                                            strokeWidth={2}
-                                            className={`${
-                                                route().current("be.users.*")
-                                                    ? "text-brand-blue-600 dark:text-brand-blue-400"
-                                                    : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
-                                            }`}
-                                        />
-                                        User Management
-                                    </div>
-                                    <ChevronDown
-                                        size={16}
-                                        className={`transition-transform duration-300 ${
-                                            openMenus.userManagement
-                                                ? "rotate-180"
-                                                : ""
-                                        }`}
-                                    />
-                                </button>
-
-                                <div
-                                    className={`overflow-hidden transition-all duration-300 ${
-                                        openMenus.userManagement
-                                            ? "max-h-40"
-                                            : "max-h-0"
-                                    }`}
-                                >
-                                    <div className="ml-9 border-slate-100 dark:border-slate-800 mt-1 space-y-1">
-                                        <Link
-                                            href={route("be.users.index")}
-                                            className={`block py-2 px-4 text-sm rounded-lg transition-colors ${
-                                                route().current("be.users.*")
-                                                    ? "text-brand-blue-600 dark:text-brand-blue-400 font-semibold bg-brand-blue-50/50 dark:bg-slate-800/50"
-                                                    : "text-slate-500 dark:text-slate-400 hover:text-brand-blue-600 dark:hover:text-brand-blue-400"
-                                            }`}
-                                        >
-                                            User
-                                        </Link>
-                                        {permissions.includes(
-                                            "manage-roles",
-                                        ) && (
-                                            <Link
-                                                href={route("be.roles.index")}
-                                                className={`block py-2 px-4 text-sm rounded-lg transition-colors ${
-                                                    route().current(
-                                                        "be.roles.*",
-                                                    )
-                                                        ? "text-brand-blue-600 dark:text-brand-blue-400 font-semibold bg-brand-blue-50/50 dark:bg-slate-800/50"
-                                                        : "text-slate-500 dark:text-slate-400 hover:text-brand-blue-600 dark:hover:text-brand-blue-400"
-                                                }`}
-                                            >
-                                                Role
-                                            </Link>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        <div>
-                            <button
-                                onClick={() => toggleMenu("settingManagement")}
-                                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium text-[15px] transition-all group
-                                ${
-                                    route().current("be.settings.*")
-                                        ? "text-brand-blue-600 dark:text-brand-blue-400"
-                                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
-                                }`}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <Settings
-                                        size={20}
-                                        strokeWidth={2}
-                                        className={`${
-                                            route().current("be.settings.*")
-                                                ? "text-brand-blue-600 dark:text-brand-blue-400"
-                                                : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
-                                        }`}
-                                    />
-                                    Pengaturan
-                                </div>
-                                <ChevronDown
-                                    size={16}
-                                    className={`transition-transform duration-300 ${
-                                        openMenus.settingManagement
-                                            ? "rotate-180"
-                                            : ""
+                {roles.includes("admin") && permissions.includes("view-users") && (
+                    <div>
+                        <button
+                            onClick={() => toggleMenu("userManagement")}
+                            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium text-[15px] transition-all group
+                    ${
+                        route().current("be.users.*")
+                            ? "text-brand-blue-600 dark:text-brand-blue-400"
+                            : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                    }`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <Users
+                                    size={20}
+                                    strokeWidth={2}
+                                    className={`${
+                                        route().current("be.users.*")
+                                            ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                            : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
                                     }`}
                                 />
-                            </button>
-
-                            <div
-                                className={`overflow-hidden transition-all duration-300 ${
-                                    openMenus.settingManagement
-                                        ? "max-h-40"
-                                        : "max-h-0"
+                                User Management
+                            </div>
+                            <ChevronDown
+                                size={16}
+                                className={`transition-transform duration-300 ${
+                                    openMenus.userManagement
+                                        ? "rotate-180"
+                                        : ""
                                 }`}
-                            >
-                                <div className="ml-9 border-slate-100 dark:border-slate-800 mt-1 space-y-1">
+                            />
+                        </button>
+
+                        <div
+                            className={`overflow-hidden transition-all duration-300 ${
+                                openMenus.userManagement
+                                    ? "max-h-40"
+                                    : "max-h-0"
+                            }`}
+                        >
+                            <div className="ml-9 border-slate-100 dark:border-slate-800 mt-1 space-y-1">
+                                <Link
+                                    href={route("be.users.index")}
+                                    className={`block py-2 px-4 text-sm rounded-lg transition-colors ${
+                                        route().current("be.users.*")
+                                            ? "text-brand-blue-600 dark:text-brand-blue-400 font-semibold bg-brand-blue-50/50 dark:bg-slate-800/50"
+                                            : "text-slate-500 dark:text-slate-400 hover:text-brand-blue-600 dark:hover:text-brand-blue-400"
+                                    }`}
+                                >
+                                    User
+                                </Link>
+                                {permissions.includes(
+                                    "manage-roles",
+                                ) && (
                                     <Link
-                                        href={route("be.settings.profile")}
+                                        href={route("be.roles.index")}
                                         className={`block py-2 px-4 text-sm rounded-lg transition-colors ${
                                             route().current(
-                                                "be.settings.profile",
+                                                "be.roles.*",
                                             )
                                                 ? "text-brand-blue-600 dark:text-brand-blue-400 font-semibold bg-brand-blue-50/50 dark:bg-slate-800/50"
                                                 : "text-slate-500 dark:text-slate-400 hover:text-brand-blue-600 dark:hover:text-brand-blue-400"
                                         }`}
                                     >
-                                        Profil Saya
+                                        Role
                                     </Link>
-                                    <Link
-                                        href={route("be.settings.app")}
-                                        className={`block py-2 px-4 text-sm rounded-lg transition-colors ${
-                                            route().current("be.settings.app")
-                                                ? "text-brand-blue-600 dark:text-brand-blue-400 font-semibold bg-brand-blue-50/50 dark:bg-slate-800/50"
-                                                : "text-slate-500 dark:text-slate-400 hover:text-brand-blue-600 dark:hover:text-brand-blue-400"
-                                        }`}
-                                    >
-                                        Aplikasi
-                                    </Link>
-                                </div>
+                                )}
                             </div>
                         </div>
-                    </>
+                    </div>
                 )}
+
+                <div>
+                    <button
+                        onClick={() => toggleMenu("settingManagement")}
+                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium text-[15px] transition-all group
+                        ${
+                            route().current("be.settings.*")
+                                ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        }`}
+                    >
+                        <div className="flex items-center gap-3">
+                            <Settings
+                                size={20}
+                                strokeWidth={2}
+                                className={`${
+                                    route().current("be.settings.*")
+                                        ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                        : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
+                                }`}
+                            />
+                            Pengaturan
+                        </div>
+                        <ChevronDown
+                            size={16}
+                            className={`transition-transform duration-300 ${
+                                openMenus.settingManagement
+                                    ? "rotate-180"
+                                    : ""
+                            }`}
+                        />
+                    </button>
+
+                    <div
+                        className={`overflow-hidden transition-all duration-300 ${
+                            openMenus.settingManagement
+                                ? "max-h-40"
+                                : "max-h-0"
+                        }`}
+                    >
+                        <div className="ml-9 border-slate-100 dark:border-slate-800 mt-1 space-y-1">
+                            <Link
+                                href={route("be.settings.profile")}
+                                className={`block py-2 px-4 text-sm rounded-lg transition-colors ${
+                                    route().current(
+                                        "be.settings.profile",
+                                    )
+                                        ? "text-brand-blue-600 dark:text-brand-blue-400 font-semibold bg-brand-blue-50/50 dark:bg-slate-800/50"
+                                        : "text-slate-500 dark:text-slate-400 hover:text-brand-blue-600 dark:hover:text-brand-blue-400"
+                                }`}
+                            >
+                                Profil Saya
+                            </Link>
+                            <Link
+                                href={route("be.settings.app")}
+                                className={`block py-2 px-4 text-sm rounded-lg transition-colors ${
+                                    route().current("be.settings.app")
+                                        ? "text-brand-blue-600 dark:text-brand-blue-400 font-semibold bg-brand-blue-50/50 dark:bg-slate-800/50"
+                                        : "text-slate-500 dark:text-slate-400 hover:text-brand-blue-600 dark:hover:text-brand-blue-400"
+                                }`}
+                            >
+                                Aplikasi
+                            </Link>
+                        </div>
+                    </div>
+                </div>
             </nav>
 
             {/* User Profile Footer */}

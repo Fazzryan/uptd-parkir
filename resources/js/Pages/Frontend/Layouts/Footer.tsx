@@ -1,5 +1,12 @@
 import React from "react";
-import { MapPin, Phone, Mail, Eye, Calendar, Users, Globe, ExternalLink } from "lucide-react";
+import { usePage } from "@inertiajs/react";
+import FloatingWhatsapp from "./FloatingWhatsapp";
+import {
+    MapPin,
+    Phone,
+    Mail,
+    ExternalLink,
+} from "lucide-react";
 
 interface VisitorStats {
     today?: number;
@@ -13,12 +20,14 @@ interface FooterProps {
 }
 
 export default function Footer({ stats }: FooterProps) {
-    // Default Visitor Counter (dapat disuplai dari props controller / state)
+    const sharedVisitorStats = usePage<any>().props.visitor_stats;
+
+    // Ambil data statistik dari database via shared props
     const visitorData = {
-        today: stats?.today ?? 142,
-        thisWeek: stats?.thisWeek ?? 1250,
-        thisMonth: stats?.thisMonth ?? 4890,
-        total: stats?.total ?? 18450,
+        today: stats?.today ?? sharedVisitorStats?.today ?? 0,
+        thisWeek: stats?.thisWeek ?? sharedVisitorStats?.thisWeek ?? 0,
+        thisMonth: stats?.thisMonth ?? sharedVisitorStats?.thisMonth ?? 0,
+        total: stats?.total ?? sharedVisitorStats?.total ?? 0,
     };
 
     const formatNumber = (num: number) => {
@@ -50,29 +59,40 @@ export default function Footer({ stats }: FooterProps) {
                             </div>
                         </div>
                         <p className="text-xs text-slate-300 leading-relaxed">
-                            Penyelenggara retribusi dan pelayanan parkir tepi jalan umum
-                            yang tertib, transparan, dan profesional di Kabupaten Tasikmalaya.
+                            Penyelenggara retribusi dan pelayanan parkir tepi
+                            jalan umum yang tertib, transparan, dan profesional
+                            di Kabupaten Tasikmalaya.
                         </p>
                     </div>
 
                     {/* Column 2: Kontak Resmi */}
                     <div className="space-y-4">
-                        <h4 className="text-sm font-bold uppercase tracking-wider text-blue-400 border-b border-slate-800 pb-2">
+                        <h4 className="text-sm font-bold uppercase tracking-wider text-white border-b border-slate-800 pb-2">
                             Kontak Resmi
                         </h4>
                         <div className="space-y-3 text-xs text-slate-300">
                             <div className="flex items-start gap-2.5">
-                                <MapPin size={16} className="text-blue-400 shrink-0 mt-0.5" />
+                                <MapPin
+                                    size={16}
+                                    className="text-white shrink-0 mt-0.5"
+                                />
                                 <span>
-                                    Jl. Raya Singaparna, Komplek Perkantoran Pemkab Tasikmalaya, Jawa Barat
+                                    Jl. Raya Singaparna, Komplek Perkantoran
+                                    Pemkab Tasikmalaya, Jawa Barat
                                 </span>
                             </div>
                             <div className="flex items-center gap-2.5">
-                                <Phone size={16} className="text-blue-400 shrink-0" />
+                                <Phone
+                                    size={16}
+                                    className="text-white shrink-0"
+                                />
                                 <span>(0265) 543210 / 0812-3456-7890</span>
                             </div>
                             <div className="flex items-center gap-2.5">
-                                <Mail size={16} className="text-blue-400 shrink-0" />
+                                <Mail
+                                    size={16}
+                                    className="text-white shrink-0"
+                                />
                                 <span>uptdparkir@tasikmalayakab.go.id</span>
                             </div>
                         </div>
@@ -80,48 +100,41 @@ export default function Footer({ stats }: FooterProps) {
 
                     {/* Column 3: Statistik Kunjungan Website (Visitor Counter) */}
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
-                            <Eye size={16} className="text-blue-400" />
-                            <h4 className="text-sm font-bold uppercase tracking-wider text-blue-400">
-                                Statistik Kunjungan
-                            </h4>
-                        </div>
+                        <h4 className="text-sm font-bold uppercase tracking-wider text-white border-b border-slate-800 pb-2">
+                            Statistik Kunjungan
+                        </h4>
                         <div className="grid grid-cols-2 gap-2">
                             <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
-                                <div className="flex items-center gap-1.5 text-[11px] text-slate-400 mb-1">
-                                    <Calendar size={12} className="text-emerald-400" />
-                                    <span>Hari Ini</span>
-                                </div>
+                                <span className="block text-[11px] text-slate-400 font-medium mb-1">
+                                    Hari Ini
+                                </span>
                                 <p className="text-sm font-extrabold text-white">
                                     {formatNumber(visitorData.today)}
                                 </p>
                             </div>
 
                             <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
-                                <div className="flex items-center gap-1.5 text-[11px] text-slate-400 mb-1">
-                                    <Users size={12} className="text-blue-400" />
-                                    <span>Minggu Ini</span>
-                                </div>
+                                <span className="block text-[11px] text-slate-400 font-medium mb-1">
+                                    Minggu Ini
+                                </span>
                                 <p className="text-sm font-extrabold text-white">
                                     {formatNumber(visitorData.thisWeek)}
                                 </p>
                             </div>
 
                             <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
-                                <div className="flex items-center gap-1.5 text-[11px] text-slate-400 mb-1">
-                                    <Calendar size={12} className="text-amber-400" />
-                                    <span>Bulan Ini</span>
-                                </div>
+                                <span className="block text-[11px] text-slate-400 font-medium mb-1">
+                                    Bulan Ini
+                                </span>
                                 <p className="text-sm font-extrabold text-white">
                                     {formatNumber(visitorData.thisMonth)}
                                 </p>
                             </div>
 
                             <div className="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
-                                <div className="flex items-center gap-1.5 text-[11px] text-slate-400 mb-1">
-                                    <Globe size={12} className="text-purple-400" />
-                                    <span>Total Hits</span>
-                                </div>
+                                <span className="block text-[11px] text-slate-400 font-medium mb-1">
+                                    Total Hits
+                                </span>
                                 <p className="text-sm font-extrabold text-white">
                                     {formatNumber(visitorData.total)}
                                 </p>
@@ -131,7 +144,7 @@ export default function Footer({ stats }: FooterProps) {
 
                     {/* Column 4: Lokasi Peta / Google Maps Embed */}
                     <div className="space-y-4">
-                        <h4 className="text-sm font-bold uppercase tracking-wider text-blue-400 border-b border-slate-800 pb-2">
+                        <h4 className="text-sm font-bold uppercase tracking-wider text-white border-b border-slate-800 pb-2">
                             Peta Lokasi Kantor
                         </h4>
                         <div className="rounded-xl overflow-hidden border border-slate-700/60 bg-slate-800 h-32 relative group">
@@ -157,13 +170,16 @@ export default function Footer({ stats }: FooterProps) {
                 {/* Bottom Copyright Bar */}
                 <div className="border-t border-slate-800 pt-6 text-center text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <p>
-                        &copy; {new Date().getFullYear()} UPTD Pengelola Parkir · Dinas Perhubungan Komunikasi dan Informatika Kabupaten Tasikmalaya
+                        &copy; {new Date().getFullYear()} UPTD Pengelola Parkir
+                        · Dinas Perhubungan Komunikasi dan Informatika Kabupaten
+                        Tasikmalaya
                     </p>
                     <p className="text-[11px] text-slate-500">
                         Pemerintah Kabupaten Tasikmalaya
                     </p>
                 </div>
             </div>
+            <FloatingWhatsapp />
         </footer>
     );
 }
