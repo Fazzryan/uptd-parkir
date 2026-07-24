@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Head, Link, router, usePage } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
+import SeoHead from "@/Components/SeoHead";
 import Navbar from "./Layouts/Navbar";
 import Footer from "./Layouts/Footer";
 import {
@@ -165,7 +166,24 @@ export default function Beranda({
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col justify-between selection:bg-blue-100 selection:text-blue-900">
-            <Head title="UPTD Pengelola Parkir Kab. Tasikmalaya" />
+            <SeoHead
+                title="UPTD Pengelola Parkir Kab. Tasikmalaya - Portalan Informasi Resmi"
+                description="Situs Resmi UPTD Pengelola Parkir Dinas Perhubungan Kabupaten Tasikmalaya. Informasi lengkap tarif parkir resmi, daftar wilayah titik parkir, panduan juru parkir, serta berita terkini."
+                keywords="UPTD Parkir Tasikmalaya, Tarif Parkir Tasikmalaya, Wilayah Parkir Resmi, Juru Parkir Tasikmalaya, Dishub Tasikmalaya"
+                schemaJsonLd={{
+                    "@context": "https://schema.org",
+                    "@type": "GovernmentOrganization",
+                    "name": "UPTD Pengelola Parkir Kabupaten Tasikmalaya",
+                    "alternateName": "UPTD Parkir Tasikmalaya",
+                    "description": "Situs resmi UPTD Pengelola Parkir Dinas Perhubungan Kabupaten Tasikmalaya.",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "addressLocality": "Tasikmalaya",
+                        "addressRegion": "Jawa Barat",
+                        "addressCountry": "ID"
+                    }
+                }}
+            />
 
             {/* Header / Navbar Global */}
             <Navbar />

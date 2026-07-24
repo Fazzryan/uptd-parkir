@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta name="robots" content="index, follow" />
+    <meta name="description" content="Situs Resmi UPTD Pengelola Parkir Dinas Perhubungan Kabupaten Tasikmalaya - Informasi Tarif Parkir, Wilayah Parkir Resmi, Panduan Juru Parkir, dan Berita Terkini." />
     @viteReactRefresh
     @routes
     @vite(['resources/css/app.css', 'resources/js/app.tsx'])

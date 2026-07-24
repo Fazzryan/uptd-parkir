@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { Head, Link } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
+import SeoHead from "@/Components/SeoHead";
 import Navbar from "./Layouts/Navbar";
 import Footer from "./Layouts/Footer";
 import {
@@ -42,7 +43,11 @@ export default function WilayahParkir({
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900">
-            <Head title="Wilayah Parkir Resmi - UPTD Parkir Kab. Tasikmalaya" />
+            <SeoHead
+                title="Wilayah Parkir Resmi - UPTD Parkir Kab. Tasikmalaya"
+                description="Daftar lokasi dan titik wilayah parkir resmi yang dikelola oleh UPTD Pengelola Parkir Dinas Perhubungan Kabupaten Tasikmalaya."
+                keywords="Wilayah Parkir Tasikmalaya, Titik Parkir Resmi, Lokasi Parkir Tasikmalaya, Dishub Tasikmalaya"
+            />
 
             <Navbar />
 

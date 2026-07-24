@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
-import { Head, Link } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
+import SeoHead from "@/Components/SeoHead";
 import Navbar from "./Layouts/Navbar";
 import Footer from "./Layouts/Footer";
 import {
@@ -160,7 +161,11 @@ export default function StrukturOrganisasi({
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900">
-            <Head title="Struktur Organisasi & Personel - UPTD Parkir Kab. Tasikmalaya" />
+            <SeoHead
+                title="Struktur Organisasi & Personel - UPTD Parkir Kab. Tasikmalaya"
+                description="Profil susunan struktur organisasi dan susunan personel kepemimpinan UPTD Pengelola Parkir Dinas Perhubungan Kabupaten Tasikmalaya."
+                keywords="Struktur Organisasi UPTD Parkir, Personel Dishub Tasikmalaya, Kepala UPTD Parkir"
+            />
 
             <Navbar />
 

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { Head, Link } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
+import SeoHead from "@/Components/SeoHead";
 import Navbar from "./Layouts/Navbar";
 import Footer from "./Layouts/Footer";
 import {
@@ -169,7 +170,11 @@ export default function DokumentasiGaleri({
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900">
-            <Head title="Dokumentasi & Berita - UPTD Parkir Kab. Tasikmalaya" />
+            <SeoHead
+                title="Dokumentasi & Berita - UPTD Parkir Kab. Tasikmalaya"
+                description="Kumpulan berita terkini, pengumuman resmi, dan galeri foto kegiatan UPTD Pengelola Parkir Dinas Perhubungan Kabupaten Tasikmalaya."
+                keywords="Berita UPTD Parkir, Galeri Foto Parkir, Pengumuman Dishub Tasikmalaya, Berita Tasikmalaya"
+            />
 
             <Navbar />
 

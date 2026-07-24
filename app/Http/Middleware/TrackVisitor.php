@@ -16,8 +16,11 @@ class TrackVisitor
     {
         $response = $next($request);
 
-        // Hanya catat untuk request web GET non-AJAX / non-asset
-        if ($request->isMethod('GET') && !$request->expectsJson() && !$request->is('api/*', 'storage/*', 'build/*', 'favicon.ico')) {
+        $isInertia = $request->hasHeader('X-Inertia');
+        $isPureJson = $request->expectsJson() && !$isInertia;
+
+        // Catat untuk request web GET (termasuk navigasi Inertia SPA), abaikan API & assets
+        if ($request->isMethod('GET') && !$isPureJson && !$request->is('api/*', 'storage/*', 'build/*', 'assets/*', 'favicon.ico')) {
             try {
                 $userAgent = $request->header('User-Agent');
                 $ipAddress = $request->ip();

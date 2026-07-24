@@ -1,5 +1,6 @@
 import React from "react";
-import { Head, Link } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
+import SeoHead from "@/Components/SeoHead";
 import Navbar from "./Layouts/Navbar";
 import Footer from "./Layouts/Footer";
 import {
@@ -41,7 +42,11 @@ const getImageUrl = (path?: string) => {
 export default function TarifKarcis({ tarifParkir = [] }: TarifKarcisProps) {
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900">
-            <Head title="Tarif Resmi & Karcis - UPTD Parkir Kab. Tasikmalaya" />
+            <SeoHead
+                title="Tarif Resmi & Karcis Parkir - UPTD Parkir Kab. Tasikmalaya"
+                description="Informasi rincian tarif retribusi parkir resmi berdasarkan Perda Kabupaten Tasikmalaya dan contoh spesimen karcis parkir beresmi UPTD."
+                keywords="Tarif Parkir Tasikmalaya, Karcis Parkir Tasikmalaya, Retribusi Parkir, Perda Parkir Tasikmalaya"
+            />
 
             <Navbar />
 

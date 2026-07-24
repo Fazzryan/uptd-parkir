@@ -1,5 +1,6 @@
 import React from "react";
-import { Head, Link, usePage } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
+import SeoHead from "@/Components/SeoHead";
 import Navbar from "./Layouts/Navbar";
 import Footer from "./Layouts/Footer";
 import {
@@ -41,7 +42,11 @@ export default function PanduanJukir({ panduanJukir = [] }: PanduanJukirProps) {
         "Masyarakat berhak menolak membayar retribusi parkir apabila petugas/juru parkir tidak mengenakan seragam atribut resmi atau tidak menyerahkan karcis resmi bercetak Pemerintah Kabupaten Tasikmalaya.";
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900">
-            <Head title="Panduan Juru Parkir - UPTD Parkir Kab. Tasikmalaya" />
+            <SeoHead
+                title="Panduan & Kode Etik Juru Parkir - UPTD Parkir Kab. Tasikmalaya"
+                description="Panduan pelayanan standar, atribut resmi, serta kode etik bertugas juru parkir resmi Kabupaten Tasikmalaya."
+                keywords="Panduan Jukir, Juru Parkir Tasikmalaya, Atribut Jukir Resmi, Hak Pengguna Parkir"
+            />
 
             <Navbar />
 

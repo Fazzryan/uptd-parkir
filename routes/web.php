@@ -20,6 +20,9 @@ use App\Http\Controllers\Frontend\FePanduanJukirController;
 use App\Http\Controllers\Frontend\FeStrukturOrganisasiController;
 use App\Http\Controllers\Frontend\FeTarifKarcisController;
 use App\Http\Controllers\Frontend\FeWilayahParkirController;
+use App\Http\Controllers\Frontend\SitemapController;
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 Route::as('fe.')->group(function () {
     Route::get('/', [IndexController::class, 'index'])->name('beranda');

@@ -1,5 +1,6 @@
 import React from "react";
-import { Head, Link } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
+import SeoHead from "@/Components/SeoHead";
 import Navbar from "./Layouts/Navbar";
 import Footer from "./Layouts/Footer";
 import {
@@ -65,9 +66,32 @@ export default function BeritaDetail({
 
     const formattedDate = formatDate(berita.tanggal);
 
+    const cleanDescription = berita.ringkasan
+        ? berita.ringkasan.replace(/<[^>]*>?/gm, "").substring(0, 160)
+        : (berita.isi ? berita.isi.replace(/<[^>]*>?/gm, "").substring(0, 160) : berita.judul);
+
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900">
-            <Head title={`${berita.judul} - UPTD Parkir Kab. Tasikmalaya`} />
+            <SeoHead
+                title={`${berita.judul} - UPTD Parkir Kab. Tasikmalaya`}
+                description={cleanDescription}
+                keywords={`Berita UPTD Parkir, ${berita.kategori || 'Berita'}, Tasikmalaya, ${berita.judul}`}
+                schemaJsonLd={{
+                    "@context": "https://schema.org",
+                    "@type": "NewsArticle",
+                    "headline": berita.judul,
+                    "datePublished": berita.tanggal,
+                    "description": cleanDescription,
+                    "author": {
+                        "@type": "Organization",
+                        "name": "UPTD Pengelola Parkir Kab. Tasikmalaya"
+                    },
+                    "publisher": {
+                        "@type": "Organization",
+                        "name": "UPTD Pengelola Parkir Kab. Tasikmalaya"
+                    }
+                }}
+            />
 
             <Navbar />
 

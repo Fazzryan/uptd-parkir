@@ -55,9 +55,9 @@ class HandleInertiaRequests extends Middleware
                 });
             },
             'visitor_stats' => fn () => [
-                'today' => \App\Models\Pengunjung::whereDate('tanggal', now()->toDateString())->count(),
-                'thisWeek' => \App\Models\Pengunjung::whereBetween('tanggal', [now()->startOfWeek()->toDateString(), now()->endOfWeek()->toDateString()])->count(),
-                'thisMonth' => \App\Models\Pengunjung::whereMonth('tanggal', now()->month)->whereYear('tanggal', now()->year)->count(),
+                'today' => \App\Models\Pengunjung::whereDate('tanggal', now()->toDateString())->distinct('session_id')->count('session_id'),
+                'thisWeek' => \App\Models\Pengunjung::whereBetween('tanggal', [now()->startOfWeek()->toDateString(), now()->endOfWeek()->toDateString()])->distinct('session_id')->count('session_id'),
+                'thisMonth' => \App\Models\Pengunjung::whereMonth('tanggal', now()->month)->whereYear('tanggal', now()->year)->distinct('session_id')->count('session_id'),
                 'total' => \App\Models\Pengunjung::count(),
             ],
         ];
