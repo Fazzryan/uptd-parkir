@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import SeoHead from "@/Components/SeoHead";
 import Navbar from "./Layouts/Navbar";
@@ -10,6 +10,8 @@ import {
     Ticket,
     MessageCircle,
     Info,
+    X,
+    ZoomIn,
 } from "lucide-react";
 import { PanduanJukir as PanduanJukirType } from "@/types/model";
 
@@ -36,6 +38,7 @@ const getImageUrl = (path?: string) => {
 };
 
 export default function PanduanJukir({ panduanJukir = [] }: PanduanJukirProps) {
+    const [selectedPanduan, setSelectedPanduan] = useState<PanduanJukirType | null>(null);
     const appSettings = usePage<any>().props.app_settings || {};
     const teksHakPengguna =
         appSettings.teks_hak_pengguna_parkir ||
@@ -107,23 +110,44 @@ export default function PanduanJukir({ panduanJukir = [] }: PanduanJukirProps) {
                                 return (
                                     <div
                                         key={item.id || index}
-                                        className="flex flex-col sm:flex-row gap-5 items-start sm:items-center p-6 rounded-3xl bg-white border border-slate-100"
+                                        className="group flex flex-col sm:flex-row gap-5 items-start sm:items-center p-6 rounded-3xl bg-white border border-slate-100 transition-all hover:border-blue-200 hover:shadow-xs"
                                     >
                                         {/* Gambar Atribut */}
-                                        <div className="w-full aspect-[3/2] sm:aspect-square sm:w-32 sm:h-32 shrink-0 rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 relative group-hover:border-blue-200 transition-colors">
+                                        <div
+                                            onClick={() =>
+                                                imageUrl && setSelectedPanduan(item)
+                                            }
+                                            className={`w-full aspect-[3/2] sm:aspect-square sm:w-32 sm:h-32 shrink-0 rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 relative transition-colors ${
+                                                imageUrl
+                                                    ? "cursor-pointer"
+                                                    : ""
+                                            }`}
+                                        >
                                             {imageUrl && (
-                                                <img
-                                                    src={imageUrl}
-                                                    alt={item.teks_info}
-                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                                    onError={(e) => {
-                                                        e.currentTarget.style.display =
-                                                            "none";
-                                                        e.currentTarget.nextElementSibling?.classList.remove(
-                                                            "hidden",
-                                                        );
-                                                    }}
-                                                />
+                                                <>
+                                                    <img
+                                                        src={imageUrl}
+                                                        alt={
+                                                            item.teks_info ||
+                                                            item.judul ||
+                                                            "Panduan Jukir"
+                                                        }
+                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                        onError={(e) => {
+                                                            e.currentTarget.style.display =
+                                                                "none";
+                                                            e.currentTarget.nextElementSibling?.classList.remove(
+                                                                "hidden",
+                                                            );
+                                                        }}
+                                                    />
+                                                    {/* Hover Overlay Zoom Icon */}
+                                                    <div className="absolute inset-0 bg-blue-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                                        <div className="h-9 w-9 rounded-full bg-white/90 text-blue-900 flex items-center justify-center shadow-md">
+                                                            <ZoomIn className="h-4 w-4" />
+                                                        </div>
+                                                    </div>
+                                                </>
                                             )}
                                             <div
                                                 className={`${
@@ -132,7 +156,7 @@ export default function PanduanJukir({ panduanJukir = [] }: PanduanJukirProps) {
                                             >
                                                 <Info className="h-6 w-6 mb-1 text-slate-400" />
                                                 <span className="text-[11px] font-medium">
-                                                    Foto {item.teks_info}
+                                                    Foto {item.teks_info || item.judul}
                                                 </span>
                                             </div>
                                         </div>
@@ -143,8 +167,17 @@ export default function PanduanJukir({ panduanJukir = [] }: PanduanJukirProps) {
                                                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-xs font-bold text-white shadow-md shadow-blue-600/30">
                                                     {index + 1}
                                                 </span>
-                                                <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-700 transition-colors">
-                                                    {item.teks_info}
+                                                <h3
+                                                    onClick={() =>
+                                                        imageUrl && setSelectedPanduan(item)
+                                                    }
+                                                    className={`text-lg font-bold text-slate-900 transition-colors ${
+                                                        imageUrl
+                                                            ? "cursor-pointer hover:text-blue-700"
+                                                            : ""
+                                                    }`}
+                                                >
+                                                    {item.teks_info || item.judul}
                                                 </h3>
                                             </div>
                                             <p className="text-xs sm:text-sm leading-relaxed text-slate-600">
@@ -184,6 +217,71 @@ export default function PanduanJukir({ panduanJukir = [] }: PanduanJukirProps) {
                     </div>
                 </section>
             </main>
+
+            {/* ================= LIGHTBOX MODAL PREVIEW ================= */}
+            {selectedPanduan && (
+                <div
+                    onClick={() => setSelectedPanduan(null)}
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200"
+                >
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative max-w-3xl w-full bg-white rounded-3xl overflow-hidden shadow-2xl space-y-4 p-6 sm:p-8"
+                    >
+                        {/* Close Button */}
+                        <button
+                            onClick={() => setSelectedPanduan(null)}
+                            className="absolute top-4 right-4 z-20 h-10 w-10 rounded-full bg-slate-900/70 text-white flex items-center justify-center hover:bg-slate-900 transition-colors cursor-pointer"
+                        >
+                            <X className="h-5 w-5" />
+                        </button>
+
+                        {/* Modal Image Container */}
+                        <div className="relative rounded-2xl overflow-hidden bg-slate-950 h-[50vh] sm:h-[60vh] flex items-center justify-center">
+                            {getImageUrl(selectedPanduan.foto) ? (
+                                <img
+                                    src={
+                                        getImageUrl(
+                                            selectedPanduan.foto,
+                                        ) as string
+                                    }
+                                    alt={
+                                        selectedPanduan.teks_info ||
+                                        selectedPanduan.judul ||
+                                        "Preview"
+                                    }
+                                    className="max-h-full max-w-full object-contain"
+                                />
+                            ) : (
+                                <div className="h-64 flex flex-col items-center justify-center text-slate-400 gap-2">
+                                    <Info className="h-12 w-12 text-slate-500" />
+                                    <span className="text-xs font-medium text-slate-400">
+                                        Foto preview belum diunggah
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Modal Info */}
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                                <span className="inline-block rounded-full px-3 py-1 text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                                    Atribut Resmi Jukir
+                                </span>
+                            </div>
+                            <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                                {selectedPanduan.teks_info ||
+                                    selectedPanduan.judul}
+                            </h3>
+                            {selectedPanduan.deskripsi && (
+                                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                                    {selectedPanduan.deskripsi}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <Footer />
         </div>

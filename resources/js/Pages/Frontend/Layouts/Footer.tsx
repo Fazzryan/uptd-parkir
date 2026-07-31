@@ -1,12 +1,7 @@
 import React from "react";
 import { usePage } from "@inertiajs/react";
 import FloatingWhatsapp from "./FloatingWhatsapp";
-import {
-    MapPin,
-    Phone,
-    Mail,
-    ExternalLink,
-} from "lucide-react";
+import { MapPin, Phone, Mail, ExternalLink } from "lucide-react";
 
 interface VisitorStats {
     today?: number;
@@ -77,17 +72,17 @@ export default function Footer({ stats }: FooterProps) {
                                     className="text-white shrink-0 mt-0.5"
                                 />
                                 <span>
-                                    Jl. Raya Singaparna, Komplek Perkantoran
-                                    Pemkab Tasikmalaya, Jawa Barat
+                                    Cintaraja, Kec. Singaparna, Kabupaten
+                                    Tasikmalaya, Jawa Barat 46182
                                 </span>
                             </div>
-                            <div className="flex items-center gap-2.5">
+                            {/* <div className="flex items-center gap-2.5">
                                 <Phone
                                     size={16}
                                     className="text-white shrink-0"
                                 />
                                 <span>(0265) 543210 / 0812-3456-7890</span>
-                            </div>
+                            </div> */}
                             <div className="flex items-center gap-2.5">
                                 <Mail
                                     size={16}
