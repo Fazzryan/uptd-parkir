@@ -25,10 +25,13 @@ class FeDokumentasiController extends Controller
         ]);
     }
 
-    public function detail($id)
+    public function detail($slug)
     {
-        $berita = Berita::findOrFail($id);
-        $beritaTerkait = Berita::where('id', '!=', $id)
+        $berita = Berita::where('slug', $slug)
+            ->orWhere('id', $slug)
+            ->firstOrFail();
+
+        $beritaTerkait = Berita::where('id', '!=', $berita->id)
             ->latest('tanggal')
             ->take(3)
             ->get();

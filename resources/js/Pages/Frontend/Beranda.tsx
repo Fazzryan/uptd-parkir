@@ -471,7 +471,7 @@ export default function Beranda({
                                             key={b.id}
                                             href={route(
                                                 "fe.berita.detail",
-                                                b.id,
+                                                b.slug || b.id,
                                             )}
                                             className="group flex flex-col justify-between rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-3.5 sm:p-5 transition-all hover:border-blue-300"
                                         >

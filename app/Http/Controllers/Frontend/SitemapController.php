@@ -53,7 +53,7 @@ class SitemapController extends Controller
             $beritas = Berita::latest('updated_at')->get();
             foreach ($beritas as $berita) {
                 $urls[] = [
-                    'loc' => route('fe.berita.detail', $berita->id),
+                    'loc' => route('fe.berita.detail', $berita->slug ?: $berita->id),
                     'lastmod' => $berita->updated_at ? $berita->updated_at->toAtomString() : now()->toAtomString(),
                     'changefreq' => 'weekly',
                     'priority' => '0.7',

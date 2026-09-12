@@ -28,7 +28,7 @@ Route::as('fe.')->group(function () {
     Route::get('/', [IndexController::class, 'index'])->name('beranda');
 
     Route::get('/dokumentasi', [FeDokumentasiController::class, 'index'])->name('dokumentasi');
-    Route::get('/berita/{id}', [FeDokumentasiController::class, 'detail'])->name('berita.detail');
+    Route::get('/berita/{slug}', [FeDokumentasiController::class, 'detail'])->name('berita.detail');
     Route::get('/panduan-jukir', [FePanduanJukirController::class, 'index'])->name('panduan-jukir');
     Route::get('/struktur-organisasi', [FeStrukturOrganisasiController::class, 'index'])->name('struktur-organisasi');
     Route::get('/tarif-parkir', [FeTarifKarcisController::class, 'index'])->name('tarif-parkir');

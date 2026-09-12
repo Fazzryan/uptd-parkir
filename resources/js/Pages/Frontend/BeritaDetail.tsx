@@ -76,12 +76,16 @@ export default function BeritaDetail({
                 title={`${berita.judul} - UPTD Parkir Kab. Tasikmalaya`}
                 description={cleanDescription}
                 keywords={`Berita UPTD Parkir, ${berita.kategori || 'Berita'}, Tasikmalaya, ${berita.judul}`}
+                ogImage={photoUrl || "/assets/logo/logotasik.png"}
+                ogType="article"
+                canonicalUrl={shareUrl}
                 schemaJsonLd={{
                     "@context": "https://schema.org",
                     "@type": "NewsArticle",
                     "headline": berita.judul,
                     "datePublished": berita.tanggal,
                     "description": cleanDescription,
+                    "image": photoUrl ? [photoUrl] : undefined,
                     "author": {
                         "@type": "Organization",
                         "name": "UPTD Pengelola Parkir Kab. Tasikmalaya"
@@ -235,7 +239,7 @@ export default function BeritaDetail({
                             {beritaTerkait.map((item) => (
                                 <Link
                                     key={item.id}
-                                    href={route("fe.berita.detail", item.id)}
+                                    href={route("fe.berita.detail", item.slug || item.id)}
                                     className="flex flex-col justify-between rounded-2xl border border-slate-100 bg-white p-5 transition-all hover:border-blue-200 group"
                                 >
                                     <div className="space-y-3">

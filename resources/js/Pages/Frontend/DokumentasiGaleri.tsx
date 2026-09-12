@@ -409,7 +409,7 @@ export default function DokumentasiGaleri({
                                         key={item.id}
                                         href={route(
                                             "fe.berita.detail",
-                                            item.id,
+                                            item.slug || item.id,
                                         )}
                                         className="group flex flex-col sm:flex-row items-stretch gap-4 sm:gap-6 rounded-3xl border border-slate-100 bg-white p-5 transition-all hover:border-blue-200"
                                     >
