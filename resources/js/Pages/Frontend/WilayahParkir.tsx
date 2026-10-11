@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Link } from "@inertiajs/react";
 import SeoHead from "@/Components/SeoHead";
+import Button from "@/Components/UI/Button";
 import Navbar from "./Layouts/Navbar";
 import Footer from "./Layouts/Footer";
 import {
@@ -12,6 +13,8 @@ import {
     MapPin,
     MessageCircle,
     Building2,
+    LayoutGrid,
+    Table as TableIcon,
 } from "lucide-react";
 import { WilayahParkir as WilayahParkirType } from "@/types/model";
 
@@ -40,6 +43,18 @@ export default function WilayahParkir({
             );
         });
     }, [query, wilayahParkir]);
+
+    // toggle grid atau tabel
+    const [view, setView] = useState("table");
+
+    // Helper URL Google Maps
+    const getMapsUrl = (z: WilayahParkirType) => {
+        return z.latitude && z.longitude
+            ? `https://www.google.com/maps/search/?api=1&query=${z.latitude},${z.longitude}`
+            : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                  `${z.nama_jalan}, ${z.kecamatan?.nama_kecamatan || ""}, Kabupaten Tasikmalaya`,
+              )}`;
+    };
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900">
@@ -112,63 +127,143 @@ export default function WilayahParkir({
                         </span>{" "}
                         titik parkir resmi
                     </p>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant={view === "grid" ? "primary" : "secondary"}
+                            onClick={() => setView("grid")}
+                            className={`!rounded-lg !px-3 !py-2 ${
+                                view === "grid"
+                                    ? "!bg-blue-600 hover:!bg-blue-700 text-white"
+                                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                            }`}
+                            title="Tampilan Grid"
+                            aria-label="Tampilan Grid"
+                        >
+                            <LayoutGrid className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant={view === "table" ? "primary" : "secondary"}
+                            onClick={() => setView("table")}
+                            className={`!rounded-lg !px-3 !py-2 ${
+                                view === "table"
+                                    ? "!bg-blue-600 hover:!bg-blue-700 text-white"
+                                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                            }`}
+                            title="Tampilan Tabel"
+                            aria-label="Tampilan Tabel"
+                        >
+                            <TableIcon className="h-4 w-4" />
+                        </Button>
+                    </div>
                 </div>
 
                 {/* DAFTAR ZONA / TITIK PARKIR */}
                 {hasil.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                        {hasil.map((z) => {
-                            const mapsUrl =
-                                z.latitude && z.longitude
-                                    ? `https://www.google.com/maps/search/?api=1&query=${z.latitude},${z.longitude}`
-                                    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                                          `${z.nama_jalan}, ${z.kecamatan?.nama_kecamatan || ""}, Kabupaten Tasikmalaya`,
-                                      )}`;
+                    view === "grid" ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                            {hasil.map((z) => {
+                                const mapsUrl = getMapsUrl(z);
 
-                            return (
-                                <div
-                                    key={z.id}
-                                    className="flex flex-col justify-between gap-4 rounded-3xl border border-slate-100 bg-white p-5 sm:p-6 transition-all hover:border-blue-200 group"
-                                >
-                                    <div className="flex items-start gap-4">
-                                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 border border-blue-100">
-                                            <MapPin className="h-5 w-5" />
-                                        </div>
-                                        <div className="min-w-0 flex-1 space-y-1">
-                                            <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors">
-                                                {z.nama_jalan}
-                                            </h3>
-                                            <div className="flex items-center gap-2 text-xs text-slate-500">
-                                                <Building2 className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                                                <span>
-                                                    Kecamatan:{" "}
-                                                    {z.kecamatan
-                                                        ?.nama_kecamatan || "-"}
-                                                </span>
+                                return (
+                                    <div
+                                        key={z.id}
+                                        className="flex flex-col justify-between gap-4 rounded-3xl border border-slate-100 bg-white p-5 sm:p-6 transition-all hover:border-blue-200 group"
+                                    >
+                                        <div className="flex items-start gap-4">
+                                            <div className="min-w-0 flex-1 space-y-1">
+                                                <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors">
+                                                    {z.nama_jalan}
+                                                </h3>
+                                                <div className="flex items-center gap-2 text-xs text-slate-500">
+                                                    <span>
+                                                        Kecamatan:{" "}
+                                                        {z.kecamatan
+                                                            ?.nama_kecamatan ||
+                                                            "-"}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-100 px-3 py-1 text-[11px] font-bold text-emerald-700">
-                                            <ShieldCheck className="h-3.5 w-3.5" />
-                                            <span>Titik Resmi UPTD</span>
-                                        </span>
-
-                                        <a
-                                            href={mapsUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex items-center gap-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-100 px-3.5 py-1.5 text-xs font-bold text-blue-700 transition-colors"
-                                        >
-                                            <Navigation className="h-3.5 w-3.5" />
-                                            <span>Petunjuk Lokasi</span>
-                                        </a>
+                                        <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                                            <a
+                                                href={mapsUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-100 px-3.5 py-1.5 text-xs font-bold text-blue-700 transition-colors"
+                                            >
+                                                <Navigation className="h-3.5 w-3.5" />
+                                                <span>Petunjuk Lokasi</span>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                            );
-                        })}
-                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="border-b border-slate-200 bg-slate-50/80">
+                                            <th className="py-3.5 px-5 text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                                No
+                                            </th>
+                                            <th className="py-3.5 px-5 text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                                Nama Jalan
+                                            </th>
+                                            <th className="py-3.5 px-5 text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                                Kecamatan
+                                            </th>
+                                            <th className="py-3.5 px-5 text-center text-xs font-bold text-slate-700 uppercase tracking-wider w-64">
+                                                Aksi
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 text-sm">
+                                        {hasil.map((z, index) => {
+                                            const mapsUrl = getMapsUrl(z);
+                                            return (
+                                                <tr
+                                                    key={z.id}
+                                                    className="hover:bg-slate-50/70 transition-colors"
+                                                >
+                                                    <td className="py-3.5 px-5 font-semibold text-slate-900">
+                                                        {index + 1}
+                                                    </td>
+                                                    <td className="py-3.5 px-5 font-semibold text-slate-900">
+                                                        {z.nama_jalan}
+                                                    </td>
+                                                    <td className="py-3.5 px-5 text-slate-600">
+                                                        {z.kecamatan
+                                                            ?.nama_kecamatan ||
+                                                            "-"}
+                                                    </td>
+                                                    <td className="py-3.5 px-5 text-center">
+                                                        <a
+                                                            href={mapsUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-100 px-3.5 py-1.5 text-xs font-bold text-blue-700 transition-colors"
+                                                        >
+                                                            <Navigation className="h-3.5 w-3.5" />
+                                                            <span>
+                                                                Petunjuk Lokasi
+                                                            </span>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )
                 ) : (
                     <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-slate-200 bg-white py-16 text-center px-4">
                         <div className="p-4 rounded-full bg-slate-50 text-slate-400">

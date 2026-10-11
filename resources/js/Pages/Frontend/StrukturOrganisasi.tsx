@@ -232,7 +232,6 @@ export default function StrukturOrganisasi({
                             <section className="space-y-6 pt-4">
                                 <div className="flex items-center justify-between border-t border-slate-200/80 pt-8">
                                     <div className="flex items-center gap-2">
-                                        <Users className="h-5 w-5 text-blue-700" />
                                         <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
                                             Kolektor &amp; Staf Pelaksana
                                             Lapangan

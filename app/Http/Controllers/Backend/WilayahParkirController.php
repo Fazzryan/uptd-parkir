@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Kecamatan;
+use App\Models\WilayahParkir;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\WilayahParkir;
-use App\Models\Kecamatan;
 
 class WilayahParkirController extends Controller
 {
@@ -16,10 +16,10 @@ class WilayahParkirController extends Controller
 
         if ($search = request('search')) {
             $query->where(function ($q) use ($search) {
-                $q->where('nama_jalan', 'like', '%' . $search . '%')
-                  ->orWhereHas('kecamatan', function ($k) use ($search) {
-                      $k->where('nama_kecamatan', 'like', '%' . $search . '%');
-                  });
+                $q->where('nama_jalan', 'like', '%'.$search.'%')
+                    ->orWhereHas('kecamatan', function ($k) use ($search) {
+                        $k->where('nama_kecamatan', 'like', '%'.$search.'%');
+                    });
             });
         }
 
@@ -36,15 +36,16 @@ class WilayahParkirController extends Controller
         if (request()->wantsJson()) {
             return response()->json($wilayah);
         }
-        
+
         return Inertia::render('Backend/WilayahParkir/Index', [
             'wilayah' => $wilayah,
             'kecamatanList' => $kecamatanList,
             'filters' => request()->only(['search', 'kecamatan_id', 'per_page']),
         ]);
     }
-    
-    public function store(Request $request) {
+
+    public function store(Request $request)
+    {
         $validated = $request->validate([
             'kecamatan_id' => 'required|exists:kecamatans,id',
             'nama_jalan' => 'required|string|max:255',
@@ -64,7 +65,8 @@ class WilayahParkirController extends Controller
         return redirect()->back()->with('success', 'Wilayah parkir berhasil ditambahkan.');
     }
 
-    public function update(Request $request, WilayahParkir $wilayah_parkir) {
+    public function update(Request $request, WilayahParkir $wilayah_parkir)
+    {
         $validated = $request->validate([
             'kecamatan_id' => 'required|exists:kecamatans,id',
             'nama_jalan' => 'required|string|max:255',
@@ -84,7 +86,8 @@ class WilayahParkirController extends Controller
         return redirect()->back()->with('success', 'Wilayah parkir berhasil diperbarui.');
     }
 
-    public function destroy(WilayahParkir $wilayah_parkir) {
+    public function destroy(WilayahParkir $wilayah_parkir)
+    {
         $wilayah_parkir->delete();
 
         return redirect()->back()->with('success', 'Wilayah parkir berhasil dihapus.');

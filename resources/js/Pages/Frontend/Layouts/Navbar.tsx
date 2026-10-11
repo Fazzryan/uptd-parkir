@@ -20,15 +20,15 @@ export default function Navbar() {
 
     const navLinks = [
         // { label: "Beranda", href: route("fe.beranda") },
-        { label: "Wilayah Parkir", href: "/wilayah-parkir", icon: MapPin },
-        { label: "Tarif & Karcis", href: "/tarif-parkir", icon: Receipt },
-        { label: "Panduan Jukir", href: "/panduan-jukir", icon: BookOpen },
+        { label: "Wilayah Parkir", href: route("fe.wilayah-parkir"), icon: MapPin },
+        { label: "Tarif & Karcis", href: route("fe.tarif-parkir"), icon: Receipt },
+        { label: "Panduan Jukir", href: route("fe.panduan-jukir"), icon: BookOpen },
         {
             label: "Struktur Organisasi",
-            href: "/struktur-organisasi",
+            href: route("fe.struktur-organisasi"),
             icon: Network,
         },
-        { label: "Galeri & Berita", href: "/dokumentasi", icon: Camera },
+        { label: "Galeri & Berita", href: route("fe.dokumentasi"), icon: Camera },
     ];
 
     return (
@@ -68,13 +68,13 @@ export default function Navbar() {
                     {/* Desktop Navigation Links */}
                     <nav className="hidden items-center gap-6 lg:flex">
                         {navLinks.map((item) => (
-                            <a
+                            <Link
                                 key={item.label}
                                 href={item.href}
                                 className="text-sm font-medium text-blue-50 transition hover:text-white"
                             >
                                 {item.label}
-                            </a>
+                            </Link>
                         ))}
                     </nav>
 
@@ -148,7 +148,7 @@ export default function Navbar() {
                                 {navLinks.map((item) => {
                                     const IconComponent = item.icon;
                                     return (
-                                        <a
+                                        <Link
                                             key={item.label}
                                             href={item.href}
                                             onClick={() => setMenuOpen(false)}
@@ -158,7 +158,7 @@ export default function Navbar() {
                                                 <IconComponent className="h-4 w-4 text-blue-700 shrink-0" />
                                             )}
                                             <span>{item.label}</span>
-                                        </a>
+                                        </Link>
                                     );
                                 })}
                             </nav>
