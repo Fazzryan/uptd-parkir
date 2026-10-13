@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RolePermissionSeeder extends Seeder
 {
@@ -54,6 +54,11 @@ class RolePermissionSeeder extends Seeder
             'create-berita',
             'edit-berita',
             'delete-berita',
+
+            'view-jukir',
+            'create-jukir',
+            'edit-jukir',
+            'delete-jukir',
         ];
 
         foreach ($permissions as $permission) {
@@ -107,7 +112,7 @@ class RolePermissionSeeder extends Seeder
             ]
         );
         $admin->assignRole($adminRole);
-        
+
         $user = User::firstOrCreate(
             ['username' => 'user'],
             [
