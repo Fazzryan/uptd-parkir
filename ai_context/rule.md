@@ -3,3 +3,7 @@ jangan melakukan perintah artisan apapun yang berhubungan dengan database sepert
 jangan melakukan perintah git seperti pull, commit, push, pop, stash dan lainnya sebelum bertanya terlebih dahulu kepada saya.
 
 jangan membuat folder atau file yang tidak ada dalam konteks direktori yang diberikan.
+
+gunakan skema kodingan pada controller Backend/JukirController, Backend/WilayahParkirController, Backend/TarifParkirKarcisController, Backend/PanduanJukirController dan Backend/StrukturOrganisasiController sebagai acuan dalam membuat controller lainnya. begitu juga pada frontend controller
+
+gunakan skema desain tampilan frontend yang sama dengan contoh frontend pada folder resources/js/Pages/Frontend/ agar semuanya seragam. gunakan component seperti search, input, select, modal, popup, alert badge atau apapun itu yang tersedia pada folder resources/js/Components/ agar semuanya seragam.
