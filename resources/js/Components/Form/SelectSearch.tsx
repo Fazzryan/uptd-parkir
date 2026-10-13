@@ -106,14 +106,14 @@ export default function SelectSearch({
         if (typeof label === "string" && label.trim().endsWith("*")) {
             const textWithoutStar = label.trim().slice(0, -1).trim();
             return (
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">
                     {textWithoutStar} <span className="text-rose-500 ml-0.5">*</span>
                 </label>
             );
         }
 
         return (
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">
                 {label}
                 {required && <span className="text-rose-500 ml-1">*</span>}
             </label>
@@ -134,7 +134,7 @@ export default function SelectSearch({
                 <div
                     className={`
                     flex items-center justify-between
-                    py-2 px-3 border rounded-xl
+                    py-2 px-3 border rounded-xl shadow-xs
                     transition-all duration-200
                     ${
                         error
@@ -168,7 +168,7 @@ export default function SelectSearch({
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 rounded-xl shadow-xs border border-slate-200 dark:border-slate-700 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
                     {/* Search Input */}
                     <div className="p-2 border-b border-slate-100 dark:border-slate-700">
                         <div className="relative">
@@ -179,7 +179,7 @@ export default function SelectSearch({
                             <input
                                 ref={inputRef}
                                 type="text"
-                                className={`w-full pl-9 pr-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 text-slate-700 dark:text-slate-200 ${searchFocusVariants[variant]}`}
+                                className={`w-full pl-9 pr-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 text-slate-700 dark:text-slate-200 shadow-xs ${searchFocusVariants[variant]}`}
                                 placeholder="Cari..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
