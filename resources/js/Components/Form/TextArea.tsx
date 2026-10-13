@@ -1,9 +1,10 @@
-import React, { TextareaHTMLAttributes, useState } from "react";
+import React, { TextareaHTMLAttributes, ReactNode } from "react";
 
 type InputVariant = "primary" | "success" | "danger" | "warning";
 
-interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
-    label?: string;
+export interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+    label?: ReactNode;
+    required?: boolean;
     error?: string;
     containerClassName?: string;
     variant?: InputVariant;
@@ -11,10 +12,11 @@ interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 
 export default function TextArea({
     label,
+    required = false,
     className = "",
     error,
-    containerClassName = "relative w-full mt-2",
-    variant = "success",
+    containerClassName,
+    variant = "primary",
     ...props
 }: TextAreaProps) {
     const focusVariants: Record<InputVariant, string> = {
@@ -24,17 +26,40 @@ export default function TextArea({
         warning: "focus:border-yellow-500 focus:ring-yellow-500/10",
     };
 
-    return (
-        <div className={containerClassName}>
-            {label && (
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 ml-1">
-                    {label}
+    // Render label otomatis (mendukung string dengan tanda '*' di ujung atau via prop required)
+    const renderLabel = () => {
+        if (!label) return null;
+
+        if (typeof label === "string" && label.trim().endsWith("*")) {
+            const textWithoutStar = label.trim().slice(0, -1).trim();
+            return (
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">
+                    {textWithoutStar} <span className="text-rose-500 ml-0.5">*</span>
                 </label>
-            )}
+            );
+        }
+
+        return (
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">
+                {label}
+                {required && <span className="text-rose-500 ml-1">*</span>}
+            </label>
+        );
+    };
+
+    const defaultContainerClass = label ? "w-full" : "relative w-full mt-2";
+    const finalContainerClass = containerClassName ?? defaultContainerClass;
+
+    return (
+        <div className={finalContainerClass}>
+            {/* Form Label */}
+            {renderLabel()}
+
             <textarea
                 {...props}
+                required={required}
                 className={
-                    `py-2 border bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm rounded-xl shadow-xs transition-all duration-200 outline-none w-full ` +
+                    `py-2.5 border bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm rounded-xl shadow-xs transition-all duration-200 outline-none w-full ` +
                     (error
                         ? "border-rose-500 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 "
                         : `border-slate-200 dark:border-slate-700 focus:ring-4 ${focusVariants[variant]} `) +

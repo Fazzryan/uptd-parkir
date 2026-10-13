@@ -13,7 +13,8 @@ interface SelectSearchProps {
     value: string | number;
     onChange: (value: string | number) => void;
     placeholder?: string;
-    label?: string;
+    label?: ReactNode;
+    required?: boolean;
     error?: string;
     className?: string;
     disabled?: boolean;
@@ -27,6 +28,7 @@ export default function SelectSearch({
     onChange,
     placeholder = "Pilih opsi...",
     label,
+    required = false,
     error,
     className = "",
     disabled = false,
@@ -97,13 +99,30 @@ export default function SelectSearch({
         warning: "focus:border-yellow-500 focus:ring-yellow-500/10",
     };
 
+    // Render label otomatis (mendukung string dengan tanda '*' di ujung atau via prop required)
+    const renderLabel = () => {
+        if (!label) return null;
+
+        if (typeof label === "string" && label.trim().endsWith("*")) {
+            const textWithoutStar = label.trim().slice(0, -1).trim();
+            return (
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                    {textWithoutStar} <span className="text-rose-500 ml-0.5">*</span>
+                </label>
+            );
+        }
+
+        return (
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                {label}
+                {required && <span className="text-rose-500 ml-1">*</span>}
+            </label>
+        );
+    };
+
     return (
         <div className={`relative w-full ${className}`} ref={wrapperRef}>
-            {label && (
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    {label}
-                </label>
-            )}
+            {renderLabel()}
 
             <div
                 className={`
