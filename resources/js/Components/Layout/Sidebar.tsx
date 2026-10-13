@@ -12,12 +12,7 @@ import {
     Users,
     Settings,
     LogOut,
-    Menu,
-    X,
     ChevronDown,
-    CircleCheck,
-    FileCheck,
-    FileText,
     CircleGauge,
     Moon,
     Sun,
@@ -29,6 +24,8 @@ import {
     Receipt,
     Image as ImageIcon,
     Newspaper,
+    UserCog,
+    ContactRound,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -271,6 +268,29 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                             }`}
                         />
                         Panduan Jukir
+                    </Link>
+                )}
+
+                {permissions.includes("view-jukir") && (
+                    <Link
+                        href={route("be.data-jukir.index")}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-[15px] group 
+                        ${
+                            route().current("be.data-jukir.*")
+                                ? "bg-brand-blue-50 dark:bg-slate-800 text-brand-blue-600 dark:text-brand-blue-400"
+                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        }`}
+                    >
+                        <ContactRound
+                            size={20}
+                            strokeWidth={2}
+                            className={`${
+                                route().current("be.data-jukir.*")
+                                    ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                    : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
+                            }`}
+                        />
+                        Data Jukir
                     </Link>
                 )}
 
