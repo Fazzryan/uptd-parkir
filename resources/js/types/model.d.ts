@@ -1,3 +1,20 @@
+export interface Jukir {
+    id: number;
+    kode_jukir?: string;
+    user_id?: number;
+    wilayah_parkir_id?: number | string;
+    nama: string;
+    nohp?: string;
+    alamat?: string;
+    foto?: string;
+    status: string;
+    user?: User;
+    wilayah_parkir?: WilayahParkir;
+    wilayahParkir?: WilayahParkir;
+    created_at?: string;
+    updated_at?: string;
+}
+
 export interface StrukturOrganisasiPersonel {
     id: number;
     nama: string;

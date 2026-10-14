@@ -1,26 +1,25 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-use App\Http\Controllers\Backend\UserController;
-use App\Http\Controllers\Backend\RoleController;
-use App\Http\Controllers\Backend\ConfigController;
-use App\Http\Controllers\Frontend\IndexController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Backend\DashboardController;
-use App\Http\Controllers\Backend\PanduanJukirController;
-use App\Http\Controllers\Backend\WilayahParkirController;
-use App\Http\Controllers\Backend\TarifParkirKarcisController;
-use App\Http\Controllers\Backend\StrukturOrganisasiController;
-use App\Http\Controllers\Backend\GaleriFotoController;
 use App\Http\Controllers\Backend\BeritaController;
-
+use App\Http\Controllers\Backend\ConfigController;
+use App\Http\Controllers\Backend\DashboardController;
+use App\Http\Controllers\Backend\GaleriFotoController;
+use App\Http\Controllers\Backend\JukirController;
+use App\Http\Controllers\Backend\PanduanJukirController;
+use App\Http\Controllers\Backend\RoleController;
+use App\Http\Controllers\Backend\StrukturOrganisasiController;
+use App\Http\Controllers\Backend\TarifParkirKarcisController;
+use App\Http\Controllers\Backend\UserController;
+use App\Http\Controllers\Backend\WilayahParkirController;
 use App\Http\Controllers\Frontend\FeDokumentasiController;
 use App\Http\Controllers\Frontend\FePanduanJukirController;
 use App\Http\Controllers\Frontend\FeStrukturOrganisasiController;
 use App\Http\Controllers\Frontend\FeTarifKarcisController;
 use App\Http\Controllers\Frontend\FeWilayahParkirController;
+use App\Http\Controllers\Frontend\IndexController;
 use App\Http\Controllers\Frontend\SitemapController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
@@ -46,6 +45,9 @@ Route::middleware(['auth'])->prefix('dashboard')->name('be.')->group(function ()
 
     // Dashboard Utama
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::resource('data-jukir', JukirController::class)
+        ->names('data-jukir');
 
     Route::resource('panduan-jukir', PanduanJukirController::class)
         ->names('panduan-jukir');

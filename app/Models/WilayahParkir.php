@@ -22,4 +22,12 @@ class WilayahParkir extends Model
     {
         return $this->belongsTo(Kecamatan::class, 'kecamatan_id');
     }
+
+    /**
+     * Relasi ke jukir yang bertugas di lokasi ini (1 lokasi bisa dijaga banyak jukir)
+     */
+    public function jukir()
+    {
+        return $this->hasMany(Jukir::class, 'wilayah_parkir_id');
+    }
 }
