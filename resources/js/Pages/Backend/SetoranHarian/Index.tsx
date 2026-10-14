@@ -375,7 +375,7 @@ export default function Index() {
             {/* Card Utama Pembungkus Filter & Tabel (Standar desain.md) */}
             <Card className="!overflow-visible relative z-30 dark:bg-slate-800 dark:border-slate-700 dark:shadow-slate-700/50">
                 {/* Toolbar Filter Terpadu (Satu Baris Sejajar & Rapi) */}
-                <div className="p-4 md:p-5 bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 flex flex-wrap items-center gap-3 relative z-30 overflow-visible">
+                <div className="p-4 md:p-5 bg-white dark:bg-slate-800 rounded-t-3xl border-b border-slate-100 dark:border-slate-700 flex flex-wrap items-center gap-3 relative z-30 overflow-visible">
                     {/* 1. Input Pencarian */}
                     <div className="relative flex-1 min-w-[220px]">
                         <TextInput
@@ -698,7 +698,7 @@ export default function Index() {
                 />
 
                 {/* Footer Informasi Data */}
-                <div className="p-5 border-t border-slate-50 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
+                <div className="p-5 bg-white dark:bg-slate-800 rounded-b-3xl border-t border-slate-50 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
                     <span>
                         Menampilkan <strong className="text-slate-800 dark:text-slate-200">{filteredJukir.length}</strong> juru parkir
                     </span>
