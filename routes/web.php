@@ -8,6 +8,7 @@ use App\Http\Controllers\Backend\GaleriFotoController;
 use App\Http\Controllers\Backend\JukirController;
 use App\Http\Controllers\Backend\PanduanJukirController;
 use App\Http\Controllers\Backend\RoleController;
+use App\Http\Controllers\Backend\SetoranHarianController;
 use App\Http\Controllers\Backend\StrukturOrganisasiController;
 use App\Http\Controllers\Backend\TarifParkirKarcisController;
 use App\Http\Controllers\Backend\UserController;
@@ -45,6 +46,9 @@ Route::middleware(['auth'])->prefix('dashboard')->name('be.')->group(function ()
 
     // Dashboard Utama
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::resource('setoran-harian', SetoranHarianController::class)
+        ->names('setoran-harian');
 
     Route::resource('data-jukir', JukirController::class)
         ->names('data-jukir');

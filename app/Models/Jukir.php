@@ -42,4 +42,21 @@ class Jukir extends Model
     {
         return $this->belongsTo(WilayahParkir::class, 'wilayah_parkir_id');
     }
+
+    /**
+     * Relasi ke data target retribusi bulanan jukir
+     */
+    public function targets()
+    {
+        return $this->hasMany(JukirTarget::class, 'jukir_id');
+    }
+
+    /**
+     * Relasi ke riwayat setoran harian / transaksi QRIS & Tunai jukir
+     */
+    public function setoranHarian()
+    {
+        return $this->hasMany(JukirSetorHarian::class, 'jukir_id');
+    }
 }
+

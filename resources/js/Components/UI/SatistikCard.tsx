@@ -10,6 +10,7 @@ interface StatCardProps {
     description?: string;
     className?: string;
     period?: string;
+    valueClassName?: string;
 }
 
 export default function StatCard({
@@ -21,33 +22,38 @@ export default function StatCard({
     description,
     className = "",
     period = "Tahun 2025",
+    valueClassName = "text-xl lg:text-2xl",
 }: StatCardProps) {
     return (
         <div
-            className={`bg-white p-6 rounded-2xl shadow-sm shadow-slate-200/50 hover:shadow-md transition-shadow dark:bg-slate-800 dark:shadow-slate-700/50 ${className}`}
+            className={`bg-white p-5 md:p-6 rounded-2xl shadow-sm shadow-slate-200/50 hover:shadow-md transition-shadow dark:bg-slate-800 dark:shadow-slate-700/50 ${className}`}
         >
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-3">
                 {/* Background kotak menggunakan warna solid, icon menggunakan text-white */}
                 <div
-                    className={`p-3 rounded-xl ${color} shadow-lg  transition-transform group-hover:scale-110`}
+                    className={`p-2.5 rounded-xl ${color} shadow-lg transition-transform group-hover:scale-110`}
                 >
-                    <Icon size={22} strokeWidth={2} className="text-white" />
+                    <Icon size={20} strokeWidth={2} className="text-white" />
                 </div>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider dark:text-slate-500">
                     {period}
                 </span>
             </div>
             <div>
-                <h3 className="text-slate-500 text-sm font-medium dark:text-slate-400">
+                <h3 className="text-slate-500 text-xs sm:text-sm font-medium dark:text-slate-400">
                     {title}
                 </h3>
-                <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+                <div className="flex flex-col mt-1">
+                    <span
+                        className={`font-bold text-slate-800 dark:text-slate-200 tracking-tight whitespace-nowrap ${valueClassName}`}
+                    >
                         {value}
                     </span>
-                    <span className="text-xs text-green-500 font-medium">
-                        {description}
-                    </span>
+                    {description && (
+                        <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-1 truncate">
+                            {description}
+                        </span>
+                    )}
                 </div>
             </div>
         </div>

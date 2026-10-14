@@ -13,7 +13,6 @@ import {
     Settings,
     LogOut,
     ChevronDown,
-    CircleGauge,
     Moon,
     Sun,
     User,
@@ -24,8 +23,9 @@ import {
     Receipt,
     Image as ImageIcon,
     Newspaper,
-    UserCog,
     ContactRound,
+    Coins,
+    BanknoteArrowUp,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -174,6 +174,30 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                     />
                     Dashboard
                 </Link>
+                
+                {/* Setoran Harian */}
+                  {permissions.includes("view-setoran-harian") && (
+                <Link
+                    href={route("be.setoran-harian.index")}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-[15px] group 
+                        ${
+                            route().current("be.setoran-harian.*")
+                                ? "bg-brand-blue-50 dark:bg-slate-800 text-brand-blue-600 dark:text-brand-blue-400"
+                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        }`}
+                >
+                    <BanknoteArrowUp
+                        size={20}
+                        strokeWidth={2}
+                        className={`${
+                            route().current("be.setoran-harian.*")
+                                ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
+                        }`}
+                    />
+                    Setoran Harian
+                </Link>
+                  )}
 
                 <p className="px-4 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 mt-4">
                     Master Data

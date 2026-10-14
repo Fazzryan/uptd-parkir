@@ -11,9 +11,48 @@ export interface Jukir {
     user?: User;
     wilayah_parkir?: WilayahParkir;
     wilayahParkir?: WilayahParkir;
+    targets?: JukirTarget[];
+    setoran_harian?: JukirSetorHarian[];
+    setoranHarian?: JukirSetorHarian[];
     created_at?: string;
     updated_at?: string;
 }
+
+export interface JukirTarget {
+    id: number;
+    jukir_id: number;
+    tahun: number;
+    bulan: number;
+    nama_bulan?: string;
+    jml_hari: number;
+    target_per_hari: number | string;
+    total_target: number | string;
+    keterangan?: string | null;
+    jukir?: Jukir;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface JukirSetorHarian {
+    id: number;
+    jukir_id: number;
+    petugas_id?: number | null;
+    kode_transaksi: string;
+    external_id?: string | null;
+    tanggal: string;
+    jam?: string | null;
+    nominal_setor: number | string;
+    metode_pembayaran: "Tunai" | "QRIS" | string;
+    status: "Pending" | "Success" | "Failed" | string;
+    bukti_setor?: string | null;
+    keterangan?: string | null;
+    payload_response?: Record<string, any> | null;
+    jukir?: Jukir;
+    petugas?: User;
+    created_at?: string;
+    updated_at?: string;
+}
+
 
 export interface StrukturOrganisasiPersonel {
     id: number;

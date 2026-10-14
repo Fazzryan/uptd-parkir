@@ -59,6 +59,11 @@ class RolePermissionSeeder extends Seeder
             'create-jukir',
             'edit-jukir',
             'delete-jukir',
+
+            'view-setoran-harian',
+            'create-setoran-harian',
+            'edit-setoran-harian',
+            'delete-setoran-harian',
         ];
 
         foreach ($permissions as $permission) {
