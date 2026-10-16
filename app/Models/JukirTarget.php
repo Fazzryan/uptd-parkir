@@ -34,7 +34,7 @@ class JukirTarget extends Model
      */
     public function jukir()
     {
-        return $this->belongsTo(Jukir::class, 'jukir_id');
+        return $this->belongsTo(Jukir::class, 'jukir_id')->withTrashed();
     }
 
     /**

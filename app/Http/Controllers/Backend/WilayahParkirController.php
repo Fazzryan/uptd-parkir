@@ -12,7 +12,7 @@ class WilayahParkirController extends Controller
 {
     public function index()
     {
-        $query = WilayahParkir::query()->with('kecamatan');
+        $query = WilayahParkir::query()->with(['kecamatan', 'jukir'])->withCount('jukir');
 
         if ($search = request('search')) {
             $query->where(function ($q) use ($search) {

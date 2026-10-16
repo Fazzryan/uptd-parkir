@@ -9,6 +9,8 @@ interface ConfirmationModalProps {
     onConfirm: () => void;
     onCancel: () => void;
     processing?: boolean;
+    confirmText?: string;
+    confirmVariant?: "danger" | "primary" | "secondary";
 }
 
 export default function ConfirmationModal({
@@ -18,6 +20,8 @@ export default function ConfirmationModal({
     onConfirm,
     onCancel,
     processing = false,
+    confirmText = "Ya, Hapus",
+    confirmVariant = "danger",
 }: ConfirmationModalProps) {
     // animate: untuk trigger CSS transition (opacity/scale)
     const [animate, setAnimate] = useState(false);
@@ -96,12 +100,12 @@ export default function ConfirmationModal({
                         Batalkan
                     </Button>
                     <Button
-                        variant="danger"
+                        variant={confirmVariant}
                         onClick={onConfirm}
                         disabled={processing}
                         className="flex-1 py-3 text-[13px]"
                     >
-                        {processing ? "Menghapus..." : "Ya, Hapus"}
+                        {processing ? "Memproses..." : confirmText}
                     </Button>
                 </div>
             </div>

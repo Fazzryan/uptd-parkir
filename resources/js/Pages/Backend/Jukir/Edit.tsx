@@ -1,7 +1,6 @@
 import React, { FormEventHandler, useState } from "react";
 import MainLayout from "@/Layouts/MainLayout";
 import TextInput from "@/Components/Form/TextInput";
-import TextArea from "@/Components/Form/TextArea";
 import SelectInput from "@/Components/Form/SelectInput";
 import SelectSearch from "@/Components/Form/SelectSearch";
 import FileUpload from "@/Components/Form/FileUpload";
@@ -10,9 +9,11 @@ import Card from "@/Components/UI/Card";
 import { Head, Link, useForm } from "@inertiajs/react";
 import {
     ArrowLeft,
+    User as UserIcon,
     ShieldCheck,
     MapPin,
     X,
+    Coins,
 } from "lucide-react";
 import { Jukir, User, WilayahParkir } from "@/types/model";
 
@@ -27,6 +28,9 @@ export default function Edit({ jukir, wilayahParkir = [] }: EditProps) {
         ? jukir.wilayah_parkir_id.toString()
         : (jukir.wilayah_parkir?.id || jukir.wilayahParkir?.id || "")?.toString();
 
+    // Ambil target aktif jika ada
+    const activeTarget = jukir.targets && jukir.targets.length > 0 ? jukir.targets[0] : null;
+
     const { data, setData, post, processing, errors } = useForm<{
         _method: string;
         nama: string;
@@ -38,6 +42,10 @@ export default function Edit({ jukir, wilayahParkir = [] }: EditProps) {
         username: string;
         email: string;
         password: string;
+        target_per_hari: string | number;
+        tahun: string | number;
+        jml_hari: string | number;
+        keterangan_target: string;
     }>({
         _method: "PUT",
         nama: jukir.nama || "",
@@ -49,6 +57,10 @@ export default function Edit({ jukir, wilayahParkir = [] }: EditProps) {
         username: jukir.user?.username || "",
         email: jukir.user?.email || "",
         password: "",
+        target_per_hari: activeTarget?.target_per_hari ? Number(activeTarget.target_per_hari) : "",
+        tahun: activeTarget?.tahun || new Date().getFullYear(),
+        jml_hari: activeTarget?.jml_hari || 26,
+        keterangan_target: activeTarget?.keterangan || "",
     });
 
     // Opsi titik wilayah parkir untuk dropdown
@@ -61,6 +73,10 @@ export default function Edit({ jukir, wilayahParkir = [] }: EditProps) {
     const selectedWilayah = wilayahParkir.find(
         (w) => String(w.id) === String(data.wilayah_parkir_id)
     );
+
+    const targetPerHariNum = parseFloat(String(data.target_per_hari || 0)) || 0;
+    const jmlHariNum = parseInt(String(data.jml_hari || 26), 10) || 26;
+    const totalTargetBulanan = targetPerHariNum * jmlHariNum;
 
     // URL preview foto: gunakan foto lama dari server jika belum memilih file baru
     const [previewUrl, setPreviewUrl] = useState<string | null>(
@@ -110,27 +126,40 @@ export default function Edit({ jukir, wilayahParkir = [] }: EditProps) {
 
             <form
                 onSubmit={handleSubmit}
-                className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+                className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6"
             >
-                {/* Kolom Kiri: Form Input Data Jukir */}
-                <div className="lg:col-span-2">
+                {/* Kolom Kiri: Profil & Akun */}
+                <div className="space-y-6">
+                    {/* Kartu 1: Data Profil Juru Parkir */}
                     <Card>
                         <div className="p-5 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50 dark:border-slate-700 flex items-center justify-between">
-                            <h3 className="font-bold text-sm text-slate-800 dark:text-slate-200">
-                                Data Profil Juru Parkir
-                            </h3>
+                            <div className="flex items-center gap-2.5">
+                                <div className="p-1.5 rounded-lg bg-brand-blue-50 text-brand-blue-600 dark:bg-brand-blue-950/60 dark:text-brand-blue-400">
+                                    <UserIcon size={18} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-sm text-slate-800 dark:text-slate-200">
+                                        Data Profil Juru Parkir
+                                    </h3>
+                                    <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                                        Perbarui data profil dan identitas juru parkir
+                                    </p>
+                                </div>
+                            </div>
+
                             {jukir.kode_jukir && (
                                 <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg bg-brand-blue-50 text-brand-blue-700 border border-brand-blue-100 dark:bg-brand-blue-900/40 dark:text-brand-blue-300 dark:border-brand-blue-800">
                                     {jukir.kode_jukir}
                                 </span>
                             )}
                         </div>
+
                         <div className="p-5 sm:p-6 space-y-4">
                             {/* Nama Lengkap & Nomor HP */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <TextInput
                                     label="Nama Lengkap*"
-                                    placeholder="John Doe"
+                                    placeholder="Contoh: John Doe"
                                     value={data.nama}
                                     onChange={(e) =>
                                         setData("nama", e.target.value)
@@ -140,9 +169,9 @@ export default function Edit({ jukir, wilayahParkir = [] }: EditProps) {
                                 />
 
                                 <TextInput
-                                    label="Nomor HP*"
+                                    label="Nomor HP / WhatsApp*"
                                     type="tel"
-                                    placeholder="081234567890"
+                                    placeholder="Contoh: 081234567890"
                                     value={data.nohp}
                                     onChange={(e) =>
                                         setData("nohp", e.target.value)
@@ -152,8 +181,8 @@ export default function Edit({ jukir, wilayahParkir = [] }: EditProps) {
                                 />
                             </div>
 
-                            {/* Status Keaktifan */}
-                            <div className="space-y-1.5">
+                            {/* Status Keaktifan & Alamat Tempat Tinggal */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <SelectInput
                                     label="Status Keaktifan*"
                                     value={data.status}
@@ -168,33 +197,28 @@ export default function Edit({ jukir, wilayahParkir = [] }: EditProps) {
                                     error={errors.status}
                                     className="w-full"
                                 >
-                                    <option value="Aktif">Aktif</option>
+                                    <option value="Aktif">Aktif Bertugas</option>
                                     <option value="Tidak Aktif">
-                                        Tidak Aktif
+                                        Tidak Aktif / Nonaktif
                                     </option>
                                 </SelectInput>
-                                <p className="text-xs text-slate-400 dark:text-slate-500">
-                                    Tentukan status aktif bertugas atau nonaktif bagi juru parkir ini.
-                                </p>
-                            </div>
 
-                            {/* Alamat Lengkap */}
-                            <TextArea
-                                label="Alamat Tempat Tinggal*"
-                                placeholder="Masukkan alamat domisili atau tempat tinggal juru parkir..."
-                                rows={3}
-                                value={data.alamat}
-                                onChange={(e) =>
-                                    setData("alamat", e.target.value)
-                                }
-                                className="w-full"
-                                error={errors.alamat}
-                            />
+                                <TextInput
+                                    label="Alamat Tempat Tinggal*"
+                                    placeholder="Contoh: Jl. Sukasenang No. 12"
+                                    value={data.alamat}
+                                    onChange={(e) =>
+                                        setData("alamat", e.target.value)
+                                    }
+                                    className="w-full font-medium"
+                                    error={errors.alamat}
+                                />
+                            </div>
 
                             {/* Upload Foto Jukir (Opsional saat Edit) */}
                             <div>
                                 <FileUpload
-                                    label="Foto Juru Parkir (Opsional)"
+                                    label="Foto Profil Juru Parkir (Opsional)"
                                     required={false}
                                     error={errors.foto}
                                     previewUrl={previewUrl}
@@ -205,37 +229,82 @@ export default function Edit({ jukir, wilayahParkir = [] }: EditProps) {
                                 />
                             </div>
                         </div>
+                    </Card>
 
-                        {/* Action Footer */}
-                        <div className="p-6 sm:p-8 bg-slate-50/40 border-t border-slate-100 flex items-center justify-end gap-3 dark:bg-slate-800/40 dark:border-slate-700">
-                            <Button
-                                variant="secondary"
-                                href={route("be.data-jukir.index")}
-                            >
-                                Batal
-                            </Button>
-                            <Button
-                                type="submit"
-                                variant="primary"
-                                disabled={processing}
-                                className="shadow-lg shadow-brand-blue-100 dark:shadow-none"
-                            >
-                                <span>
-                                    {processing ? "Menyimpan Perubahan..." : "Simpan Perubahan"}
-                                </span>
-                            </Button>
+                    {/* Kartu 2: Akun Login Juru Parkir */}
+                    <Card>
+                        <div className="p-5 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50 dark:border-slate-700 flex items-center justify-between">
+                            <div>
+                                <h3 className="font-bold text-sm text-slate-800 dark:text-slate-200">
+                                    Akun Login Juru Parkir
+                                </h3>
+                                <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                                    Kredensial akun untuk login sistem
+                                </p>
+                            </div>
+                        </div>
+                        <div className="p-5 sm:p-6 space-y-3.5">
+                            <TextInput
+                                label="Username*"
+                                placeholder="Username login"
+                                value={data.username}
+                                onChange={(e) =>
+                                    setData("username", e.target.value)
+                                }
+                                className="w-full font-medium"
+                                error={errors.username}
+                            />
+
+                            <TextInput
+                                label="Email*"
+                                type="email"
+                                placeholder="email@gmail.com"
+                                value={data.email}
+                                onChange={(e) =>
+                                    setData("email", e.target.value)
+                                }
+                                className="w-full font-medium"
+                                error={errors.email}
+                            />
+
+                            <div className="space-y-1">
+                                <TextInput
+                                    label="Password Baru (Opsional)"
+                                    type="password"
+                                    placeholder="Biarkan kosong jika tidak diubah"
+                                    value={data.password}
+                                    onChange={(e) =>
+                                        setData("password", e.target.value)
+                                    }
+                                    className="w-full font-medium"
+                                    error={errors.password}
+                                />
+                                <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                                    Hanya isi jika ingin mereset/mengganti password.
+                                </p>
+                            </div>
                         </div>
                     </Card>
                 </div>
 
-                {/* Kolom Kanan: Wilayah & Akun Login */}
-                <div className="lg:col-span-1 space-y-6">
-                    {/* Kartu Penugasan Titik Wilayah Parkir */}
+                {/* Kolom Kanan: Titik Penugasan & Target Retribusi */}
+                <div className="space-y-6">
+                    {/* Kartu 1: Titik Wilayah Penugasan */}
                     <Card className="!overflow-visible relative z-20">
                         <div className="p-5 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50 dark:border-slate-700 flex items-center justify-between">
-                            <h3 className="font-bold text-sm text-slate-800 dark:text-slate-200">
-                                Titik Wilayah Penugasan
-                            </h3>
+                            <div className="flex items-center gap-2.5">
+                                <div className="p-1.5 rounded-lg bg-brand-blue-50 text-brand-blue-600 dark:bg-brand-blue-950/60 dark:text-brand-blue-400">
+                                    <MapPin size={18} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-sm text-slate-800 dark:text-slate-200">
+                                        Titik Wilayah Penugasan
+                                    </h3>
+                                    <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                                        Lokasi parkir operasional jukir
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                         <div className="p-5 sm:p-6 space-y-4">
                             <SelectSearch
@@ -287,75 +356,112 @@ export default function Edit({ jukir, wilayahParkir = [] }: EditProps) {
                         </div>
                     </Card>
 
-                    {/* Kartu Akun Pengguna */}
+                    {/* Kartu 2: Target Retribusi Parkir */}
                     <Card>
                         <div className="p-5 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50 dark:border-slate-700 flex items-center justify-between">
-                            <h3 className="font-bold text-sm text-slate-800 dark:text-slate-200">
-                                Akun Login Juru Parkir
-                            </h3>
-                        </div>
-                        <div className="p-5 sm:p-6 space-y-3">
-                            <TextInput
-                                label="Username*"
-                                placeholder="Username login"
-                                value={data.username}
-                                onChange={(e) =>
-                                    setData("username", e.target.value)
-                                }
-                                className="w-full font-medium"
-                                error={errors.username}
-                            />
-
-                            <TextInput
-                                label="Email*"
-                                type="email"
-                                placeholder="email@gmail.com"
-                                value={data.email}
-                                onChange={(e) =>
-                                    setData("email", e.target.value)
-                                }
-                                className="w-full font-medium"
-                                error={errors.email}
-                            />
-
-                            <div className="space-y-1">
-                                <TextInput
-                                    label="Password Baru (Opsional)"
-                                    type="password"
-                                    placeholder="Biarkan kosong jika tidak diubah"
-                                    value={data.password}
-                                    onChange={(e) =>
-                                        setData("password", e.target.value)
-                                    }
-                                    className="w-full font-medium"
-                                    error={errors.password}
-                                />
-                                <p className="text-[11px] text-slate-400 dark:text-slate-500">
-                                    Hanya isi jika ingin mereset/mengganti password.
-                                </p>
+                            <div className="flex items-center gap-2.5">
+                                <div className="p-1.5 rounded-lg bg-brand-green-50 text-brand-green-600 dark:bg-brand-green-950/60 dark:text-brand-green-400">
+                                    <Coins size={18} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-sm text-slate-800 dark:text-slate-200">
+                                        Target Retribusi Parkir
+                                    </h3>
+                                    <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                                        Penetapan target setoran per hari & tahun anggaran
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </Card>
 
-                    {/* Informasi Bantuan */}
-                    <div className="p-6 bg-amber-50 rounded-3xl border border-amber-200 dark:bg-amber-950/20 dark:border-amber-800">
-                        <div className="flex items-center gap-2 mb-2 text-amber-800 dark:text-amber-300">
-                            <ShieldCheck size={18} />
-                            <h4 className="text-sm font-bold">
-                                Panduan Pengeditan Data
-                            </h4>
+                        <div className="p-5 sm:p-6 space-y-5">
+                            {/* Target Per Hari, Tahun, Hari Kerja dlm 3 Kolom */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <TextInput
+                                    label="Target per Hari (Rp)*"
+                                    type="number"
+                                    placeholder="Contoh: 15000"
+                                    value={data.target_per_hari}
+                                    onChange={(e) => setData("target_per_hari", e.target.value)}
+                                    className="w-full font-medium"
+                                    error={errors.target_per_hari}
+                                />
+
+                                <TextInput
+                                    label="Tahun Anggaran*"
+                                    type="number"
+                                    placeholder="2026"
+                                    value={data.tahun}
+                                    onChange={(e) => setData("tahun", e.target.value)}
+                                    className="w-full font-medium"
+                                    error={errors.tahun}
+                                />
+
+                                <TextInput
+                                    label="Hari Kerja / Bulan*"
+                                    type="number"
+                                    placeholder="26"
+                                    value={data.jml_hari}
+                                    onChange={(e) => setData("jml_hari", e.target.value)}
+                                    className="w-full font-medium"
+                                    error={errors.jml_hari}
+                                />
+                            </div>
+
+                            {/* Preview Kalkulasi Total Target */}
+                            <div className="p-4 rounded-2xl bg-brand-green-50/50 border border-brand-green-100 dark:bg-brand-green-950/20 dark:border-brand-green-900/40 text-xs space-y-2">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                    <span className="text-slate-600 dark:text-slate-300 font-medium">
+                                        Estimasi Target Setoran Bulanan:
+                                    </span>
+                                    <span className="font-bold text-base text-brand-green-600 dark:text-brand-green-400">
+                                        Rp {totalTargetBulanan.toLocaleString("id-ID")}
+                                        <span className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">
+                                            / bulan ({jmlHariNum} hari kerja)
+                                        </span>
+                                    </span>
+                                </div>
+                                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed border-t border-brand-green-100/60 dark:border-brand-green-900/40 pt-2">
+                                    Target ini otomatis diperbarui untuk 12 bulan (Januari s/d Desember) pada tahun anggaran {data.tahun || 2026}.
+                                </p>
+                            </div>
+
+                            <TextInput
+                                label="Keterangan (Opsional)"
+                                placeholder="Contoh: Sesuai penetapan SK Wilayah Ciawi 2026"
+                                value={data.keterangan_target}
+                                onChange={(e) => setData("keterangan_target", e.target.value)}
+                                className="w-full text-xs"
+                                error={errors.keterangan_target}
+                            />
                         </div>
-                        <ul className="text-xs text-amber-700/90 dark:text-amber-300/80 space-y-2 list-disc ml-4 leading-relaxed">
-                            <li>
-                                Perubahan username atau email akan langsung berlaku pada autentikasi akun jukir.
-                            </li>
-                            <li>
-                                Mengganti foto jukir akan otomatis memperbarui foto pada halaman kartu pengenal.
-                            </li>
-                            <li>
-                                Menghapus titik wilayah dari daftar di atas akan mencopot penugasan jukir dari titik tersebut.
-                            </li>
-                        </ul>
+                    </Card>
+                </div>
+
+                {/* Kolom Bawah: Action Footer Full-Width */}
+                <div className="col-span-full">
+                    <div className="p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="text-xs text-slate-500 dark:text-slate-400 text-center sm:text-left">
+                            Pastikan data profil, titik wilayah penugasan, dan target retribusi telah terisi dengan benar sebelum menyimpan perubahan.
+                        </div>
+                        <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                            <Button
+                                variant="secondary"
+                                href={route("be.data-jukir.index")}
+                            >
+                                Batal
+                            </Button>
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                disabled={processing}
+                                className="shadow-lg shadow-brand-blue-100 dark:shadow-none min-w-[160px]"
+                            >
+                                <span>
+                                    {processing ? "Menyimpan..." : "Simpan Perubahan"}
+                                </span>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </form>

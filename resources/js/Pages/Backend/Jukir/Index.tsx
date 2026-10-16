@@ -8,6 +8,7 @@ import TextArea from "@/Components/Form/TextArea";
 import Pagination from "@/Components/Data/Pagination";
 import ConfirmationModal from "@/Components/UI/ConfirmationModal";
 import Modal from "@/Components/UI/Modal";
+import Badge from "@/Components/UI/Badge";
 import { Head, Link, useForm, usePage, router } from "@inertiajs/react";
 import {
     Edit2,
@@ -243,15 +244,31 @@ export default function Index({ jukir, filters }: IndexProps) {
                             render: (item: Jukir) => item.alamat,
                         },
                         {
+                            header: "Target Harian",
+                            className: "text-slate-700 dark:text-slate-300 font-semibold whitespace-nowrap",
+                            render: (item: Jukir) => {
+                                const activeTarget = item.targets && item.targets.length > 0 ? item.targets[0] : null;
+                                const targetNominal = activeTarget?.target_per_hari ? Number(activeTarget.target_per_hari) : null;
+                                return targetNominal ? (
+                                    <span className="inline-flex items-center gap-1 text-xs font-bold text-brand-green-700 bg-brand-green-50 px-2.5 py-1 rounded-full dark:bg-brand-green-950/60 dark:text-brand-green-400 border border-brand-green-200/60 dark:border-brand-green-800/60">
+                                        Rp {targetNominal.toLocaleString("id-ID")}
+                                        <span className="text-[10px] text-brand-green-600/80 dark:text-brand-green-400/80 font-normal">/hr</span>
+                                    </span>
+                                ) : (
+                                    <span className="text-xs text-slate-400 italic">Belum diatur</span>
+                                );
+                            },
+                        },
+                        {
                             header: "Status",
                             className: "text-center",
                             headerClassName: "text-center w-32",
                             render: (item: Jukir) => (
-                                <span
-                                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${item.status === 'Aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }`}
+                                <Badge
+                                    type={item.status === "Aktif" ? "success" : "danger"}
                                 >
                                     {item.status}
-                                </span>
+                                </Badge>
                             ),
                         },
                         {
@@ -281,9 +298,22 @@ export default function Index({ jukir, filters }: IndexProps) {
                                             onClick={() =>
                                                 openDeleteModal(item)
                                             }
-                                            className="p-2.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl active:scale-90 transition-all cursor-pointer dark:hover:bg-slate-700 dark:hover:text-rose-400"
+                                            className={`p-2.5 rounded-xl active:scale-90 transition-all cursor-pointer ${
+                                                item.status === "Aktif"
+                                                    ? "text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-slate-700 dark:hover:text-rose-400"
+                                                    : "text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-700 dark:hover:text-emerald-400"
+                                            }`}
+                                            title={
+                                                item.status === "Aktif"
+                                                    ? "Nonaktifkan Juru Parkir"
+                                                    : "Aktifkan Kembali Juru Parkir"
+                                            }
                                         >
-                                            <Trash2 size={16} />
+                                            {item.status === "Aktif" ? (
+                                                <Trash2 size={16} />
+                                            ) : (
+                                                <RotateCcw size={16} />
+                                            )}
                                         </button>
                                     )}
                                 </div>
@@ -338,12 +368,28 @@ export default function Index({ jukir, filters }: IndexProps) {
                 </div>
             </Card>
 
-            {/* Modal Konfirmasi Hapus */}
+            {/* Modal Konfirmasi Nonaktifkan / Aktifkan */}
             <ConfirmationModal
                 show={showDeleteModal}
                 processing={isDeleting}
-                title="Hapus Jukir"
-                message={`Apakah Anda yakin ingin menghapus "${itemToDelete?.nama}"? Tindakan ini tidak dapat dibatalkan.`}
+                title={
+                    itemToDelete?.status === "Aktif"
+                        ? "Nonaktifkan Jukir"
+                        : "Aktifkan Kembali Jukir"
+                }
+                message={
+                    itemToDelete?.status === "Aktif"
+                        ? `Apakah Anda yakin ingin menonaktifkan juru parkir "${itemToDelete?.nama}"? Jukir yang dinonaktifkan tidak dapat login ke sistem.`
+                        : `Apakah Anda yakin ingin mengaktifkan kembali juru parkir "${itemToDelete?.nama}"?`
+                }
+                confirmText={
+                    itemToDelete?.status === "Aktif"
+                        ? "Ya, Nonaktifkan"
+                        : "Ya, Aktifkan"
+                }
+                confirmVariant={
+                    itemToDelete?.status === "Aktif" ? "danger" : "primary"
+                }
                 onConfirm={handleDelete}
                 onCancel={() => setShowDeleteModal(false)}
             />

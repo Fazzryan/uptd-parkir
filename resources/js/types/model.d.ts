@@ -71,6 +71,8 @@ export interface WilayahParkir {
     latitude: string;
     longitude: string;
     kecamatan?: Kecamatan;
+    jukir?: Jukir[];
+    jukir_count?: number;
     created_at?: string;
     updated_at?: string;
 }

@@ -14,9 +14,16 @@ class UpdateJukirRequest extends FormRequest
 
     public function rules(): array
     {
-        // Mengambil objek jukir dari route parameter
-        $jukir = $this->route('data_jukir') ?: $this->route('jukir');
-        $userId = is_object($jukir) ? $jukir->user_id : null;
+        // Mengambil user_id jukir dari route parameter untuk mengabaikan unique check pada user yang sama
+        $jukirParam = $this->route('data_jukir') ?: $this->route('jukir');
+        if ($jukirParam instanceof \App\Models\Jukir) {
+            $userId = $jukirParam->user_id;
+        } else {
+            $jukir = \App\Models\Jukir::where('id', $jukirParam)
+                ->orWhere('kode_jukir', $jukirParam)
+                ->first();
+            $userId = $jukir?->user_id;
+        }
 
         return [
             // Data Diri Jukir
@@ -43,6 +50,12 @@ class UpdateJukirRequest extends FormRequest
 
             // Titik Lokasi Penugasan Parkir
             'wilayah_parkir_id' => 'required|exists:wilayah_parkir,id',
+
+            // Target Retribusi Parkir
+            'target_per_hari' => 'nullable|numeric|min:0',
+            'tahun' => 'nullable|integer|min:2020|max:2099',
+            'jml_hari' => 'nullable|integer|min:1|max:31',
+            'keterangan_target' => 'nullable|string|max:500',
         ];
     }
 

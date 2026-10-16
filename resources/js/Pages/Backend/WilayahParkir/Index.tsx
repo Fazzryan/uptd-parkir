@@ -8,7 +8,7 @@ import Pagination from "@/Components/Data/Pagination";
 import ConfirmationModal from "@/Components/UI/ConfirmationModal";
 import Modal from "@/Components/UI/Modal";
 import SelectSearch from "@/Components/Form/SelectSearch";
-import { Head, useForm, usePage, router } from "@inertiajs/react";
+import { Head, Link, useForm, usePage, router } from "@inertiajs/react";
 import {
     Edit2,
     Trash2,
@@ -16,6 +16,9 @@ import {
     MapPin,
     RotateCcw,
     ExternalLink,
+    Users,
+    Phone,
+    UserX,
 } from "lucide-react";
 import { PaginatedData, WilayahParkir, Kecamatan } from "@/types/model";
 import axios from "axios";
@@ -70,6 +73,19 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
     // Confirmation Modal State
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<WilayahParkir | null>(null);
+
+    // Jukir List Modal State
+    const [showJukirModal, setShowJukirModal] = useState(false);
+    const [selectedWilayahForJukir, setSelectedWilayahForJukir] = useState<WilayahParkir | null>(null);
+
+    const openJukirModal = (item: WilayahParkir) => {
+        setSelectedWilayahForJukir(item);
+        setShowJukirModal(true);
+    };
+
+    const closeJukirModal = () => {
+        setShowJukirModal(false);
+    };
 
     // Form Hook
     const {
@@ -199,7 +215,7 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
                     <Button
                         variant="primary"
                         onClick={openCreateModal}
-                        className="shadow-lg shadow-indigo-100 dark:shadow-none"
+                        className="shadow-lg shadow-brand-blue-100 dark:shadow-none"
                     >
                         <span>Tambah Wilayah Parkir</span>
                     </Button>
@@ -227,7 +243,6 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
                             value={String(selectedKecamatanId)}
                             onChange={(val) => setSelectedKecamatanId(val)}
                             placeholder="Filter Kecamatan..."
-                            isSearchable
                         />
                     </div>
 
@@ -272,11 +287,31 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
                             render: (item: WilayahParkir) => item.nama_jalan,
                         },
                         {
+                            header: "Jumlah Jukir",
+                            className:
+                                "text-center text-slate-700 dark:text-slate-300 font-medium",
+                            headerClassName: "text-center",
+                            render: (item: WilayahParkir) => {
+                                const count = item.jukir_count ?? (item.jukir?.length || 0);
+                                return (
+                                    <button
+                                        type="button"
+                                        onClick={() => openJukirModal(item)}
+                                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-brand-blue-50 text-brand-blue-700 hover:bg-brand-blue-100 hover:text-brand-blue-800 dark:bg-brand-blue-950/60 dark:text-brand-blue-400 dark:hover:bg-brand-blue-900/80 transition-all active:scale-95 cursor-pointer border border-brand-blue-200/60 dark:border-brand-blue-800/60 group "
+                                        title="Klik untuk melihat daftar juru parkir"
+                                    >
+                                        <Users size={13} className="shrink-0 text-brand-blue-500 dark:text-brand-blue-400 group-hover:scale-110 transition-transform" />
+                                        <span>{count} Jukir</span>
+                                    </button>
+                                );
+                            },
+                        },
+                        {
                             header: "Koordinat (Lat, Long)",
-                            className: "w-56 text-slate-500 text-xs font-mono dark:text-slate-400",
+                            className: "w-56 text-slate-500 text-xs dark:text-slate-400",
                             render: (item: WilayahParkir) => (
                                 <div className="flex items-center gap-2">
-                                    <MapPin size={14} className="text-indigo-500 shrink-0" />
+                                    <MapPin size={14} className="text-brand-blue-500 shrink-0" />
                                     <span>
                                         {item.latitude}, {item.longitude}
                                     </span>
@@ -285,7 +320,7 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
                                             href={`https://www.google.com/maps?q=${item.latitude},${item.longitude}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 ml-1"
+                                            className="text-brand-blue-600 hover:text-brand-blue-800 dark:text-brand-blue-400 ml-1"
                                             title="Buka di Google Maps"
                                         >
                                             <ExternalLink size={14} />
@@ -303,7 +338,7 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
                                     {canEdit && (
                                         <button
                                             onClick={() => openEditModal(item)}
-                                            className="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl active:scale-90 transition-all cursor-pointer dark:hover:bg-slate-700 dark:hover:text-indigo-400"
+                                            className="p-2.5 text-slate-400 hover:text-brand-blue-600 hover:bg-brand-blue-50 rounded-xl active:scale-90 transition-all cursor-pointer dark:hover:bg-slate-700 dark:hover:text-brand-blue-400"
                                         >
                                             <Edit2 size={16} />
                                         </button>
@@ -401,7 +436,6 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
                             value={String(data.kecamatan_id)}
                             onChange={(val) => setData("kecamatan_id", val)}
                             placeholder="Pilih Kecamatan..."
-                            isSearchable
                         />
                         {errors.kecamatan_id && (
                             <p className="text-xs text-rose-500 mt-1">{errors.kecamatan_id}</p>
@@ -462,6 +496,118 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
                 onConfirm={handleDelete}
                 onCancel={() => setShowDeleteModal(false)}
             />
+
+            {/* Modal Daftar Jukir */}
+            <Modal
+                show={showJukirModal}
+                onClose={closeJukirModal}
+                title={
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-brand-blue-50 text-brand-blue-600 dark:bg-brand-blue-950/60 dark:text-brand-blue-400 shrink-0">
+                            <Users size={20} />
+                        </div>
+                        <div>
+                            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
+                                Daftar Juru Parkir
+                            </h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-normal">
+                                {selectedWilayahForJukir?.nama_jalan} • Kecamatan {selectedWilayahForJukir?.kecamatan?.nama_kecamatan || "-"}
+                            </p>
+                        </div>
+                    </div>
+                }
+                maxWidth="4xl"
+                footer={
+                    <Button
+                        variant="secondary"
+                        onClick={closeJukirModal}
+                    >
+                        Tutup
+                    </Button>
+                }
+            >
+                {selectedWilayahForJukir && (
+                    <div>
+                        {(!selectedWilayahForJukir.jukir || selectedWilayahForJukir.jukir.length === 0) ? (
+                            <div className="py-10 px-4 text-center">
+                                <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                    Belum Ada Jukir Ditugaskan
+                                </h4>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+                                    Saat ini belum ada juru parkir yang terdaftar atau ditugaskan di titik lokasi ini.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pb-2 border-b border-slate-100 dark:border-slate-700">
+                                    <span>
+                                        Total: <strong className="text-slate-700 dark:text-slate-200">{selectedWilayahForJukir.jukir.length} Juru Parkir</strong>
+                                    </span>
+                                </div>
+                                <div className="divide-y divide-slate-100 dark:divide-slate-700/60 max-h-[55vh] overflow-y-auto pr-1">
+                                    {selectedWilayahForJukir.jukir.map((j) => (
+                                        <div
+                                            key={j.id}
+                                            className="py-3 flex items-center justify-between gap-3 hover:bg-slate-50/60 dark:hover:bg-slate-700/30 px-2 rounded-xl transition-colors"
+                                        >
+                                            <div className="flex items-center gap-3 min-w-0">
+                                                {j.foto ? (
+                                                    <img
+                                                        src={`/storage/${j.foto}`}
+                                                        alt={j.nama}
+                                                        className="h-10 w-10 object-cover rounded-full border border-slate-200 shadow-xs dark:border-slate-700 shrink-0"
+                                                    />
+                                                ) : (
+                                                    <div className="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 shrink-0">
+                                                        <Users size={16} />
+                                                    </div>
+                                                )}
+                                                <div className="min-w-0">
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <span className="font-semibold text-sm text-slate-800 dark:text-slate-200 truncate">
+                                                            {j.nama}
+                                                        </span>
+                                                        <span
+                                                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                                                                j.status === "Aktif"
+                                                                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800"
+                                                                    : "bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-800"
+                                                            }`}
+                                                        >
+                                                            {j.status}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex-wrap">
+                                                        {j.kode_jukir && (
+                                                            <span className="font-mono text-brand-blue-600 dark:text-brand-blue-400 font-medium">
+                                                                {j.kode_jukir}
+                                                            </span>
+                                                        )}
+                                                        {j.nohp && (
+                                                            <span className="flex items-center gap-1">
+                                                                <Phone size={12} className="text-slate-400" />
+                                                                {j.nohp}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <Link
+                                                href={route("be.data-jukir.show", j.kode_jukir || j.id)}
+                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-brand-blue-600 bg-brand-blue-50 hover:bg-brand-blue-100 dark:bg-brand-blue-950/60 dark:text-brand-blue-400 dark:hover:bg-brand-blue-900/80 transition-colors shrink-0 active:scale-95"
+                                                title="Lihat Detail Juru Parkir"
+                                            >
+                                                <span>Detail</span>
+                                                <ExternalLink size={12} />
+                                            </Link>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </Modal>
         </>
     );
 }

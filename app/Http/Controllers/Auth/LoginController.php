@@ -49,6 +49,21 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             RateLimiter::clear($throttleKey);
 
+            $user = Auth::user();
+
+            // Pengecekan status juru parkir:
+            // Jika akun terhubung ke profil Juru Parkir dan statusnya Tidak Aktif, tolak login
+            $jukir = $user->jukir()->withTrashed()->first();
+            if ($jukir && ($jukir->status === 'Tidak Aktif' || $jukir->trashed())) {
+                Auth::guard('web')->logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                throw ValidationException::withMessages([
+                    'username' => 'Akun juru parkir Anda berstatus tidak aktif. Silakan hubungi admin UPTD Parkir.',
+                ]);
+            }
+
             $request->session()->regenerate();
 
             return redirect()->intended(route('be.dashboard'));

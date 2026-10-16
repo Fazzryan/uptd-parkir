@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreJukirRequest;
 use App\Http\Requests\UpdateJukirRequest;
 use App\Models\Jukir;
+use App\Models\JukirTarget;
 use App\Models\User;
 use App\Models\WilayahParkir;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,16 @@ class JukirController extends Controller
 {
     public function index()
     {
-        $query = Jukir::query()->with(['user', 'wilayahParkir.kecamatan:id,nama_kecamatan']);
+        $currentYear = (int) date('Y');
+        $currentMonth = (int) date('n');
+
+        $query = Jukir::query()->with([
+            'user',
+            'wilayahParkir.kecamatan:id,nama_kecamatan',
+            'targets' => function ($q) use ($currentYear, $currentMonth) {
+                $q->where('tahun', $currentYear)->where('bulan', $currentMonth);
+            },
+        ]);
 
         if ($search = request('search')) {
             $query->where(function ($q) use ($search) {
@@ -109,7 +119,7 @@ class JukirController extends Controller
                 } while (Jukir::where('kode_jukir', $kodeJukir)->exists());
 
                 // Simpan data Jukir dengan foreign key wilayah_parkir_id
-                Jukir::create([
+                $jukir = Jukir::create([
                     'user_id' => $user->id,
                     'wilayah_parkir_id' => $validated['wilayah_parkir_id'],
                     'kode_jukir' => $kodeJukir,
@@ -119,6 +129,27 @@ class JukirController extends Controller
                     'status' => $validated['status'],
                     'foto' => $fotoPath,
                 ]);
+
+                // Simpan Target Retribusi jika diisi oleh admin (berlaku untuk 1 tahun penuh / 12 bulan)
+                if (!empty($validated['target_per_hari'])) {
+                    $tahun = !empty($validated['tahun']) ? (int) $validated['tahun'] : (int) date('Y');
+                    $targetPerHari = (float) $validated['target_per_hari'];
+                    $jmlHari = !empty($validated['jml_hari']) ? (int) $validated['jml_hari'] : 26;
+                    $totalTarget = $targetPerHari * $jmlHari;
+                    $keteranganTarget = $validated['keterangan_target'] ?? null;
+
+                    for ($bulan = 1; $bulan <= 12; $bulan++) {
+                        JukirTarget::create([
+                            'jukir_id' => $jukir->id,
+                            'tahun' => $tahun,
+                            'bulan' => $bulan,
+                            'jml_hari' => $jmlHari,
+                            'target_per_hari' => $targetPerHari,
+                            'total_target' => $totalTarget,
+                            'keterangan' => $keteranganTarget,
+                        ]);
+                    }
+                }
             });
 
             return redirect()->route('be.data-jukir.index')
@@ -137,9 +168,16 @@ class JukirController extends Controller
 
     public function show($id)
     {
+        $currentYear = (int) date('Y');
         $jukir = Jukir::with([
             'user',
             'wilayahParkir.kecamatan:id,nama_kecamatan',
+            'targets' => function ($q) use ($currentYear) {
+                $q->where('tahun', $currentYear)->orderBy('bulan', 'asc');
+            },
+            'setoranHarian' => function ($q) {
+                $q->latest('tanggal')->take(10);
+            },
         ])->where('kode_jukir', $id)
             ->orWhere('id', $id)
             ->firstOrFail();
@@ -151,10 +189,16 @@ class JukirController extends Controller
 
     public function edit($id)
     {
-        // 1. Ambil data jukir beserta relasi user dan titik wilayah parkirnya
+        $currentYear = (int) date('Y');
+        $currentMonth = (int) date('n');
+
+        // 1. Ambil data jukir beserta relasi user, titik wilayah parkir, dan target aktif
         $jukir = Jukir::with([
             'user',
             'wilayahParkir.kecamatan:id,nama_kecamatan',
+            'targets' => function ($q) use ($currentYear, $currentMonth) {
+                $q->where('tahun', $currentYear)->where('bulan', $currentMonth);
+            },
         ])->where('kode_jukir', $id)
             ->orWhere('id', $id)
             ->firstOrFail();
@@ -223,6 +267,31 @@ class JukirController extends Controller
                     'status' => $validated['status'],
                     ...($newFotoPath ? ['foto' => $newFotoPath] : []),
                 ]);
+
+                // 4. Update / Simpan Target Retribusi jika diisi
+                if (isset($validated['target_per_hari']) && $validated['target_per_hari'] !== '') {
+                    $tahun = !empty($validated['tahun']) ? (int) $validated['tahun'] : (int) date('Y');
+                    $targetPerHari = (float) $validated['target_per_hari'];
+                    $jmlHari = !empty($validated['jml_hari']) ? (int) $validated['jml_hari'] : 26;
+                    $totalTarget = $targetPerHari * $jmlHari;
+                    $keteranganTarget = $validated['keterangan_target'] ?? null;
+
+                    for ($bulan = 1; $bulan <= 12; $bulan++) {
+                        JukirTarget::updateOrCreate(
+                            [
+                                'jukir_id' => $jukir->id,
+                                'tahun' => $tahun,
+                                'bulan' => $bulan,
+                            ],
+                            [
+                                'jml_hari' => $jmlHari,
+                                'target_per_hari' => $targetPerHari,
+                                'total_target' => $totalTarget,
+                                'keterangan' => $keteranganTarget,
+                            ]
+                        );
+                    }
+                }
             });
 
             return redirect()->route('be.data-jukir.index')
@@ -245,13 +314,16 @@ class JukirController extends Controller
             ->orWhere('id', $id)
             ->firstOrFail();
 
-        // 1. Ubah status operasional jukir menjadi Tidak Aktif
-        $jukir->update(['status' => 'Tidak Aktif']);
+        // Alihkan status keaktifan jukir (Aktif <-> Tidak Aktif)
+        // Data tidak dihapus secara hard delete atau soft delete agar data historis
+        // setoran harian dan target retribusi tetap aman dan terhubung utuh.
+        $newStatus = $jukir->status === 'Aktif' ? 'Tidak Aktif' : 'Aktif';
+        $jukir->update(['status' => $newStatus]);
 
-        // 2. Eksekusi Soft Delete (memberikan stempel deleted_at di database)
-        // File foto fisik tidak dihapus dari storage agar riwayat dan arsip audit tetap terjaga
-        $jukir->delete();
+        $pesan = $newStatus === 'Tidak Aktif'
+            ? "Status juru parkir {$jukir->nama} berhasil diubah menjadi Tidak Aktif."
+            : "Status juru parkir {$jukir->nama} berhasil diaktifkan kembali.";
 
-        return redirect()->back()->with('success', 'Data juru parkir berhasil dihapus (soft delete).');
+        return redirect()->back()->with('success', $pesan);
     }
 }

@@ -52,6 +52,6 @@ class User extends Authenticatable
 
     public function jukir()
     {
-        return $this->hasOne(Jukir::class);
+        return $this->hasOne(Jukir::class)->withTrashed();
     }
 }

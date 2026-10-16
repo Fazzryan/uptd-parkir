@@ -37,6 +37,12 @@ class StoreJukirRequest extends FormRequest
             // Titik Lokasi Penugasan Parkir (1 Titik Lokasi)
             'wilayah_parkir_id' => 'required|exists:wilayah_parkir,id',
 
+            // Target Retribusi Parkir (Opsional saat registrasi)
+            'target_per_hari' => 'nullable|numeric|min:0',
+            'tahun' => 'nullable|integer|min:2020|max:2099',
+            'jml_hari' => 'nullable|integer|min:1|max:31',
+            'keterangan_target' => 'nullable|string|max:500',
+
             // Opsional jika ada user_id langsung
             'user_id' => 'nullable|exists:users,id|unique:jukir,user_id',
         ];

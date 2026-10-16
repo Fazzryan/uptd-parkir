@@ -18,6 +18,7 @@ import {
     Maximize2,
     X,
     Clock,
+    Coins,
 } from "lucide-react";
 import { Jukir, User, WilayahParkir } from "@/types/model";
 
@@ -30,6 +31,9 @@ export default function Show({ jukir }: ShowProps) {
 
     // Ambil data relasi tunggal titik lokasi penugasan
     const wilayah = jukir.wilayah_parkir || jukir.wilayahParkir;
+
+    // Ambil target aktif jika ada
+    const activeTarget = jukir.targets && jukir.targets.length > 0 ? jukir.targets[0] : null;
 
     // Helper format tanggal Bahasa Indonesia
     const formatDate = (dateString?: string) => {
@@ -176,13 +180,18 @@ export default function Show({ jukir }: ShowProps) {
                     {/* 2. Kartu Titik Wilayah Penugasan (Di atas Akun Login) */}
                     <Card>
                         <div className="p-5 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50 dark:border-slate-800 flex items-center justify-between">
-                            <div>
-                                <h3 className="font-bold text-slate-800 dark:text-slate-200">
-                                    Titik Lokasi Penugasan
-                                </h3>
-                                <p className="text-xs text-slate-400 dark:text-slate-500">
-                                    Lokasi tugas operasional parkir
-                                </p>
+                            <div className="flex items-center gap-2.5">
+                                <div className="p-2 rounded-xl bg-brand-blue-50 text-brand-blue-600 dark:bg-brand-blue-950/60 dark:text-brand-blue-400">
+                                    <MapPin size={20} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-base text-slate-800 dark:text-slate-200">
+                                        Titik Lokasi Penugasan
+                                    </h3>
+                                    <p className="text-xs text-slate-400 dark:text-slate-500">
+                                        Lokasi tugas operasional parkir
+                                    </p>
+                                </div>
                             </div>
                             {wilayah && (
                                 <Badge
@@ -261,13 +270,20 @@ export default function Show({ jukir }: ShowProps) {
 
                     {/* 3. Kartu Akun Login Sistem */}
                     <Card>
-                        <div className="p-5 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50 dark:border-slate-800">
-                            <h3 className="font-bold text-slate-800 dark:text-slate-200">
-                                Akun Login Aplikasi
-                            </h3>
-                            <p className="text-xs text-slate-400 dark:text-slate-500">
-                                Akun yang digunakan untuk login ke aplikasi
-                            </p>
+                        <div className="p-5 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50 dark:border-slate-800 flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                                <div className="p-2 rounded-xl bg-brand-blue-50 text-brand-blue-600 dark:bg-brand-blue-950/60 dark:text-brand-blue-400">
+                                    <UserIcon size={20} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-base text-slate-800 dark:text-slate-200">
+                                        Akun Login Aplikasi
+                                    </h3>
+                                    <p className="text-xs text-slate-400 dark:text-slate-500">
+                                        Akun yang digunakan untuk login ke aplikasi
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                         <div className="p-5 text-xs sm:text-sm">
                             {jukir.user ? (
@@ -309,18 +325,102 @@ export default function Show({ jukir }: ShowProps) {
                     </Card>
                 </div>
 
-                {/* Kolom Kanan: 2 Kolom (Riwayat & Log Operasional) */}
+                {/* Kolom Kanan: 2 Kolom (Target & Riwayat) */}
                 <div className="lg:col-span-2 space-y-6">
+                    {/* Target Retribusi Parkir Card */}
+                    <Card>
+                        <div className="p-5 sm:p-6 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50 dark:border-slate-800 flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                                <div className="p-2 rounded-xl bg-brand-green-50 text-brand-green-600 dark:bg-brand-green-950/60 dark:text-brand-green-400">
+                                    <Coins size={20} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-base text-slate-800 dark:text-slate-200">
+                                        Target Retribusi Parkir
+                                    </h3>
+                                    <p className="text-xs text-slate-400 dark:text-slate-500">
+                                        Ketetapan target setoran PAD jukir {activeTarget ? `Tahun ${activeTarget.tahun}` : ""}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-6">
+                            {activeTarget ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div className="p-4 rounded-2xl bg-brand-green-50/50 border border-brand-green-100 dark:bg-slate-800 dark:border-brand-green-900/40">
+                                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 block mb-1">
+                                            Target per Hari
+                                        </span>
+                                        <p className="text-xl font-bold text-brand-green-700 dark:text-brand-green-400">
+                                            Rp {Number(activeTarget.target_per_hari).toLocaleString("id-ID")}
+                                        </p>
+                                        <span className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 block">
+                                            Per hari kerja
+                                        </span>
+                                    </div>
+
+                                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 dark:bg-slate-800 dark:border-slate-700">
+                                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 block mb-1">
+                                            Hari Kerja Aktif
+                                        </span>
+                                        <p className="text-xl font-bold text-slate-800 dark:text-slate-200">
+                                            {activeTarget.jml_hari} Hari
+                                        </p>
+                                        <span className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 block">
+                                            Per bulan
+                                        </span>
+                                    </div>
+
+                                    <div className="p-4 rounded-2xl bg-brand-blue-50/50 border border-brand-blue-100 dark:bg-slate-800 dark:border-brand-blue-900/40">
+                                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 block mb-1">
+                                            Estimasi Target Bulanan
+                                        </span>
+                                        <p className="text-xl font-bold text-brand-blue-600 dark:text-brand-blue-400">
+                                            Rp {Number(activeTarget.total_target).toLocaleString("id-ID")}
+                                        </p>
+                                        <span className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 block">
+                                            Berlaku 12 bulan ({activeTarget.tahun})
+                                        </span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="py-6 px-4 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl text-center bg-slate-50/40 dark:bg-slate-800/30">
+                                    <Coins size={22} className="mx-auto mb-1.5 text-slate-400" />
+                                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5">
+                                        Belum Ada Target Retribusi
+                                    </p>
+                                    <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
+                                        Petugas ini belum ditentukan besaran target setoran hariannya.
+                                    </p>
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        href={route("be.data-jukir.edit", jukir.kode_jukir || jukir.id)}
+                                    >
+                                        <Edit3 size={13} />
+                                        <span>Tentukan Target</span>
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </Card>
+
                     <Card>
                         {/* Header Riwayat & Aktivitas */}
                         <div className="p-5 sm:p-6 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50 dark:border-slate-800 flex items-center justify-between">
-                            <div>
-                                <h3 className="font-bold text-base text-slate-800 dark:text-slate-200">
-                                    Riwayat & Aktivitas Operasional
-                                </h3>
-                                <p className="text-xs text-slate-400 dark:text-slate-500">
-                                    Catatan setoran retribusi harian dan rekap aktivitas petugas di lapangan
-                                </p>
+                            <div className="flex items-center gap-2.5">
+                                <div className="p-2 rounded-xl bg-brand-blue-50 text-brand-blue-600 dark:bg-brand-blue-950/60 dark:text-brand-blue-400">
+                                    <Clock size={20} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-base text-slate-800 dark:text-slate-200">
+                                        Riwayat & Aktivitas Operasional
+                                    </h3>
+                                    <p className="text-xs text-slate-400 dark:text-slate-500">
+                                        Catatan setoran retribusi harian dan rekap aktivitas petugas di lapangan
+                                    </p>
+                                </div>
                             </div>
                         </div>
 

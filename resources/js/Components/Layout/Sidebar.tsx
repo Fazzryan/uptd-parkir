@@ -249,6 +249,29 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                     </Link>
                 )}
 
+                                {permissions.includes("view-panduan-jukir") && (
+                    <Link
+                        href={route("be.panduan-jukir.index")}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-[15px] group 
+                        ${
+                            route().current("be.panduan-jukir.*")
+                                ? "bg-brand-blue-50 dark:bg-slate-800 text-brand-blue-600 dark:text-brand-blue-400"
+                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        }`}
+                    >
+                        <BookOpen
+                            size={20}
+                            strokeWidth={2}
+                            className={`${
+                                route().current("be.panduan-jukir.*")
+                                    ? "text-brand-blue-600 dark:text-brand-blue-400"
+                                    : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
+                            }`}
+                        />
+                        Panduan Jukir
+                    </Link>
+                )}
+
                 {permissions.includes("view-wilayah-parkir") && (
                     <Link
                         href={route("be.wilayah-parkir.index")}
@@ -272,28 +295,6 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                     </Link>
                 )}
 
-                {permissions.includes("view-panduan-jukir") && (
-                    <Link
-                        href={route("be.panduan-jukir.index")}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-[15px] group 
-                        ${
-                            route().current("be.panduan-jukir.*")
-                                ? "bg-brand-blue-50 dark:bg-slate-800 text-brand-blue-600 dark:text-brand-blue-400"
-                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
-                        }`}
-                    >
-                        <BookOpen
-                            size={20}
-                            strokeWidth={2}
-                            className={`${
-                                route().current("be.panduan-jukir.*")
-                                    ? "text-brand-blue-600 dark:text-brand-blue-400"
-                                    : "text-slate-400 dark:text-slate-500 group-hover:text-brand-blue-500"
-                            }`}
-                        />
-                        Panduan Jukir
-                    </Link>
-                )}
 
                 {permissions.includes("view-jukir") && (
                     <Link
