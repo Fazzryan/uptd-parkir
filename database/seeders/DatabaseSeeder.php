@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             StrukturOrganisasiPersonelSeeder::class,
             GaleriFotoSeeder::class,
             BeritaSeeder::class,
+            JukirSeeder::class,
         ]);
     }
 }

@@ -191,28 +191,41 @@ export default function Index({ jukir, filters }: IndexProps) {
                         },
                         {
                             header: "Foto",
-                            className: "w-32 text-center",
-                            headerClassName: "text-center w-32",
-                            render: (item: Jukir) => (
-                                <div className="flex items-center justify-center">
-                                    {item.foto ? (
+                            className: "w-24 text-center",
+                            headerClassName: "text-center w-24",
+                            render: (item: Jukir) => {
+                                const fotoUrl =
+                                    item.foto &&
+                                    item.foto !== "" &&
+                                    !item.foto.includes("default")
+                                        ? item.foto.startsWith("http") ||
+                                          item.foto.startsWith("/") ||
+                                          item.foto.startsWith("assets/")
+                                            ? item.foto.startsWith("/")
+                                                ? item.foto
+                                                : `/${item.foto}`
+                                            : `/storage/${item.foto}`
+                                        : "/assets/images/dump.jpg";
+
+                                return (
+                                    <div className="flex items-center justify-center">
                                         <img
-                                            src={`/storage/${item.foto}`}
+                                            src={fotoUrl}
                                             alt={item.nama}
-                                            className="h-14 w-14 object-cover rounded-full border border-slate-200 shadow-sm dark:border-slate-700"
+                                            className="h-14 w-14 object-cover rounded-full border border-slate-200 shadow-sm dark:border-slate-700 bg-slate-100 dark:bg-slate-800"
+                                            onError={(e) => {
+                                                e.currentTarget.src =
+                                                    "/assets/images/dump.jpg";
+                                            }}
                                         />
-                                    ) : (
-                                        <div className="h-14 w-14 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400">
-                                            <ImageIcon size={20} />
-                                        </div>
-                                    )}
-                                </div>
-                            ),
+                                    </div>
+                                );
+                            },
                         },
                         {
                             header: "Nama",
                             className:
-                                "text-slate-800 font-bold dark:text-slate-200 w-64",
+                                "text-slate-800 font-bold dark:text-slate-200 w-48",
                             render: (item: Jukir) => {
                                 const wilayah = item.wilayah_parkir || item.wilayahParkir;
                                 return (

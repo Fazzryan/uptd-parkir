@@ -112,27 +112,35 @@ export default function Show({ jukir }: ShowProps) {
                         <div className="px-6 pb-6 pt-0 relative">
                             {/* Foto Juru Parkir Bulat Rata Tengah */}
                             <div className="relative -mt-14 mb-4 inline-block group">
-                                {jukir.foto ? (
-                                    <div className="relative">
-                                        <img
-                                            src={`/storage/${jukir.foto}`}
-                                            alt={jukir.nama}
-                                            className="w-28 h-28 rounded-full object-cover border-4 border-white dark:border-slate-900 shadow bg-slate-100 dark:bg-slate-800 mx-auto"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPhotoModal(true)}
-                                            className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white cursor-pointer"
-                                            title="Perbesar Foto"
-                                        >
-                                            <Maximize2 size={20} />
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div className="w-28 h-28 rounded-full bg-slate-100 dark:bg-slate-800 border-4 border-white dark:border-slate-900 shadow-md flex items-center justify-center text-slate-400 mx-auto">
-                                        <UserIcon size={40} />
-                                    </div>
-                                )}
+                                <div className="relative">
+                                    <img
+                                        src={
+                                            jukir.foto
+                                                ? jukir.foto.startsWith("http") ||
+                                                  jukir.foto.startsWith("/") ||
+                                                  jukir.foto.startsWith("assets/")
+                                                    ? jukir.foto.startsWith("/")
+                                                        ? jukir.foto
+                                                        : `/${jukir.foto}`
+                                                    : `/storage/${jukir.foto}`
+                                                : "/assets/images/dump.jpg"
+                                        }
+                                        alt={jukir.nama}
+                                        className="w-28 h-28 rounded-full object-cover border-4 border-white dark:border-slate-900 shadow bg-slate-100 dark:bg-slate-800 mx-auto"
+                                        onError={(e) => {
+                                            e.currentTarget.src =
+                                                "/assets/images/dump.jpg";
+                                        }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPhotoModal(true)}
+                                        className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white cursor-pointer"
+                                        title="Perbesar Foto"
+                                    >
+                                        <Maximize2 size={20} />
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Nama & Status */}
@@ -443,7 +451,7 @@ export default function Show({ jukir }: ShowProps) {
             </div>
 
             {/* Modal Perbesar Foto Jukir */}
-            {showPhotoModal && jukir.foto && (
+            {showPhotoModal && (
                 <div
                     className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4"
                     onClick={() => setShowPhotoModal(false)}
@@ -465,9 +473,22 @@ export default function Show({ jukir }: ShowProps) {
                             </button>
                         </div>
                         <img
-                            src={`/storage/${jukir.foto}`}
+                            src={
+                                jukir.foto
+                                    ? jukir.foto.startsWith("http") ||
+                                      jukir.foto.startsWith("/") ||
+                                      jukir.foto.startsWith("assets/")
+                                        ? jukir.foto.startsWith("/")
+                                            ? jukir.foto
+                                            : `/${jukir.foto}`
+                                        : `/storage/${jukir.foto}`
+                                    : "/assets/images/dump.jpg"
+                            }
                             alt={jukir.nama}
                             className="w-full max-h-[70vh] object-contain rounded-2xl bg-slate-50 dark:bg-slate-950"
+                            onError={(e) => {
+                                e.currentTarget.src = "/assets/images/dump.jpg";
+                            }}
                         />
                     </div>
                 </div>
