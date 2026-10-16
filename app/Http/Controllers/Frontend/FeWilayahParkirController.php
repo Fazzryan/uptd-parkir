@@ -19,7 +19,13 @@ class FeWilayahParkirController extends Controller
         //     ->orderBy('kecamatans.nama_kecamatan', 'asc')
         //     ->get();
 
-        $wilayahParkir = WilayahParkir::with('kecamatan')
+        $wilayahParkir = WilayahParkir::with([
+            'kecamatan',
+            'jukir' => function ($q) {
+                $q->where('status', 'Aktif')
+                    ->select('id', 'wilayah_parkir_id', 'kode_jukir', 'nama', 'foto', 'nohp', 'status');
+            },
+        ])
             ->orderBy(
                 Kecamatan::select('nama_kecamatan')->whereColumn('kecamatans.id', 'wilayah_parkir.kecamatan_id'),
                 'asc'

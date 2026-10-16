@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Link } from "@inertiajs/react";
 import SeoHead from "@/Components/SeoHead";
 import Button from "@/Components/UI/Button";
+import Badge from "@/Components/UI/Badge";
 import Navbar from "./Layouts/Navbar";
 import Footer from "./Layouts/Footer";
 import {
@@ -15,8 +16,10 @@ import {
     Building2,
     LayoutGrid,
     Table as TableIcon,
+    Users,
+    UserX,
 } from "lucide-react";
-import { WilayahParkir as WilayahParkirType } from "@/types/model";
+import { WilayahParkir as WilayahParkirType, Jukir } from "@/types/model";
 
 interface WilayahParkirProps {
     wilayahParkir: WilayahParkirType[];
@@ -37,9 +40,15 @@ export default function WilayahParkir({
         if (!q) return wilayahParkir;
         return wilayahParkir.filter((item) => {
             const namaKecamatan = item.kecamatan?.nama_kecamatan || "";
+            const jukirMatch = item.jukir?.some(
+                (j) =>
+                    j.nama.toLowerCase().includes(q) ||
+                    (j.kode_jukir && j.kode_jukir.toLowerCase().includes(q))
+            );
             return (
                 item.nama_jalan.toLowerCase().includes(q) ||
-                namaKecamatan.toLowerCase().includes(q)
+                namaKecamatan.toLowerCase().includes(q) ||
+                jukirMatch
             );
         });
     }, [query, wilayahParkir]);
@@ -106,7 +115,7 @@ export default function WilayahParkir({
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             type="text"
-                            placeholder="Cari nama jalan atau kecamatan..."
+                            placeholder="Cari titik lokasi, kecamatan, atau nama juru parkir..."
                             className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
                         />
                     </div>
@@ -167,34 +176,71 @@ export default function WilayahParkir({
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                             {hasil.map((z) => {
                                 const mapsUrl = getMapsUrl(z);
+                                const jukirList = z.jukir || [];
 
                                 return (
                                     <div
                                         key={z.id}
-                                        className="flex flex-col justify-between gap-4 rounded-3xl border border-slate-100 bg-white p-5 sm:p-6 transition-all hover:border-blue-200 group"
+                                        className="flex flex-col justify-between gap-4 rounded-3xl border border-slate-100 bg-white p-5 sm:p-6 transition-all hover:border-blue-200 hover:shadow-md hover:shadow-blue-500/5 group"
                                     >
-                                        <div className="flex items-start gap-4">
-                                            <div className="min-w-0 flex-1 space-y-1">
-                                                <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors">
+                                        <div className="space-y-3">
+                                            {/* Header Titik Lokasi & Kecamatan */}
+                                            <div className="space-y-1">
+                                                <h3 className="text-base font-bold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors">
                                                     {z.nama_jalan}
                                                 </h3>
-                                                <div className="flex items-center gap-2 text-xs text-slate-500">
+                                                <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                                                    <MapPin className="h-3.5 w-3.5 shrink-0 text-blue-600" />
                                                     <span>
                                                         Kecamatan:{" "}
-                                                        {z.kecamatan
-                                                            ?.nama_kecamatan ||
-                                                            "-"}
+                                                        <strong className="text-slate-700 font-semibold">
+                                                            {z.kecamatan?.nama_kecamatan || "-"}
+                                                        </strong>
                                                     </span>
                                                 </div>
                                             </div>
+
+                                            {/* Informasi Juru Parkir */}
+                                            <div className="pt-3 border-t border-slate-100">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                                                        <Users className="h-3 w-3 text-blue-600" />
+                                                        Juru Parkir Resmi
+                                                    </span>
+                                                    {jukirList.length > 0 && (
+                                                        <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                                                            {jukirList.length} Jukir
+                                                        </span>
+                                                    )}
+                                                </div>
+
+                                                {jukirList.length > 0 ? (
+                                                    <div className="flex flex-wrap gap-1.5 pt-1">
+                                                        {jukirList.map((j) => (
+                                                            <Badge
+                                                                key={j.id}
+                                                                type="info"
+                                                                className="!normal-case !tracking-normal font-semibold text-xs py-1 px-2.5 bg-blue-50 text-blue-700 border-blue-200/80 shadow-2xs"
+                                                            >
+                                                                {j.nama}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-xl bg-slate-50 text-slate-400 text-xs italic">
+                                                        <UserX className="h-3.5 w-3.5 shrink-0" />
+                                                        <span>Belum ada jukir terdaftar</span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
 
-                                        <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                                        <div className="pt-2 border-t border-slate-100">
                                             <a
                                                 href={mapsUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-100 px-3.5 py-1.5 text-xs font-bold text-blue-700 transition-colors"
+                                                className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-100 px-3.5 py-2 text-xs font-bold text-blue-700 transition-colors"
                                             >
                                                 <Navigation className="h-3.5 w-3.5" />
                                                 <span>Petunjuk Lokasi</span>
@@ -205,21 +251,24 @@ export default function WilayahParkir({
                             })}
                         </div>
                     ) : (
-                        <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white">
+                        <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-2xs">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="border-b border-slate-200 bg-slate-50/80">
-                                            <th className="py-3.5 px-5 text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                            <th className="py-3.5 px-5 text-xs font-bold text-slate-700 uppercase tracking-wider w-14 text-center shrink-0">
                                                 No
                                             </th>
-                                            <th className="py-3.5 px-5 text-xs font-bold text-slate-700 uppercase tracking-wider">
-                                                Nama Jalan
+                                            <th className="py-3.5 px-5 text-xs font-bold text-slate-700 uppercase tracking-wider w-64 md:w-72">
+                                                Titik Lokasi
                                             </th>
-                                            <th className="py-3.5 px-5 text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                            <th className="py-3.5 px-5 text-xs font-bold text-slate-700 uppercase tracking-wider w-40 md:w-48 whitespace-nowrap">
                                                 Kecamatan
                                             </th>
-                                            <th className="py-3.5 px-5 text-center text-xs font-bold text-slate-700 uppercase tracking-wider w-64">
+                                            <th className="py-3.5 px-5 text-xs font-bold text-slate-700 uppercase tracking-wider min-w-[200px]">
+                                                Juru Parkir Resmi
+                                            </th>
+                                            <th className="py-3.5 px-5 text-center text-xs font-bold text-slate-700 uppercase tracking-wider w-44 shrink-0 whitespace-nowrap">
                                                 Aksi
                                             </th>
                                         </tr>
@@ -227,33 +276,58 @@ export default function WilayahParkir({
                                     <tbody className="divide-y divide-slate-100 text-sm">
                                         {hasil.map((z, index) => {
                                             const mapsUrl = getMapsUrl(z);
+                                            const jukirList = z.jukir || [];
+
                                             return (
                                                 <tr
                                                     key={z.id}
                                                     className="hover:bg-slate-50/70 transition-colors"
                                                 >
-                                                    <td className="py-3.5 px-5 font-semibold text-slate-900">
+                                                    <td className="py-3.5 px-5 font-semibold text-slate-900 text-center">
                                                         {index + 1}
                                                     </td>
-                                                    <td className="py-3.5 px-5 font-semibold text-slate-900">
+                                                    <td className="py-3.5 px-5 font-bold text-slate-900 max-w-xs break-words">
                                                         {z.nama_jalan}
                                                     </td>
-                                                    <td className="py-3.5 px-5 text-slate-600">
+                                                    <td className="py-3.5 px-5 text-slate-600 font-medium whitespace-nowrap">
                                                         {z.kecamatan
                                                             ?.nama_kecamatan ||
                                                             "-"}
                                                     </td>
-                                                    <td className="py-3.5 px-5 text-center">
+                                                    <td className="py-3.5 px-5">
+                                                        {jukirList.length > 0 ? (
+                                                            <div className="flex flex-wrap gap-1.5 items-center">
+                                                                {jukirList.map((j) => (
+                                                                    <Badge
+                                                                        key={j.id}
+                                                                        type="info"
+                                                                        className="!normal-case !tracking-normal font-semibold text-xs py-1 px-2.5 bg-blue-50 text-blue-700 border-blue-200/80 shadow-2xs whitespace-nowrap"
+                                                                    >
+                                                                        {j.nama}
+                                                                    </Badge>
+                                                                ))}
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-xs text-slate-400 italic flex items-center gap-1.5 whitespace-nowrap">
+                                                                <UserX className="h-3.5 w-3.5 shrink-0" />
+                                                                Belum ada jukir
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                    <td className="py-3.5 px-5 text-center whitespace-nowrap">
                                                         <a
                                                             href={mapsUrl}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-100 px-3.5 py-1.5 text-xs font-bold text-blue-700 transition-colors"
+                                                            className="inline-flex transition-transform hover:scale-105"
                                                         >
-                                                            <Navigation className="h-3.5 w-3.5" />
-                                                            <span>
-                                                                Petunjuk Lokasi
-                                                            </span>
+                                                            <Badge
+                                                                type="info"
+                                                                className="!normal-case !tracking-normal font-semibold text-xs py-1.5 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200/80 inline-flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer whitespace-nowrap"
+                                                            >
+                                                                <Navigation className="h-3.5 w-3.5 shrink-0" />
+                                                                <span className="whitespace-nowrap">Petunjuk Lokasi</span>
+                                                            </Badge>
                                                         </a>
                                                     </td>
                                                 </tr>

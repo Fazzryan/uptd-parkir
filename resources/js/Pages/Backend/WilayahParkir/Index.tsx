@@ -282,7 +282,7 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
                                 item.kecamatan?.nama_kecamatan || "-",
                         },
                         {
-                            header: "Nama Jalan / Titik Lokasi",
+                            header: "Titik Lokasi",
                             className:
                                 "text-slate-700 dark:text-slate-300 font-medium",
                             render: (item: WilayahParkir) => item.nama_jalan,
@@ -445,11 +445,11 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300">
-                            Nama Jalan / Titik Lokasi
+                             Titik Lokasi
                         </label>
                         <TextInput
                             type="text"
-                            placeholder="Contoh: Jl. Raya Singaparna No. 45"
+                            placeholder="Contoh: Toko Pelangi"
                             value={data.nama_jalan}
                             onChange={(e) => setData("nama_jalan", e.target.value)}
                             className="w-full text-sm"
