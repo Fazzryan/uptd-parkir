@@ -9,6 +9,7 @@ import Pagination from "@/Components/Data/Pagination";
 import ConfirmationModal from "@/Components/UI/ConfirmationModal";
 import Modal from "@/Components/UI/Modal";
 import Badge from "@/Components/UI/Badge";
+import SelectSearch from "@/Components/Form/SelectSearch";
 import { Head, Link, useForm, usePage, router } from "@inertiajs/react";
 import {
     Edit2,
@@ -19,18 +20,20 @@ import {
     Upload,
     Eye,
 } from "lucide-react";
-import { PaginatedData, Jukir } from "@/types/model";
+import { PaginatedData, Jukir, Kecamatan } from "@/types/model";
 import axios from "axios";
 
 interface IndexProps {
     jukir: PaginatedData<Jukir>;
+    kecamatanList?: Kecamatan[];
     filters: {
         search?: string;
+        kecamatan_id?: number | string;
         per_page?: number | string;
     };
 }
 
-export default function Index({ jukir, filters }: IndexProps) {
+export default function Index({ jukir, kecamatanList = [], filters }: IndexProps) {
     const auth = usePage<any>().props.auth || {};
     const permissions: string[] = auth.permissions || [];
     const roles: string[] = auth.roles || [];
@@ -56,11 +59,18 @@ export default function Index({ jukir, filters }: IndexProps) {
     const [localJukir, setLocalJukir] =
         useState<PaginatedData<Jukir>>(jukir);
     const [search, setSearch] = useState(filters.search || "");
+    const [selectedKecamatanId, setSelectedKecamatanId] = useState<number | string>(filters.kecamatan_id || "");
     const [perPage, setPerPage] = useState(filters.per_page || 10);
 
     useEffect(() => {
         setLocalJukir(jukir);
     }, [jukir]);
+
+    // Opsi untuk SelectSearch Kecamatan
+    const kecamatanOptions = kecamatanList.map((k) => ({
+        value: String(k.id),
+        label: k.nama_kecamatan,
+    }));
 
     // Confirmation Modal State
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -91,11 +101,12 @@ export default function Index({ jukir, filters }: IndexProps) {
         const timeout = setTimeout(() => {
             fetchData(route("be.data-jukir.index"), {
                 search,
+                kecamatan_id: selectedKecamatanId,
                 per_page: perPage,
             });
         }, 300);
         return () => clearTimeout(timeout);
-    }, [search, perPage]);
+    }, [search, selectedKecamatanId, perPage]);
 
     const openDeleteModal = (item: Jukir) => {
         setItemToDelete(item);
@@ -117,6 +128,7 @@ export default function Index({ jukir, filters }: IndexProps) {
 
     const handleResetFilter = () => {
         setSearch("");
+        setSelectedKecamatanId("");
         setPerPage(10);
     };
 
@@ -161,8 +173,18 @@ export default function Index({ jukir, filters }: IndexProps) {
                         />
                     </div>
 
+                    {/* Filter Kecamatan */}
+                    <div className="w-full md:w-64 relative z-30">
+                        <SelectSearch
+                            options={kecamatanOptions}
+                            value={String(selectedKecamatanId)}
+                            onChange={(val) => setSelectedKecamatanId(val)}
+                            placeholder="Filter Kecamatan..."
+                        />
+                    </div>
+
                     {/* Reset Button */}
-                    {search && (
+                    {(search || selectedKecamatanId) && (
                         <Button
                             variant="danger"
                             onClick={handleResetFilter}
@@ -239,7 +261,17 @@ export default function Index({ jukir, filters }: IndexProps) {
                                                     {item.kode_jukir}
                                                 </span>
                                             )}
+                                            {wilayah?.kecamatan?.nama_kecamatan && (
+                                                <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                                                    • {wilayah.kecamatan.nama_kecamatan}
+                                                </span>
+                                            )}
                                         </div>
+                                        {wilayah?.nama_jalan && (
+                                            <p className="text-[11px] text-slate-400 dark:text-slate-500 line-clamp-1 mt-0.5" title={wilayah.nama_jalan}>
+                                                {wilayah.nama_jalan}
+                                            </p>
+                                        )}
                                     </div>
                                 );
                             },

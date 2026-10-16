@@ -7,6 +7,7 @@ use App\Http\Requests\StoreJukirRequest;
 use App\Http\Requests\UpdateJukirRequest;
 use App\Models\Jukir;
 use App\Models\JukirTarget;
+use App\Models\Kecamatan;
 use App\Models\User;
 use App\Models\WilayahParkir;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +35,19 @@ class JukirController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', '%'.$search.'%')
                     ->orWhere('nohp', 'like', '%'.$search.'%')
-                    ->orWhere('kode_jukir', 'like', '%'.$search.'%');
+                    ->orWhere('kode_jukir', 'like', '%'.$search.'%')
+                    ->orWhereHas('wilayahParkir', function ($w) use ($search) {
+                        $w->where('nama_jalan', 'like', '%'.$search.'%')
+                            ->orWhereHas('kecamatan', function ($k) use ($search) {
+                                $k->where('nama_kecamatan', 'like', '%'.$search.'%');
+                            });
+                    });
+            });
+        }
+
+        if ($kecamatanId = request('kecamatan_id')) {
+            $query->whereHas('wilayahParkir', function ($w) use ($kecamatanId) {
+                $w->where('kecamatan_id', $kecamatanId);
             });
         }
 
@@ -42,6 +55,8 @@ class JukirController extends Controller
             ->latest()
             ->paginate(request('per_page', 10))
             ->withQueryString();
+
+        $kecamatanList = Kecamatan::orderBy('nama_kecamatan', 'asc')->get();
 
         if (request()->wantsJson()) {
             return response()->json($jukir);
@@ -51,7 +66,8 @@ class JukirController extends Controller
 
         return Inertia::render('Backend/Jukir/Index', [
             'jukir' => $jukir,
-            'filters' => request()->only(['search', 'per_page']),
+            'kecamatanList' => $kecamatanList,
+            'filters' => request()->only(['search', 'kecamatan_id', 'per_page']),
             'wilayahParkir' => $wilayahParkir,
         ]);
     }

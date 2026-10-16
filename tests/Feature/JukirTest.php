@@ -516,5 +516,72 @@ class JukirTest extends TestCase
         $response->assertRedirect(route('be.dashboard'));
         $this->assertAuthenticatedAs($user);
     }
+
+    /**
+     * Test 15: Filter kecamatan berhasil menyaring data juru parkir sesuai kecamatan yang dipilih.
+     */
+    public function test_filter_kecamatan_berhasil_menyaring_daftar_jukir(): void
+    {
+        $kecamatanRajapolah = Kecamatan::create([
+            'id_kecamatan' => '320602',
+            'nama_kecamatan' => 'Rajapolah',
+            'alamat' => 'Jl. Raya Rajapolah',
+        ]);
+
+        $wilayahRajapolah = WilayahParkir::create([
+            'kecamatan_id' => $kecamatanRajapolah->id,
+            'nama_jalan' => 'Jl. Sentra Kerajinan Rajapolah',
+            'latitude' => '-7.2155',
+            'longitude' => '108.1922',
+        ]);
+
+        // Jukir di Ciawi
+        $userCiawi = User::factory()->create();
+        Jukir::create([
+            'user_id' => $userCiawi->id,
+            'wilayah_parkir_id' => $this->wilayahParkir->id,
+            'kode_jukir' => 'CIAW-JUKIR-001',
+            'nama' => 'Jukir Ciawi',
+            'nohp' => '081211111111',
+            'alamat' => 'Ciawi',
+            'status' => 'Aktif',
+            'foto' => 'jukir/foto1.jpg',
+        ]);
+
+        // Jukir di Rajapolah
+        $userRajapolah = User::factory()->create();
+        Jukir::create([
+            'user_id' => $userRajapolah->id,
+            'wilayah_parkir_id' => $wilayahRajapolah->id,
+            'kode_jukir' => 'RJPL-JUKIR-002',
+            'nama' => 'Jukir Rajapolah',
+            'nohp' => '081222222222',
+            'alamat' => 'Rajapolah',
+            'status' => 'Aktif',
+            'foto' => 'jukir/foto2.jpg',
+        ]);
+
+        // 1. Request index dengan filter kecamatan Rajapolah
+        $response = $this->actingAs($this->adminUser)
+            ->getJson(route('be.data-jukir.index', ['kecamatan_id' => $kecamatanRajapolah->id]));
+
+        $response->assertOk();
+        $data = $response->json('data');
+
+        $this->assertCount(1, $data);
+        $this->assertEquals('RJPL-JUKIR-002', $data[0]['kode_jukir']);
+        $this->assertEquals('Jukir Rajapolah', $data[0]['nama']);
+
+        // 2. Request index dengan filter kecamatan Ciawi
+        $responseCiawi = $this->actingAs($this->adminUser)
+            ->getJson(route('be.data-jukir.index', ['kecamatan_id' => $this->kecamatan->id]));
+
+        $responseCiawi->assertOk();
+        $dataCiawi = $responseCiawi->json('data');
+
+        $this->assertCount(1, $dataCiawi);
+        $this->assertEquals('CIAW-JUKIR-001', $dataCiawi[0]['kode_jukir']);
+        $this->assertEquals('Jukir Ciawi', $dataCiawi[0]['nama']);
+    }
 }
 

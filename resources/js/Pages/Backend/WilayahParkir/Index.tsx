@@ -596,7 +596,7 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
                                                         )}
                                                         {j.nohp && (
                                                             <span className="flex items-center gap-1">
-                                                                {j.nohp}
+                                                            {j.nohp}
                                                             </span>
                                                         )}
                                                     </div>
