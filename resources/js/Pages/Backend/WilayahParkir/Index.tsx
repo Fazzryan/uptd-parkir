@@ -7,6 +7,7 @@ import TextInput from "@/Components/Form/TextInput";
 import Pagination from "@/Components/Data/Pagination";
 import ConfirmationModal from "@/Components/UI/ConfirmationModal";
 import Modal from "@/Components/UI/Modal";
+import Badge from "@/Components/UI/Badge";
 import SelectSearch from "@/Components/Form/SelectSearch";
 import { Head, Link, useForm, usePage, router } from "@inertiajs/react";
 import {
@@ -516,7 +517,7 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
                         </div>
                     </div>
                 }
-                maxWidth="4xl"
+                maxWidth="xl"
                 footer={
                     <Button
                         variant="secondary"
@@ -551,41 +552,50 @@ export default function Index({ wilayah, kecamatanList = [], filters }: IndexPro
                                             className="py-3 flex items-center justify-between gap-3 hover:bg-slate-50/60 dark:hover:bg-slate-700/30 px-2 rounded-xl transition-colors"
                                         >
                                             <div className="flex items-center gap-3 min-w-0">
-                                                {j.foto ? (
-                                                    <img
-                                                        src={`/storage/${j.foto}`}
-                                                        alt={j.nama}
-                                                        className="h-10 w-10 object-cover rounded-full border border-slate-200 shadow-xs dark:border-slate-700 shrink-0"
-                                                    />
-                                                ) : (
-                                                    <div className="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 shrink-0">
-                                                        <Users size={16} />
-                                                    </div>
-                                                )}
+                                                <img
+                                                    src={
+                                                        j.foto &&
+                                                        j.foto !== "" &&
+                                                        !j.foto.includes("default")
+                                                            ? j.foto.startsWith("http") ||
+                                                              j.foto.startsWith("/") ||
+                                                              j.foto.startsWith("assets/")
+                                                                ? j.foto.startsWith("/")
+                                                                    ? j.foto
+                                                                    : `/${j.foto}`
+                                                                : `/storage/${j.foto}`
+                                                            : "/assets/images/dump.jpg"
+                                                    }
+                                                    alt={j.nama}
+                                                    className="h-10 w-10 object-cover rounded-full border border-slate-200 shadow-xs dark:border-slate-700 shrink-0 bg-slate-100 dark:bg-slate-800"
+                                                    onError={(e) => {
+                                                        e.currentTarget.src =
+                                                            "/assets/images/dump.jpg";
+                                                    }}
+                                                />
                                                 <div className="min-w-0">
                                                     <div className="flex items-center gap-2 flex-wrap">
                                                         <span className="font-semibold text-sm text-slate-800 dark:text-slate-200 truncate">
                                                             {j.nama}
                                                         </span>
-                                                        <span
-                                                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                                                        <Badge
+                                                            type={
                                                                 j.status === "Aktif"
-                                                                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800"
-                                                                    : "bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-800"
-                                                            }`}
+                                                                    ? "success"
+                                                                    : "danger"
+                                                            }
                                                         >
                                                             {j.status}
-                                                        </span>
+                                                        </Badge>
                                                     </div>
                                                     <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex-wrap">
                                                         {j.kode_jukir && (
-                                                            <span className="font-mono text-brand-blue-600 dark:text-brand-blue-400 font-medium">
+                                                            <span className="text-brand-blue-600 dark:text-brand-blue-400 font-medium">
                                                                 {j.kode_jukir}
                                                             </span>
                                                         )}
                                                         {j.nohp && (
                                                             <span className="flex items-center gap-1">
-                                                                <Phone size={12} className="text-slate-400" />
                                                                 {j.nohp}
                                                             </span>
                                                         )}

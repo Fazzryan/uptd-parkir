@@ -131,6 +131,30 @@ class JukirSeeder extends Seeder
                             $jmlHari = 26;
                         }
 
+                        // 1. Dapatkan atau Buat Titik Wilayah Parkir
+                        $wilayahParkir = WilayahParkir::firstOrCreate(
+                            [
+                                'kecamatan_id' => $kecamatan->id,
+                                'nama_jalan'   => $lokasi,
+                            ],
+                            [
+                                'latitude'  => $kecamatan->latitude,
+                                'longitude' => $kecamatan->longitude,
+                            ]
+                        );
+
+                        $namaJukir = Str::title($colB);
+
+                        // Cek apakah Jukir pada titik penugasan ini sudah ada di database
+                        $existingJukir = Jukir::where('nama', $namaJukir)
+                            ->where('wilayah_parkir_id', $wilayahParkir->id)
+                            ->first();
+
+                        if ($existingJukir) {
+                            // Data sudah ada dari seeding sebelumnya, lewati agar tidak menduplikasi
+                            continue;
+                        }
+
                         // Generate username unik jukir
                         $baseSlug = Str::slug($colB, '_');
                         if (empty($baseSlug)) {
@@ -144,20 +168,7 @@ class JukirSeeder extends Seeder
                         }
                         $usernames[$username] = true;
 
-                        // 1. Dapatkan atau Buat Titik Wilayah Parkir
-                        $wilayahParkir = WilayahParkir::firstOrCreate(
-                            [
-                                'kecamatan_id' => $kecamatan->id,
-                                'nama_jalan'   => $lokasi,
-                            ],
-                            [
-                                'latitude'  => $kecamatan->latitude,
-                                'longitude' => $kecamatan->longitude,
-                            ]
-                        );
-
                         // 2. Buat Akun Pengguna untuk Juru Parkir
-                        $namaJukir = Str::title($colB);
                         $user = User::firstOrCreate(
                             ['username' => $username],
                             [
@@ -168,8 +179,23 @@ class JukirSeeder extends Seeder
                         );
                         $user->assignRole('user');
 
-                        // 3. Buat Profil Juru Parkir
-                        $kodeKec = substr(preg_replace('/[^A-Z]/', '', strtoupper($kecName)), 0, 3) ?: 'PKR';
+                        // 3. Buat Profil Juru Parkir (Format: 4HURUF_WILAYAH-NAMA-4RANDOM)
+                        $kodeKecMap = [
+                            'Singaparna'    => 'SGPR',
+                            'Ciawi'         => 'CIAW',
+                            'Manonjaya'     => 'MNJY',
+                            'Rajapolah'     => 'RJPL',
+                            'Cineam'        => 'CNEM',
+                            'Sukaraja'      => 'SKRJ',
+                            'Karangnunggal' => 'KRNG',
+                            'Bantarkalong'  => 'BTKL',
+                            'Cipatujah'     => 'CPTJ',
+                            'Cikatomas'     => 'CKTM',
+                            'Taraju'        => 'TRJU',
+                            'Bojonggambir'  => 'BJGB',
+                            'Puspahiang'    => 'PSPH',
+                        ];
+                        $kodeKec = $kodeKecMap[$kecName] ?? strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $kecName), 0, 4));
                         $firstWord = explode(' ', trim($colB))[0] ?? 'JUKIR';
                         $namaClean = substr(preg_replace('/[^A-Z]/', '', strtoupper($firstWord)), 0, 6) ?: 'JUKIR';
                         do {

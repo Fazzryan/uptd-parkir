@@ -99,14 +99,28 @@ class JukirController extends Controller
                 // assign role user
                 $user->assignRole('user');
 
-                // Generate Kode Unik Jukir (Format: SGP-NAMA-4RANDOM)
-                $kodeWilayah = 'PKR';
+                // Generate Kode Unik Jukir (Format: 4HURUF_WILAYAH-NAMA-4RANDOM)
+                $kodeWilayah = 'PKR1';
                 if (! empty($validated['wilayah_parkir_id'])) {
                     $wilayah = WilayahParkir::with('kecamatan')->find($validated['wilayah_parkir_id']);
                     if ($wilayah && $wilayah->kecamatan) {
-                        $kecName = strtoupper($wilayah->kecamatan->nama_kecamatan);
-                        // Ambil 3 karakter alfabet pertama dari nama kecamatan
-                        $kodeWilayah = substr(preg_replace('/[^A-Z]/', '', $kecName), 0, 3) ?: 'PKR';
+                        $kecName = $wilayah->kecamatan->nama_kecamatan;
+                        $kodeKecMap = [
+                            'Singaparna'    => 'SGPR',
+                            'Ciawi'         => 'CIAW',
+                            'Manonjaya'     => 'MNJY',
+                            'Rajapolah'     => 'RJPL',
+                            'Cineam'        => 'CNEM',
+                            'Sukaraja'      => 'SKRJ',
+                            'Karangnunggal' => 'KRNG',
+                            'Bantarkalong'  => 'BTKL',
+                            'Cipatujah'     => 'CPTJ',
+                            'Cikatomas'     => 'CKTM',
+                            'Taraju'        => 'TRJU',
+                            'Bojonggambir'  => 'BJGB',
+                            'Puspahiang'    => 'PSPH',
+                        ];
+                        $kodeWilayah = $kodeKecMap[$kecName] ?? strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $kecName), 0, 4));
                     }
                 }
 

@@ -136,9 +136,9 @@ class JukirTest extends TestCase
         $createdJukir = Jukir::where('user_id', $createdUser->id)->first();
         $this->assertNotNull($createdJukir);
 
-        // Verifikasi kode unik jukir terbentuk (Format: KEC-NAMA-XXXX)
-        // Kecamatan Ciawi -> 'CIA', Nama Asep -> 'ASEP'
-        $this->assertStringStartsWith('CIA-ASEP-', $createdJukir->kode_jukir);
+        // Verifikasi kode unik jukir terbentuk (Format: 4HURUF-NAMA-XXXX)
+        // Kecamatan Ciawi -> 'CIAW', Nama Asep -> 'ASEP'
+        $this->assertStringStartsWith('CIAW-ASEP-', $createdJukir->kode_jukir);
 
         // Verifikasi file foto tersimpan di storage public
         $this->assertNotNull($createdJukir->foto);
