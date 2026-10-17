@@ -30,6 +30,10 @@ import {
     Trash2,
     CheckCircle2,
     ArrowUpRight,
+    AlertTriangle,
+    AlertCircle,
+    Award,
+    Phone,
 } from "lucide-react";
 import { Kecamatan } from "@/types/model";
 import axios from "axios";
@@ -74,6 +78,27 @@ export interface StatsSummary {
     tahunIni: number;
     targetTahunIni: number;
     persentaseTahunIni: number;
+    totalTunggakan?: number;
+    jumlahJukirNunggak?: number;
+    totalJukirWilayah?: number;
+    namaWilayah?: string;
+}
+
+export interface TopJukirItem {
+    rank: number;
+    id: number;
+    kode_jukir: string;
+    nama: string;
+    foto?: string | null;
+    nohp?: string | null;
+    titik_parkir: string;
+    kecamatan: string;
+    target_nominal: number;
+    setor_nominal: number;
+    tunggakan_nominal: number;
+    persentase: number;
+    status: "Lunas" | "Kurang" | "Nunggak";
+    jam_bayar?: string | null;
 }
 
 export interface JukirOption {
@@ -88,6 +113,8 @@ export interface JukirOption {
 interface IndexProps {
     initialDataJukir?: MonitoringJukirRow[];
     stats?: StatsSummary;
+    topDisiplin?: TopJukirItem[];
+    topPerhatian?: TopJukirItem[];
     kecamatanList?: Kecamatan[];
     allJukirOptions?: JukirOption[];
     filters?: {
@@ -104,6 +131,8 @@ interface IndexProps {
 export default function Index({
     initialDataJukir = [],
     stats: serverStats,
+    topDisiplin: initialTopDisiplin = [],
+    topPerhatian: initialTopPerhatian = [],
     kecamatanList = [],
     allJukirOptions = [],
     filters = {},
@@ -132,8 +161,14 @@ export default function Index({
             tahunIni: 0,
             targetTahunIni: 0,
             persentaseTahunIni: 0,
+            totalTunggakan: 0,
+            jumlahJukirNunggak: 0,
+            totalJukirWilayah: 0,
+            namaWilayah: "",
         }
     );
+    const [topDisiplin, setTopDisiplin] = useState<TopJukirItem[]>(initialTopDisiplin);
+    const [topPerhatian, setTopPerhatian] = useState<TopJukirItem[]>(initialTopPerhatian);
 
     // State Filter
     const [search, setSearch] = useState(filters.search || "");
@@ -180,6 +215,18 @@ export default function Index({
         }
     }, [serverStats]);
 
+    useEffect(() => {
+        if (initialTopDisiplin) {
+            setTopDisiplin(initialTopDisiplin);
+        }
+    }, [initialTopDisiplin]);
+
+    useEffect(() => {
+        if (initialTopPerhatian) {
+            setTopPerhatian(initialTopPerhatian);
+        }
+    }, [initialTopPerhatian]);
+
     // Opsi Periode untuk Komponen SelectSearch
     const periodeOptions = [
         { value: "Hari Ini", label: "Periode: Hari Ini" },
@@ -221,6 +268,16 @@ export default function Index({
         return `Rp ${Number(val).toLocaleString("id-ID")}`;
     };
 
+    // Helper Format No WhatsApp
+    const formatWaNumber = (phone?: string | null) => {
+        if (!phone) return "";
+        let clean = phone.replace(/[^0-9]/g, "");
+        if (clean.startsWith("0")) {
+            clean = "62" + clean.slice(1);
+        }
+        return clean;
+    };
+
     // Fungsi Fetching Data AJAX dengan Debounce
     const isFirstRender = useRef(true);
 
@@ -246,6 +303,12 @@ export default function Index({
                     setDataJukir(res.data.dataJukir || []);
                     if (res.data.stats) {
                         setStats(res.data.stats);
+                    }
+                    if (res.data.topDisiplin) {
+                        setTopDisiplin(res.data.topDisiplin);
+                    }
+                    if (res.data.topPerhatian) {
+                        setTopPerhatian(res.data.topPerhatian);
                     }
                 }
             })
@@ -387,107 +450,36 @@ export default function Index({
                 </div>
             </div>
 
-            {/* Grid Kartu Statistik Pendapatan (Realtime dari Database) */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-                <StatCard
-                    title="Pendapatan Hari Ini"
-                    value={formatRupiahStrict(stats.hariIni)}
-                    valueClassName="text-xl xl:text-2xl font-bold"
-                    icon={Coins}
-                    color="bg-brand-blue-500"
-                    className="border-l-4 border-brand-blue-500"
-                    period={
-                        selectedPeriode === "Rentang"
-                            ? startDate && endDate
-                                ? `${startDate} s/d ${endDate}`
-                                : "Rentang"
-                            : selectedPeriode
-                    }
-                    description={`${stats.persentaseHariIni}% tercapai (Target: ${formatRupiahStrict(
-                        stats.targetHariIni
-                    )})`}
-                />
-
-                <StatCard
-                    title="Pendapatan Bulan Ini"
-                    value={formatRupiahStrict(stats.bulanIni)}
-                    valueClassName="text-xl xl:text-2xl font-bold"
-                    icon={TrendingUp}
-                    color="bg-brand-green-500"
-                    className="border-l-4 border-brand-green-500"
-                    period={`Bulan Ini`}
-                    description={`${stats.persentaseBulanIni}% tercapai (Target: ${formatRupiahStrict(
-                        stats.targetBulanIni
-                    )})`}
-                />
-
-                <StatCard
-                    title="Pendapatan Tahun Ini"
-                    value={formatRupiahStrict(stats.tahunIni)}
-                    valueClassName="text-xl xl:text-2xl font-bold"
-                    icon={Wallet}
-                    color="bg-amber-500"
-                    className="border-l-4 border-amber-500"
-                    period={`Tahun ${new Date().getFullYear()}`}
-                    description={`${stats.persentaseTahunIni}% tercapai (Target PAD: ${formatRupiahStrict(
-                        stats.targetTahunIni
-                    )})`}
-                />
-            </div>
-
-            {/* Card Utama Pembungkus Filter & Tabel */}
-            <Card className="!overflow-visible relative z-30 dark:bg-slate-800 dark:border-slate-700 dark:shadow-slate-700/50">
-                {/* Toolbar Filter Terpadu */}
-                <div className="p-4 md:p-5 bg-white dark:bg-slate-800 rounded-t-3xl border-b border-slate-100 dark:border-slate-700 flex flex-wrap items-center gap-3 relative z-30 overflow-visible">
-                    {/* 1. Input Pencarian */}
-                    <div className="relative flex-1 min-w-[220px]">
-                        <TextInput
-                            iconLeft={<Search size={18} />}
-                            className="w-full font-medium dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600"
-                            containerClassName="relative w-full"
-                            placeholder="Cari nama jukir, kode, atau titik lokasi..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
-
-                    {/* 2. Filter Periode */}
-                    <div className="w-full sm:w-48 relative z-30">
-                        <SelectSearch
-                            options={periodeOptions}
-                            value={selectedPeriode}
-                            onChange={(val) => setSelectedPeriode(String(val))}
-                            placeholder="Pilih Periode..."
-                        />
-                    </div>
-
-                    {/* 3. Input Rentang Tanggal jika periode 'Rentang' */}
-                    {selectedPeriode === "Rentang" && (
-                        <div className="flex items-center gap-2 animate-in fade-in duration-200">
-                            <div className="w-36 sm:w-40">
-                                <TextInput
-                                    type="date"
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                    containerClassName="relative w-full"
-                                    className="text-xs py-2 font-medium dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600 cursor-pointer"
-                                />
-                            </div>
-                            <span className="text-slate-400 text-xs font-bold">—</span>
-                            <div className="w-36 sm:w-40">
-                                <TextInput
-                                    type="date"
-                                    value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                    containerClassName="relative w-full"
-                                    className="text-xs py-2 font-medium dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600 cursor-pointer"
-                                />
-                            </div>
+            {/* 1. Filter Terpadu Wilayah & Periode (Diletakkan di Paling Atas Sebelum Card) */}
+            <Card className="!overflow-visible mb-8 p-5 relative z-30 dark:bg-slate-800 dark:border-slate-700 shadow-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-700/80 mb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-xl bg-brand-blue-50 text-brand-blue-600 dark:bg-brand-blue-950/60 dark:text-brand-blue-400">
+                            <Filter size={18} />
                         </div>
-                    )}
+                        <div>
+                            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
+                                Filter Wilayah & Periode Analitik
+                            </h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                                Memfilter data statistik, sorotan kinerja jukir, dan rekapitulasi setoran
+                            </p>
+                        </div>
+                    </div>
 
-                    {/* 4. Filter Kecamatan */}
-                    <div className="w-full sm:w-48 relative z-30">
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                            Wilayah: <strong className="text-brand-blue-600 dark:text-brand-blue-400">{stats.namaWilayah || "Semua Wilayah"}</strong>
+                        </span>
+                    </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 relative z-30 overflow-visible">
+                    {/* Filter Kecamatan */}
+                    <div className="w-full sm:w-56 relative z-30">
+                        <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">
+                            Kecamatan / Wilayah
+                        </span>
                         <SelectSearch
                             options={kecamatanOptions}
                             value={String(selectedKecamatan)}
@@ -496,8 +488,54 @@ export default function Index({
                         />
                     </div>
 
-                    {/* 5. Filter Status */}
-                    <div className="w-full sm:w-40 relative z-30">
+                    {/* Filter Periode */}
+                    <div className="w-full sm:w-48 relative z-30">
+                        <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">
+                            Rentang Waktu
+                        </span>
+                        <SelectSearch
+                            options={periodeOptions}
+                            value={selectedPeriode}
+                            onChange={(val) => setSelectedPeriode(String(val))}
+                            placeholder="Pilih Periode..."
+                        />
+                    </div>
+
+                    {/* Input Rentang Tanggal jika periode 'Rentang' */}
+                    {selectedPeriode === "Rentang" && (
+                        <div className="w-full sm:w-auto flex flex-col justify-end">
+                            <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">
+                                Dari — Sampai
+                            </span>
+                            <div className="flex items-center gap-2 animate-in fade-in duration-200">
+                                <div className="w-36 sm:w-40">
+                                    <TextInput
+                                        type="date"
+                                        value={startDate}
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                        containerClassName="relative w-full"
+                                        className="text-xs py-2 font-medium dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600 cursor-pointer"
+                                    />
+                                </div>
+                                <span className="text-slate-400 text-xs font-bold">—</span>
+                                <div className="w-36 sm:w-40">
+                                    <TextInput
+                                        type="date"
+                                        value={endDate}
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                        containerClassName="relative w-full"
+                                        className="text-xs py-2 font-medium dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600 cursor-pointer"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Filter Status Setoran */}
+                    <div className="w-full sm:w-44 relative z-30">
+                        <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">
+                            Status Setoran
+                        </span>
                         <SelectSearch
                             options={statusOptions}
                             value={selectedStatus}
@@ -506,24 +544,25 @@ export default function Index({
                         />
                     </div>
 
-                    {/* 6. Tombol Reset Filter */}
+                    {/* Tombol Reset */}
                     {hasActiveFilter && (
-                        <Button
-                            variant="danger"
-                            onClick={handleResetFilter}
-                            className="flex items-center gap-1.5 whitespace-nowrap text-xs py-2 px-3 rounded-xl shadow-xs"
-                        >
-                            <RotateCcw size={15} />
-                            <span>Reset</span>
-                        </Button>
+                        <div className="flex flex-col justify-end pt-5">
+                            <Button
+                                variant="danger"
+                                onClick={handleResetFilter}
+                                className="flex items-center gap-1.5 whitespace-nowrap text-xs py-2 px-3 rounded-xl shadow-xs"
+                            >
+                                <RotateCcw size={15} />
+                                <span>Reset Filter</span>
+                            </Button>
+                        </div>
                     )}
                 </div>
 
-                {/* Baris Badge Indikator Filter yang Sedang Aktif */}
+                {/* Badge Indikator Filter Aktif */}
                 {hasActiveFilter && (
-                    <div className="px-4 md:px-5 py-2.5 bg-slate-100/70 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-slate-700/80 flex flex-wrap items-center gap-2 text-xs animate-in fade-in duration-150">
-                        <span className="text-slate-500 dark:text-slate-400 font-semibold flex items-center gap-1.5 mr-1">
-                            <Filter size={13} className="text-brand-blue-500" />
+                    <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/80 flex flex-wrap items-center gap-2 text-xs">
+                        <span className="text-slate-400 dark:text-slate-500 font-semibold text-[11px] uppercase mr-1">
                             Filter Aktif:
                         </span>
 
@@ -543,26 +582,6 @@ export default function Index({
                                 </strong>
                             </span>
                         </Badge>
-
-                        {/* Badge Pencarian */}
-                        {search && (
-                            <Badge
-                                type="default"
-                                className="gap-1.5 pl-2.5 pr-1.5 py-1 normal-case tracking-normal text-xs font-semibold"
-                            >
-                                <span>
-                                    Pencarian: <strong>"{search}"</strong>
-                                </span>
-                                <button
-                                    type="button"
-                                    onClick={() => setSearch("")}
-                                    className="p-0.5 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
-                                    title="Hapus filter pencarian"
-                                >
-                                    <X size={12} />
-                                </button>
-                            </Badge>
-                        )}
 
                         {/* Badge Kecamatan */}
                         {selectedKecamatan && (
@@ -615,6 +634,294 @@ export default function Index({
                         )}
                     </div>
                 )}
+            </Card>
+
+            {/* 2. Grid 4 Kartu Statistik Pendapatan & Tunggakan (Sesuai Wilayah Terpilih) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+                <StatCard
+                    title="Pendapatan Hari Ini"
+                    value={formatRupiahStrict(stats.hariIni)}
+                    valueClassName="text-xl xl:text-2xl font-bold"
+                    icon={Coins}
+                    color="bg-brand-blue-500"
+                    className="border-l-4 border-brand-blue-500"
+                    period={
+                        selectedPeriode === "Rentang"
+                            ? startDate && endDate
+                                ? `${startDate} s/d ${endDate}`
+                                : "Rentang"
+                            : selectedPeriode
+                    }
+                    description={`${stats.persentaseHariIni}% tercapai (Target: ${formatRupiahStrict(
+                        stats.targetHariIni
+                    )})`}
+                />
+
+                <StatCard
+                    title="Pendapatan Bulan Ini"
+                    value={formatRupiahStrict(stats.bulanIni)}
+                    valueClassName="text-xl xl:text-2xl font-bold"
+                    icon={TrendingUp}
+                    color="bg-brand-green-500"
+                    className="border-l-4 border-brand-green-500"
+                    period={`Bulan Ini`}
+                    description={`${stats.persentaseBulanIni}% tercapai (Target: ${formatRupiahStrict(
+                        stats.targetBulanIni
+                    )})`}
+                />
+
+                <StatCard
+                    title="Pendapatan Tahun Ini"
+                    value={formatRupiahStrict(stats.tahunIni)}
+                    valueClassName="text-xl xl:text-2xl font-bold"
+                    icon={Wallet}
+                    color="bg-amber-500"
+                    className="border-l-4 border-amber-500"
+                    period={`Tahun ${new Date().getFullYear()}`}
+                    description={`${stats.persentaseTahunIni}% tercapai (Target PAD: ${formatRupiahStrict(
+                        stats.targetTahunIni
+                    )})`}
+                />
+
+                <StatCard
+                    title="Total Tunggakan"
+                    value={formatRupiahStrict(stats.totalTunggakan || 0)}
+                    valueClassName="text-xl xl:text-2xl font-bold text-rose-600 dark:text-rose-400"
+                    icon={AlertTriangle}
+                    color="bg-rose-500"
+                    className="border-l-4 border-rose-500"
+                    period={selectedPeriode}
+                    description={`${stats.jumlahJukirNunggak || 0} dari ${stats.totalJukirWilayah || 0} jukir belum lunas`}
+                />
+            </div>
+
+            {/* 3. Sorotan Kinerja Jukir: Jukir Terdisiplin vs Jukir Perlu Perhatian (Top 3) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                {/* Kartu Kiri: Jukir Terdisiplin */}
+                <Card className="dark:bg-slate-800 dark:border-slate-700">
+                    <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2.5 rounded-xl bg-brand-green-50 text-brand-green-600 dark:bg-brand-green-950/60 dark:text-brand-green-400">
+                                <Award size={20} />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-base text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                                    <span>Jukir Terdisiplin</span>
+                                    <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-brand-green-100 text-brand-green-800 dark:bg-brand-green-900/50 dark:text-brand-green-300">
+                                        Top 3
+                                    </span>
+                                </h3>
+                                <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                                    Capaian setoran tertinggi & kepatuhan pelunasan di {stats.namaWilayah || "wilayah terpilih"}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="p-5 divide-y divide-slate-100 dark:divide-slate-700/60">
+                        {topDisiplin.length === 0 ? (
+                            <div className="py-8 text-center text-slate-400 dark:text-slate-500 text-xs">
+                                <Award size={28} className="mx-auto mb-2 text-slate-300 dark:text-slate-600" />
+                                Belum ada catatan setoran masuk pada periode ini.
+                            </div>
+                        ) : (
+                            topDisiplin.map((item, idx) => {
+                                const rankColors = [
+                                    "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-700",
+                                    "bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600",
+                                    "bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-950/60 dark:text-orange-300 dark:border-orange-700",
+                                ];
+                                return (
+                                    <div key={item.id} className="py-3.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3">
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs border ${rankColors[idx] || "bg-slate-100 text-slate-600 border-slate-200"}`}>
+                                                {item.rank}
+                                            </div>
+
+                                            <img
+                                                src={
+                                                    item.foto
+                                                        ? item.foto.startsWith("http") || item.foto.startsWith("/")
+                                                            ? item.foto
+                                                            : `/storage/${item.foto}`
+                                                        : "/assets/images/dump.jpg"
+                                                }
+                                                alt={item.nama}
+                                                className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0 bg-slate-100 dark:bg-slate-800"
+                                                onError={(e) => {
+                                                    e.currentTarget.src = "/assets/images/dump.jpg";
+                                                }}
+                                            />
+
+                                            <div className="min-w-0">
+                                                <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 truncate">
+                                                    {item.nama}
+                                                </h4>
+                                                <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 truncate">
+                                                    <span className="font-semibold text-brand-blue-600 dark:text-brand-blue-400">
+                                                        {item.kode_jukir}
+                                                    </span>
+                                                    <span>•</span>
+                                                    <span className="truncate">{item.titik_parkir}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-3 shrink-0">
+                                            <div className="text-right">
+                                                <span className="text-xs font-bold text-brand-green-700 dark:text-brand-green-400 block">
+                                                    {formatRupiahStrict(item.setor_nominal)}
+                                                </span>
+                                                <span className="text-[10px] text-slate-400 dark:text-slate-500 block">
+                                                    Target: {formatRupiahStrict(item.target_nominal)}
+                                                </span>
+                                            </div>
+
+                                            <Badge type="success" className="text-[10px] py-0.5 px-2">
+                                                {item.status}
+                                            </Badge>
+
+                                            <Link
+                                                href={route("be.setoran-harian.detail-setoran", item.kode_jukir || item.id)}
+                                                title="Lihat Detail Transaksi"
+                                                className="p-1.5 text-slate-400 hover:text-brand-blue-600 hover:bg-slate-100 dark:hover:bg-slate-700/60 rounded-lg transition-colors cursor-pointer"
+                                            >
+                                                <ArrowUpRight size={16} />
+                                            </Link>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+                </Card>
+
+                {/* Kartu Kanan: Jukir Perlu Perhatian */}
+                <Card className="dark:bg-slate-800 dark:border-slate-700">
+                    <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2.5 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400">
+                                <AlertCircle size={20} />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-base text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                                    <span>Jukir Perlu Perhatian</span>
+                                    <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-300">
+                                        Prioritas Penagihan
+                                    </span>
+                                </h3>
+                                <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                                    Tunggakan setoran tertinggi yang perlu ditindaklanjuti di {stats.namaWilayah || "wilayah terpilih"}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="p-5 divide-y divide-slate-100 dark:divide-slate-700/60">
+                        {topPerhatian.length === 0 ? (
+                            <div className="py-8 text-center text-slate-400 dark:text-slate-500 text-xs">
+                                <CheckCircle2 size={28} className="mx-auto mb-2 text-brand-green-500" />
+                                Seluruh jukir di wilayah ini telah melunasi target setoran.
+                            </div>
+                        ) : (
+                            topPerhatian.map((item, idx) => {
+                                return (
+                                    <div key={item.id} className="py-3.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3">
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <div className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs bg-rose-100 text-rose-700 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800">
+                                                {item.rank}
+                                            </div>
+
+                                            <img
+                                                src={
+                                                    item.foto
+                                                        ? item.foto.startsWith("http") || item.foto.startsWith("/")
+                                                            ? item.foto
+                                                            : `/storage/${item.foto}`
+                                                        : "/assets/images/dump.jpg"
+                                                }
+                                                alt={item.nama}
+                                                className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0 bg-slate-100 dark:bg-slate-800"
+                                                onError={(e) => {
+                                                    e.currentTarget.src = "/assets/images/dump.jpg";
+                                                }}
+                                            />
+
+                                            <div className="min-w-0">
+                                                <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 truncate">
+                                                    {item.nama}
+                                                </h4>
+                                                <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 truncate">
+                                                    <span className="font-semibold text-brand-blue-600 dark:text-brand-blue-400">
+                                                        {item.kode_jukir}
+                                                    </span>
+                                                    <span>•</span>
+                                                    <span className="truncate">{item.titik_parkir}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-2.5 shrink-0">
+                                            <div className="text-right">
+                                                <span className="text-xs font-bold text-rose-600 dark:text-rose-400 block">
+                                                    Kurang {formatRupiahStrict(item.tunggakan_nominal)}
+                                                </span>
+                                                <span className="text-[10px] text-slate-400 dark:text-slate-500 block">
+                                                    Setor: {formatRupiahStrict(item.setor_nominal)}
+                                                </span>
+                                            </div>
+
+                                            <Badge type="danger" className="text-[10px] py-0.5 px-2">
+                                                {item.status}
+                                            </Badge>
+
+                                            {item.nohp && (
+                                                <a
+                                                    href={`https://wa.me/${formatWaNumber(item.nohp)}`}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    title={`Hubungi WhatsApp: ${item.nohp}`}
+                                                    className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-lg transition-colors"
+                                                >
+                                                    <Phone size={15} />
+                                                </a>
+                                            )}
+
+                                            <Link
+                                                href={route("be.setoran-harian.detail-setoran", item.kode_jukir || item.id)}
+                                                title="Lihat Detail Transaksi"
+                                                className="p-1.5 text-slate-400 hover:text-brand-blue-600 hover:bg-slate-100 dark:hover:bg-slate-700/60 rounded-lg transition-colors cursor-pointer"
+                                            >
+                                                <ArrowUpRight size={16} />
+                                            </Link>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+                </Card>
+            </div>
+
+            {/* 4. Card Utama Pembungkus Tabel Data Jukir */}
+            <Card className="overflow-hidden relative z-10 dark:bg-slate-800 dark:border-slate-700 dark:shadow-slate-700/50">
+                {/* Toolbar Tabel: Hanya Pencarian Jukir & Info Data */}
+                <div className="p-4 md:p-5 bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="relative flex-1 max-w-md">
+                        <TextInput
+                            iconLeft={<Search size={18} />}
+                            className="w-full font-medium dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600"
+                            containerClassName="relative w-full"
+                            placeholder="Cari nama jukir, kode, atau titik lokasi di wilayah ini..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        Menampilkan <strong>{dataJukir.length}</strong> jukir di {stats.namaWilayah || "wilayah terpilih"}
+                    </div>
+                </div>
 
                 {/* Tabel Data Setoran */}
                 <Table

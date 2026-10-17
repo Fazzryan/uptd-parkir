@@ -69,7 +69,68 @@ class SetoranHarianController extends Controller
 
         $riwayat = $query->paginate($request->input('per_page', 15))->withQueryString();
 
-        // Ringkasan Statistik Finansial Jukir Ini
+        // 1. Ambil seluruh setoran sukses jukir pada bulan berjalan untuk audit per tanggal
+        $monthlyDeposits = $jukir->setoranHarian()
+            ->whereYear('tanggal', $currentYear)
+            ->whereMonth('tanggal', $currentMonth)
+            ->where('status', 'Success')
+            ->get()
+            ->groupBy(function ($item) {
+                return Carbon::parse($item->tanggal)->format('Y-m-d');
+            });
+
+        // 2. Susun rekap harian dari tanggal 1 sampai hari ini (otomatis berbahasa Indonesia via config app.locale)
+        $currentDay = (int) date('j');
+        $dailyAudit = [];
+        $totalTunggakanBulanIni = 0;
+        $hariNunggakCount = 0;
+        $hariKurangCount = 0;
+        $hariLunasCount = 0;
+
+        for ($d = 1; $d <= $currentDay; $d++) {
+            $dateCarbon = Carbon::createFromDate($currentYear, $currentMonth, $d);
+            $dateStr = $dateCarbon->format('Y-m-d');
+
+            $depositsOnDate = $monthlyDeposits->get($dateStr, collect());
+            $totalSetorOnDate = (float) $depositsOnDate->sum('nominal_setor');
+            $trxCount = $depositsOnDate->count();
+            $kurangOnDate = max(0, $targetHarian - $totalSetorOnDate);
+
+            if ($targetHarian > 0) {
+                if ($totalSetorOnDate >= $targetHarian) {
+                    $statusOnDate = 'Lunas';
+                    $hariLunasCount++;
+                } elseif ($totalSetorOnDate > 0) {
+                    $statusOnDate = 'Kurang';
+                    $hariKurangCount++;
+                    $totalTunggakanBulanIni += $kurangOnDate;
+                } else {
+                    $statusOnDate = 'Nunggak';
+                    $hariNunggakCount++;
+                    $totalTunggakanBulanIni += $kurangOnDate;
+                }
+            } else {
+                $statusOnDate = $totalSetorOnDate > 0 ? 'Lunas' : 'Nunggak';
+            }
+
+            $dailyAudit[] = [
+                'tanggal' => $dateStr,
+                'hari' => $dateCarbon->translatedFormat('l'),
+                'formatted_tanggal' => $dateCarbon->translatedFormat('l, d F Y'),
+                'short_tanggal' => $dateCarbon->translatedFormat('d M Y'),
+                'is_today' => $dateStr === $today,
+                'target' => $targetHarian,
+                'setor' => $totalSetorOnDate,
+                'kurang' => $kurangOnDate,
+                'status' => $statusOnDate,
+                'trx_count' => $trxCount,
+            ];
+        }
+
+        // Urutkan dari tanggal terbaru ke tanggal 1
+        $dailyAuditDesc = array_reverse($dailyAudit);
+
+        // 3. Ringkasan Statistik Finansial Jukir Ini
         $setorHariIni = (float) $jukir->setoranHarian()
             ->whereDate('tanggal', $today)
             ->where('status', 'Success')
@@ -105,15 +166,22 @@ class SetoranHarianController extends Controller
             'setorBulanIni' => $setorBulanIni,
             'targetBulanan' => $targetBulanan,
             'sisaBulanIni' => $sisaBulanIni,
+            'totalTunggakanBulanIni' => $totalTunggakanBulanIni,
+            'hariLunasCount' => $hariLunasCount,
+            'hariKurangCount' => $hariKurangCount,
+            'hariNunggakCount' => $hariNunggakCount,
+            'totalHariBerjalan' => $currentDay,
             'totalSemuaSetor' => $totalSemuaSetor,
             'totalTunai' => $totalTunai,
             'totalQRIS' => $totalQRIS,
+            'namaBulan' => Carbon::now()->translatedFormat('F Y'),
         ];
 
         if ($request->wantsJson()) {
             return response()->json([
                 'riwayat' => $riwayat,
                 'stats' => $stats,
+                'dailyAudit' => $dailyAuditDesc,
             ]);
         }
 
@@ -131,6 +199,7 @@ class SetoranHarianController extends Controller
                 'target_bulanan' => $targetBulanan,
             ],
             'stats' => $stats,
+            'dailyAudit' => $dailyAuditDesc,
             'riwayat' => $riwayat,
             'filters' => $request->only(['search', 'start_date', 'end_date', 'metode_pembayaran', 'per_page']),
         ]);
@@ -164,33 +233,7 @@ class SetoranHarianController extends Controller
             $endDate = $request->input('end_date', $today);
         }
 
-        // 2. Query Juru Parkir dengan Relasi Wilayah, Kecamatan, dan Target
-        $query = Jukir::query()
-            ->with([
-                'wilayahParkir.kecamatan:id,nama_kecamatan',
-                'targets' => function ($q) use ($currentYear, $currentMonth) {
-                    $q->where('tahun', $currentYear)->where('bulan', $currentMonth);
-                },
-                'setoranHarian' => function ($q) {
-                    $q->where('status', 'Success')->latest('tanggal')->latest('jam');
-                },
-            ]);
-
-        // Filter Pencarian (Nama Jukir, Kode Jukir, atau Titik Lokasi Parkir)
-        if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('nama', 'like', "%{$search}%")
-                    ->orWhere('kode_jukir', 'like', "%{$search}%")
-                    ->orWhereHas('wilayahParkir', function ($w) use ($search) {
-                        $w->where('nama_jalan', 'like', "%{$search}%")
-                            ->orWhereHas('kecamatan', function ($k) use ($search) {
-                                $k->where('nama_kecamatan', 'like', "%{$search}%");
-                            });
-                    });
-            });
-        }
-
-        // Filter Kecamatan (Default ke Kecamatan Singaparna jika pertama kali dibuka tanpa query param)
+        // 2. Filter Kecamatan (Default ke Kecamatan Singaparna jika pertama kali dibuka tanpa query param)
         $singaparna = Kecamatan::where('nama_kecamatan', 'like', '%Singaparna%')->first();
         $defaultKecamatanId = $singaparna ? (string) $singaparna->id : '';
 
@@ -202,18 +245,30 @@ class SetoranHarianController extends Controller
             $kecamatanId = $defaultKecamatanId;
         }
 
-        // Terapkan filter jika kecamatan_id diisi (bukan "" atau null)
+        // 3. Query Juru Parkir pada Wilayah Terpilih
+        $query = Jukir::query()
+            ->with([
+                'wilayahParkir.kecamatan:id,nama_kecamatan',
+                'targets' => function ($q) use ($currentYear, $currentMonth) {
+                    $q->where('tahun', $currentYear)->where('bulan', $currentMonth);
+                },
+                'setoranHarian' => function ($q) {
+                    $q->where('status', 'Success')->latest('tanggal')->latest('jam');
+                },
+            ]);
+
+        // Terapkan filter wilayah/kecamatan jika dipilih
         if ($kecamatanId) {
             $query->whereHas('wilayahParkir', function ($w) use ($kecamatanId) {
                 $w->where('kecamatan_id', $kecamatanId);
             });
         }
 
-        // Ambil data jukir
-        $jukirCollection = $query->orderBy('nama', 'asc')->get();
+        // Ambil data jukir pada wilayah tersebut
+        $wilayahJukirCollection = $query->orderBy('nama', 'asc')->get();
 
-        // 3. Transformasi Data Jukir & Hitung Target, Setoran, dan Status
-        $transformed = $jukirCollection->map(function ($j) use ($periode, $startDate, $endDate) {
+        // 4. Transformasi Data Jukir & Hitung Target, Realisasi, Tunggakan, dan Status
+        $transformed = $wilayahJukirCollection->map(function ($j) use ($periode, $startDate, $endDate) {
             $targetObj = $j->targets->first();
             $targetHarian = $targetObj ? (float) $targetObj->target_per_hari : 0;
             $targetBulanan = $targetObj ? (float) $targetObj->total_target : 0;
@@ -254,6 +309,9 @@ class SetoranHarianController extends Controller
                 $status = $setorNominal > 0 ? 'Lunas' : 'Nunggak';
             }
 
+            $persentase = $targetNominal > 0 ? round(($setorNominal / $targetNominal) * 100) : 0;
+            $tunggakanNominal = max(0, $targetNominal - $setorNominal);
+
             // Format Riwayat untuk Modal "Buku Catatan Pembayaran"
             $riwayat = $j->setoranHarian->take(15)->map(function ($item) use ($targetHarian) {
                 $setor = (float) $item->nominal_setor;
@@ -278,37 +336,70 @@ class SetoranHarianController extends Controller
                 'id' => $j->id,
                 'kode_jukir' => $j->kode_jukir ?? "JKR-{$j->id}",
                 'nama' => $j->nama,
+                'foto' => $j->foto,
+                'nohp' => $j->nohp,
                 'titik_parkir' => $j->wilayahParkir->nama_jalan ?? '-',
                 'kecamatan' => $j->wilayahParkir->kecamatan->nama_kecamatan ?? '-',
                 'kecamatan_id' => $j->wilayahParkir->kecamatan_id ?? null,
                 'target_harian' => $targetHarian,
                 'target_nominal' => $targetNominal,
                 'setor_hari_ini' => $setorNominal,
+                'setor_nominal' => $setorNominal,
+                'tunggakan_nominal' => $tunggakanNominal,
+                'persentase' => $persentase,
                 'jam_bayar' => $jamBayar ? substr($jamBayar, 0, 5).' WIB' : null,
                 'status' => $status,
                 'riwayat' => $riwayat,
             ];
         });
 
-        // Filter Status jika dipilih (Lunas / Kurang / Nunggak)
-        if ($statusFilter = $request->input('status')) {
-            $transformed = $transformed->filter(function ($item) use ($statusFilter) {
-                return $item['status'] === $statusFilter;
-            })->values();
+        // 5. Hitung Kartu Statistik Ringkasan (Realtime sesuai Wilayah/Kecamatan yang dipilih)
+        $setorHariIniQuery = JukirSetorHarian::whereDate('tanggal', $today)->where('status', 'Success');
+        $targetHariIniQuery = JukirTarget::where('tahun', $currentYear)->where('bulan', $currentMonth);
+
+        $setorBulanIniQuery = JukirSetorHarian::whereYear('tanggal', $currentYear)->whereMonth('tanggal', $currentMonth)->where('status', 'Success');
+        $targetBulanIniQuery = JukirTarget::where('tahun', $currentYear)->where('bulan', $currentMonth);
+
+        $setorTahunIniQuery = JukirSetorHarian::whereYear('tanggal', $currentYear)->where('status', 'Success');
+        $targetTahunIniQuery = JukirTarget::where('tahun', $currentYear);
+
+        // Filter berdasarkan kecamatan jika dipilih
+        if ($kecamatanId) {
+            $filterKecamatan = function ($q) use ($kecamatanId) {
+                $q->whereHas('wilayahParkir', function ($w) use ($kecamatanId) {
+                    $w->where('kecamatan_id', $kecamatanId);
+                });
+            };
+
+            $setorHariIniQuery->whereHas('jukir', $filterKecamatan);
+            $targetHariIniQuery->whereHas('jukir', $filterKecamatan);
+
+            $setorBulanIniQuery->whereHas('jukir', $filterKecamatan);
+            $targetBulanIniQuery->whereHas('jukir', $filterKecamatan);
+
+            $setorTahunIniQuery->whereHas('jukir', $filterKecamatan);
+            $targetTahunIniQuery->whereHas('jukir', $filterKecamatan);
         }
 
-        // 4. Hitung Kartu Statistik Ringkasan (Realtime dari Database)
-        $totalSetorHariIni = (float) JukirSetorHarian::whereDate('tanggal', $today)->where('status', 'Success')->sum('nominal_setor');
-        $totalTargetHariIni = (float) JukirTarget::where('tahun', $currentYear)->where('bulan', $currentMonth)->sum('target_per_hari');
+        $totalSetorHariIni = (float) $setorHariIniQuery->sum('nominal_setor');
+        $totalTargetHariIni = (float) $targetHariIniQuery->sum('target_per_hari');
         $persentaseHariIni = $totalTargetHariIni > 0 ? round(($totalSetorHariIni / $totalTargetHariIni) * 100) : 0;
 
-        $totalSetorBulanIni = (float) JukirSetorHarian::whereYear('tanggal', $currentYear)->whereMonth('tanggal', $currentMonth)->where('status', 'Success')->sum('nominal_setor');
-        $totalTargetBulanIni = (float) JukirTarget::where('tahun', $currentYear)->where('bulan', $currentMonth)->sum('total_target');
+        $totalSetorBulanIni = (float) $setorBulanIniQuery->sum('nominal_setor');
+        $totalTargetBulanIni = (float) $targetBulanIniQuery->sum('total_target');
         $persentaseBulanIni = $totalTargetBulanIni > 0 ? round(($totalSetorBulanIni / $totalTargetBulanIni) * 100) : 0;
 
-        $totalSetorTahunIni = (float) JukirSetorHarian::whereYear('tanggal', $currentYear)->where('status', 'Success')->sum('nominal_setor');
-        $totalTargetTahunIni = (float) JukirTarget::where('tahun', $currentYear)->sum('total_target');
+        $totalSetorTahunIni = (float) $setorTahunIniQuery->sum('nominal_setor');
+        $totalTargetTahunIni = (float) $targetTahunIniQuery->sum('total_target');
         $persentaseTahunIni = $totalTargetTahunIni > 0 ? round(($totalSetorTahunIni / $totalTargetTahunIni) * 100) : 0;
+
+        // Total Tunggakan (Total kekurangan setoran pada wilayah yang dipilih)
+        $totalTunggakan = (float) $transformed->sum('tunggakan_nominal');
+        $jumlahJukirNunggak = $transformed->where('tunggakan_nominal', '>', 0)->count();
+        $totalJukirWilayah = $transformed->count();
+
+        $selectedKecamatanObj = $kecamatanId ? Kecamatan::find($kecamatanId) : null;
+        $namaWilayah = $selectedKecamatanObj ? "Kec. {$selectedKecamatanObj->nama_kecamatan}" : 'Semua Wilayah';
 
         $stats = [
             'hariIni' => $totalSetorHariIni,
@@ -320,9 +411,91 @@ class SetoranHarianController extends Controller
             'tahunIni' => $totalSetorTahunIni,
             'targetTahunIni' => $totalTargetTahunIni,
             'persentaseTahunIni' => $persentaseTahunIni,
+            'totalTunggakan' => $totalTunggakan,
+            'jumlahJukirNunggak' => $jumlahJukirNunggak,
+            'totalJukirWilayah' => $totalJukirWilayah,
+            'namaWilayah' => $namaWilayah,
         ];
 
-        // 5. Opsi untuk Dropdown Modal Catat Setoran Tunai
+        // 6. Ambil Top 3 Jukir Terdisiplin (Kepatuhan tertinggi / Lunas / Setoran Tertinggi)
+        $topDisiplin = $transformed
+            ->filter(fn($item) => $item['setor_nominal'] > 0)
+            ->sortByDesc(function ($item) {
+                $score = ($item['status'] === 'Lunas' ? 1000000 : 0)
+                       + ($item['persentase'] * 1000)
+                       + $item['setor_nominal'];
+                return $score;
+            })
+            ->values()
+            ->take(3)
+            ->map(function ($item, $index) {
+                return [
+                    'rank' => $index + 1,
+                    'id' => $item['id'],
+                    'kode_jukir' => $item['kode_jukir'],
+                    'nama' => $item['nama'],
+                    'foto' => $item['foto'],
+                    'nohp' => $item['nohp'],
+                    'titik_parkir' => $item['titik_parkir'],
+                    'kecamatan' => $item['kecamatan'],
+                    'target_nominal' => $item['target_nominal'],
+                    'setor_nominal' => $item['setor_nominal'],
+                    'tunggakan_nominal' => $item['tunggakan_nominal'],
+                    'persentase' => $item['persentase'],
+                    'status' => $item['status'],
+                    'jam_bayar' => $item['jam_bayar'],
+                ];
+            })
+            ->all();
+
+        // 7. Ambil Top 3 Jukir Perlu Perhatian (Tunggakan/Kekurangan terbesar)
+        $topPerhatian = $transformed
+            ->filter(fn($item) => $item['tunggakan_nominal'] > 0 || $item['status'] === 'Nunggak')
+            ->sortByDesc(function ($item) {
+                return $item['tunggakan_nominal'];
+            })
+            ->values()
+            ->take(3)
+            ->map(function ($item, $index) {
+                return [
+                    'rank' => $index + 1,
+                    'id' => $item['id'],
+                    'kode_jukir' => $item['kode_jukir'],
+                    'nama' => $item['nama'],
+                    'foto' => $item['foto'],
+                    'nohp' => $item['nohp'],
+                    'titik_parkir' => $item['titik_parkir'],
+                    'kecamatan' => $item['kecamatan'],
+                    'target_nominal' => $item['target_nominal'],
+                    'setor_nominal' => $item['setor_nominal'],
+                    'tunggakan_nominal' => $item['tunggakan_nominal'],
+                    'persentase' => $item['persentase'],
+                    'status' => $item['status'],
+                    'jam_bayar' => $item['jam_bayar'],
+                ];
+            })
+            ->all();
+
+        // 8. Filter Data untuk Tabel (berdasarkan Pencarian Search & Status)
+        $tableData = $transformed;
+
+        if ($statusFilter = $request->input('status')) {
+            $tableData = $tableData->filter(fn($item) => $item['status'] === $statusFilter);
+        }
+
+        if ($search = $request->input('search')) {
+            $searchLower = strtolower($search);
+            $tableData = $tableData->filter(function ($item) use ($searchLower) {
+                return str_contains(strtolower($item['nama']), $searchLower)
+                    || str_contains(strtolower($item['kode_jukir']), $searchLower)
+                    || str_contains(strtolower($item['titik_parkir']), $searchLower)
+                    || str_contains(strtolower($item['kecamatan']), $searchLower);
+            });
+        }
+
+        $tableData = $tableData->values();
+
+        // 9. Opsi untuk Dropdown Modal Catat Setoran Tunai
         $allJukirOptions = Jukir::query()
             ->with(['wilayahParkir.kecamatan', 'targets' => function ($q) use ($currentYear, $currentMonth) {
                 $q->where('tahun', $currentYear)->where('bulan', $currentMonth);
@@ -349,14 +522,18 @@ class SetoranHarianController extends Controller
         // Response jika via AJAX / JSON (untuk update instan saat filter berubah)
         if ($request->wantsJson()) {
             return response()->json([
-                'dataJukir' => $transformed,
+                'dataJukir' => $tableData,
                 'stats' => $stats,
+                'topDisiplin' => $topDisiplin,
+                'topPerhatian' => $topPerhatian,
             ]);
         }
 
         return Inertia::render('Backend/SetoranHarian/Index', [
-            'initialDataJukir' => $transformed,
+            'initialDataJukir' => $tableData,
             'stats' => $stats,
+            'topDisiplin' => $topDisiplin,
+            'topPerhatian' => $topPerhatian,
             'kecamatanList' => $kecamatanList,
             'allJukirOptions' => $allJukirOptions,
             'filters' => [
