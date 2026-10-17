@@ -15,6 +15,13 @@ use Inertia\Inertia;
 
 class SetoranHarianController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:view-setoran-harian')->only(['index', 'detailSetoran']);
+        $this->middleware('permission:create-setoran-harian')->only('store');
+        $this->middleware('permission:delete-setoran-harian')->only('destroy');
+    }
+
     /**
      * Menampilkan detail data setoran per juru parkir
      */
@@ -37,6 +44,9 @@ class SetoranHarianController extends Controller
                     ->orWhere('id', $kode_jukir);
             })
             ->firstOrFail();
+
+        // Otorisasi: Pastikan jukir hanya dapat melihat detail data setoran miliknya sendiri
+        $this->authorize('view', $jukir);
 
         // Hitung target nominal jukir
         $targetObj = $jukir->targets->first();
@@ -210,6 +220,15 @@ class SetoranHarianController extends Controller
      */
     public function index(Request $request)
     {
+        // Jika akun yang login adalah jukir, langsung arahkan ke riwayat setoran miliknya sendiri
+        if (auth()->user()->hasRole('jukir')) {
+            $jukir = auth()->user()->jukir;
+            if ($jukir && ! $jukir->trashed()) {
+                return redirect()->route('be.setoran-harian.detail-setoran', $jukir->kode_jukir);
+            }
+            abort(403, 'Akun Anda belum terhubung dengan data juru parkir aktif.');
+        }
+
         $currentYear = (int) date('Y');
         $currentMonth = (int) date('n');
         $today = Carbon::today()->toDateString();

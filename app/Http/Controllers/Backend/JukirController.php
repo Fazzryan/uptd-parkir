@@ -18,6 +18,14 @@ use Inertia\Inertia;
 
 class JukirController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:view-jukir')->only(['index', 'show']);
+        $this->middleware('permission:create-jukir')->only(['create', 'store']);
+        $this->middleware('permission:edit-jukir')->only(['edit', 'update']);
+        $this->middleware('permission:delete-jukir')->only('destroy');
+    }
+
     public function index()
     {
         $currentYear = (int) date('Y');
@@ -30,6 +38,11 @@ class JukirController extends Controller
                 $q->where('tahun', $currentYear)->where('bulan', $currentMonth);
             },
         ]);
+
+        // Proteksi Data: Jika pengguna adalah jukir, hanya tampilkan datanya sendiri
+        if (auth()->user()->hasRole('jukir')) {
+            $query->where('user_id', auth()->id());
+        }
 
         if ($search = request('search')) {
             $query->where(function ($q) use ($search) {
@@ -212,6 +225,8 @@ class JukirController extends Controller
             ->orWhere('id', $id)
             ->firstOrFail();
 
+        $this->authorize('view', $jukir);
+
         return Inertia::render('Backend/Jukir/Show', [
             'jukir' => $jukir,
         ]);
@@ -233,6 +248,8 @@ class JukirController extends Controller
             ->orWhere('id', $id)
             ->firstOrFail();
 
+        $this->authorize('update', $jukir);
+
         // 2. Ambil seluruh data titik wilayah parkir untuk opsi dropdown
         $wilayahParkir = WilayahParkir::with('kecamatan:id,nama_kecamatan')
             ->select('id', 'nama_jalan', 'kecamatan_id')
@@ -250,6 +267,8 @@ class JukirController extends Controller
         $jukir = Jukir::with('user')->where('kode_jukir', $id)
             ->orWhere('id', $id)
             ->firstOrFail();
+
+        $this->authorize('update', $jukir);
 
         $validated = $request->validated();
         $oldFoto = $jukir->foto;
@@ -343,6 +362,8 @@ class JukirController extends Controller
         $jukir = Jukir::where('kode_jukir', $id)
             ->orWhere('id', $id)
             ->firstOrFail();
+
+        $this->authorize('delete', $jukir);
 
         // Alihkan status keaktifan jukir (Aktif <-> Tidak Aktif)
         // Data tidak dihapus secara hard delete atau soft delete agar data historis
