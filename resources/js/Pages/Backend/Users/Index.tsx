@@ -1,65 +1,114 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import MainLayout from "@/Layouts/MainLayout";
 import TextInput from "@/Components/Form/TextInput";
+import SelectSearch from "@/Components/Form/SelectSearch";
 import Button from "@/Components/UI/Button";
 import ConfirmationModal from "@/Components/UI/ConfirmationModal";
 import Badge from "@/Components/UI/Badge";
 import Table from "@/Components/Data/Table";
 import Pagination from "@/Components/Data/Pagination";
 import Card from "@/Components/UI/Card";
-import { Head, Link, useForm, router } from "@inertiajs/react";
-import { Search, Edit2, Trash2, RotateCcw } from "lucide-react";
+import { Head, Link, useForm, usePage } from "@inertiajs/react";
+import { Search, Edit2, Trash2, RotateCcw, Plus, Mail, ShieldCheck, UserCheck } from "lucide-react";
 import { PaginatedData, User } from "@/types/model";
-import { usePage } from "@inertiajs/react";
 import axios from "axios";
+
+interface RoleItem {
+    id: number;
+    name: string;
+}
 
 interface IndexProps {
     users: PaginatedData<User>;
+    rolesList?: RoleItem[];
     filters: {
         search?: string;
+        role?: string;
         per_page?: number | string;
     };
 }
 
-export default function Index({ users, filters }: IndexProps) {
-    const { permissions } = usePage<any>().props.auth;
+export default function Index({ users, rolesList = [], filters = {} }: IndexProps) {
+    const auth = usePage<any>().props.auth || {};
+    const permissions: string[] = auth.permissions || [];
+    const userRoles: string[] = auth.roles || [];
+
+    const canCreate =
+        userRoles.includes("admin") ||
+        permissions.length === 0 ||
+        permissions.includes("create-user");
+
+    const canEdit =
+        userRoles.includes("admin") ||
+        permissions.length === 0 ||
+        permissions.includes("edit-user");
+
+    const canDelete =
+        userRoles.includes("admin") ||
+        permissions.length === 0 ||
+        permissions.includes("delete-user");
+
+    const [localUsers, setLocalUsers] = useState<PaginatedData<User>>(users);
     const [search, setSearch] = useState(filters.search || "");
-    const [perPage, setPerPage] = useState(filters.per_page || 10);
+    const [selectedRole, setSelectedRole] = useState(filters.role || "");
+    const [perPage, setPerPage] = useState<number | string>(filters.per_page || 10);
+    const [isLoading, setIsLoading] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-    const [localUsers, setLocalUsers] = useState<PaginatedData<User>>(users);
-    const [isLoading, setIsLoading] = useState(false);
-    const isFirstRender = React.useRef(true);
+    const isFirstRender = useRef(true);
 
-    // Inertia form untuk delete
-    const { delete: destroy, processing } = useForm({});
+    // Form hook untuk delete
+    const { delete: destroy, processing: isDeleting } = useForm({});
 
-    const fetchData = (url: string, params: any = {}) => {
+    // Sinkronisasi data ketika users prop dari Inertia berubah
+    useEffect(() => {
+        setLocalUsers(users);
+    }, [users]);
+
+    // Opsi Role untuk dropdown filter
+    const roleOptions = [
+        { value: "", label: "Semua Hak Akses / Role" },
+        ...(rolesList.length > 0
+            ? rolesList.map((r) => ({
+                  value: r.name,
+                  label: `Role: ${r.name.toUpperCase()}`,
+              }))
+            : [
+                  { value: "admin", label: "Role: ADMIN" },
+                  { value: "user", label: "Role: USER / BENDAHARA" },
+                  { value: "jukir", label: "Role: JUKIR" },
+              ]),
+    ];
+
+    // Fungsi fetch data via AJAX
+    const fetchData = (overrideUrl?: string, overrideParams: Record<string, any> = {}) => {
         setIsLoading(true);
+        const targetUrl = overrideUrl || route("be.users.index");
+        const params = {
+            search,
+            role: selectedRole,
+            per_page: perPage,
+            ...overrideParams,
+        };
+
         axios
-            .get(url, { params, headers: { Accept: "application/json" } })
+            .get(targetUrl, {
+                params,
+                headers: { Accept: "application/json" },
+            })
             .then((res) => {
-                if (
-                    res.data &&
-                    typeof res.data === "object" &&
-                    "data" in res.data
-                ) {
+                if (res.data && res.data.data) {
                     setLocalUsers(res.data);
-                } else if (Array.isArray(res.data)) {
-                    setLocalUsers((prev) => ({
-                        ...prev,
-                        data: res.data,
-                    }));
-                } else {
-                    console.error("Format data tidak dikenal:", res.data);
+                } else if (res.data && res.data.props && res.data.props.users) {
+                    setLocalUsers(res.data.props.users);
                 }
             })
-            .catch((err) => console.error("Error fetching data:", err))
+            .catch((err) => console.error("Error fetching users:", err))
             .finally(() => setIsLoading(false));
     };
 
-    // Search Debounce
+    // Debounce untuk Search, Role, dan PerPage
     useEffect(() => {
         if (isFirstRender.current) {
             isFirstRender.current = false;
@@ -67,14 +116,17 @@ export default function Index({ users, filters }: IndexProps) {
         }
 
         const timeout = setTimeout(() => {
-            fetchData(route("be.users.index"), {
-                search,
-                per_page: perPage,
-            });
+            fetchData(route("be.users.index"), { page: 1 });
         }, 300);
 
         return () => clearTimeout(timeout);
-    }, [search, perPage]);
+    }, [search, selectedRole, perPage]);
+
+    const handleResetFilter = () => {
+        setSearch("");
+        setSelectedRole("");
+        setPerPage(10);
+    };
 
     const openDeleteModal = (user: User) => {
         setSelectedUser(user);
@@ -85,39 +137,37 @@ export default function Index({ users, filters }: IndexProps) {
         if (!selectedUser) return;
 
         destroy(route("be.users.destroy", selectedUser.id), {
+            preserveScroll: true,
             onSuccess: () => {
                 setShowDeleteModal(false);
                 setSelectedUser(null);
-                fetchData(route("be.users.index"), {
-                    search,
-                    per_page: perPage,
-                });
+                fetchData(route("be.users.index"));
             },
         });
     };
 
     return (
         <MainLayout>
-            <Head title="Manajemen User" />
+            <Head title="Manajemen User - UPTD Parkir" />
 
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 tracking-tight dark:text-slate-200">
-                        Manajemen User
+                    <h1 className="text-2xl font-bold text-slate-800 tracking-tight dark:text-slate-100">
+                        Manajemen Pengguna & Hak Akses
                     </h1>
                     <p className="text-sm text-slate-500 dark:text-slate-400">
-                        Kelola akses dan data pengguna SPBE Kabupaten
-                        Tasikmalaya
+                        Kelola akun pengguna, petugas bendahara UPTD, dan akun juru parkir
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
-                    {permissions.includes("create-user") && (
+                    {canCreate && (
                         <Button
                             variant="primary"
                             href={route("be.users.create")}
-                            className="shadow-lg shadow-brand-blue-100 dark:shadow-none"
+                            className="shadow-sm flex items-center gap-2"
                         >
+                            <Plus size={16} />
                             <span>Tambah User</span>
                         </Button>
                     )}
@@ -125,29 +175,35 @@ export default function Index({ users, filters }: IndexProps) {
             </div>
 
             {/* Main Content Card */}
-            <Card className="dark:bg-slate-800 dark:border-slate-700 dark:shadow-slate-700/50">
-                {/* Filter & Search Bar */}
-                <div className="p-6 border-b border-slate-50 dark:border-slate-700 flex items-center gap-4">
-                    <div className="relative w-full max-w-md">
+            <Card className="!overflow-visible relative z-30 dark:bg-slate-800 dark:border-slate-700">
+                {/* Filter & Search Toolbar */}
+                <div className="p-4 md:p-5 border-b border-slate-100 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3 relative z-30 bg-white dark:bg-slate-800 rounded-t-3xl">
+                    <div className="flex-1 min-w-[240px]">
                         <TextInput
                             iconLeft={<Search size={18} />}
-                            placeholder="Cari nama atau email..."
-                            className="w-full dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600"
-                            containerClassName="relative w-full"
+                            placeholder="Cari nama, username, atau email..."
+                            className="w-full text-sm font-medium dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
-                    {search && (
+
+                    <div className="w-full sm:w-60">
+                        <SelectSearch
+                            options={roleOptions}
+                            value={selectedRole}
+                            onChange={(val) => setSelectedRole(String(val))}
+                            placeholder="Semua Hak Akses..."
+                        />
+                    </div>
+
+                    {(search || selectedRole) && (
                         <Button
                             variant="danger"
-                            onClick={() => {
-                                setSearch("");
-                                setPerPage(10);
-                            }}
-                            className="flex items-center gap-2"
+                            onClick={handleResetFilter}
+                            className="flex items-center gap-1.5 text-xs py-2 px-3 shadow-xs"
                         >
-                            <RotateCcw size={16} />
+                            <RotateCcw size={14} />
                             <span>Reset</span>
                         </Button>
                     )}
@@ -159,92 +215,114 @@ export default function Index({ users, filters }: IndexProps) {
                     columns={[
                         {
                             header: "#",
-                            className:
-                                "text-center text-sm font-medium text-slate-400 dark:text-slate-200 w-16",
-                            headerClassName: "text-center w-16",
+                            className: "text-center text-xs font-medium text-slate-400 dark:text-slate-300 w-12",
+                            headerClassName: "text-center w-12",
                             render: (_: User, index: number) => {
-                                const currentPage =
-                                    localUsers.current_page ?? 1;
-                                const perPageVal = localUsers.per_page ?? 10;
+                                const currentPage = localUsers.current_page ?? 1;
+                                const perPageVal = Number(localUsers.per_page) || 10;
+                                return (currentPage - 1) * perPageVal + index + 1;
+                            },
+                        },
+                        {
+                            header: "PENGGUNA",
+                            className: "w-72 text-xs",
+                            render: (user: User) => (
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-2xl bg-brand-blue-50 text-brand-blue-600 dark:bg-brand-blue-950/60 dark:text-brand-blue-400 flex items-center justify-center font-bold text-xs border border-brand-blue-100 dark:border-brand-blue-900/50 uppercase shrink-0 shadow-xs">
+                                        {user.name.substring(0, 2)}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="font-bold text-slate-800 dark:text-slate-200 truncate">
+                                            {user.name}
+                                        </p>
+                                        <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium truncate">
+                                            @{user.username}
+                                        </p>
+                                    </div>
+                                </div>
+                            ),
+                        },
+                        {
+                            header: "EMAIL",
+                            className: "w-64 text-xs text-slate-600 dark:text-slate-300",
+                            render: (user: User) => (
+                                <div className="flex items-center gap-1.5">
+                                    <Mail size={13} className="text-slate-400 shrink-0" />
+                                    <span className="truncate">{user.email}</span>
+                                </div>
+                            ),
+                        },
+                        {
+                            header: "HAK AKSES / ROLE",
+                            className: "w-44 text-center",
+                            headerClassName: "text-center w-44",
+                            render: (user: User) => {
+                                const roleList = Array.isArray(user.roles) ? user.roles : [];
                                 return (
-                                    (currentPage - 1) * perPageVal + index + 1
+                                    <div className="flex flex-wrap items-center justify-center gap-1.5">
+                                        {roleList.length > 0 ? (
+                                            roleList.map((role: any, idx: number) => {
+                                                const roleName = typeof role === "string" ? role : role.name;
+                                                const badgeType =
+                                                    roleName === "admin"
+                                                        ? "danger"
+                                                        : roleName === "jukir"
+                                                        ? "warning"
+                                                        : "info";
+                                                return (
+                                                    <Badge
+                                                        key={role.id || idx}
+                                                        type={badgeType}
+                                                        className="font-bold tracking-wider"
+                                                    >
+                                                        {roleName}
+                                                    </Badge>
+                                                );
+                                            })
+                                        ) : (
+                                            <span className="text-xs text-slate-400 italic">
+                                                Tanpa Role
+                                            </span>
+                                        )}
+                                    </div>
                                 );
                             },
                         },
                         {
-                            header: "User",
-                            className: "w-64",
-                            headerClassName: "w-64",
-                            render: (user: User | any) => (
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-brand-blue-50 text-brand-blue-600 flex items-center justify-center font-bold text-xs border border-brand-blue-100 uppercase">
-                                        {user.name.substring(0, 2)}
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                                            {user.name}
-                                        </p>
-                                        <p className="text-xs text-slate-400 dark:text-slate-400">
-                                            {user.username}
-                                        </p>
-                                    </div>
-                                </div>
-                            ),
-                        },
-
-                        {
-                            header: "Role",
-                            className: "text-center w-50",
-                            headerClassName: "text-center w-50",
-                            render: (user: User) => (
-                                <div className="flex flex-wrap gap-1">
-                                    {user.roles.length > 0 ? (
-                                        user.roles.map((role: any) => (
-                                            <Badge
-                                                key={role.id}
-                                                type={
-                                                    role.name === "admin"
-                                                        ? "danger"
-                                                        : "info"
-                                                }
-                                                className="mx-auto"
-                                            >
-                                                {role.name}
-                                            </Badge>
-                                        ))
-                                    ) : (
-                                        <span className="text-xs text-slate-400 italic">
-                                            No Role
-                                        </span>
-                                    )}
-                                </div>
-                            ),
+                            header: "TERDAFTAR",
+                            className: "w-40 text-xs text-slate-500 dark:text-slate-400 text-center",
+                            headerClassName: "text-center w-40",
+                            render: (user: User) =>
+                                user.created_at
+                                    ? new Date(user.created_at).toLocaleDateString("id-ID", {
+                                          day: "2-digit",
+                                          month: "short",
+                                          year: "numeric",
+                                      })
+                                    : "—",
                         },
                         {
-                            header: "Aksi",
-                            headerClassName: "text-center w-32",
-                            className: "text-center w-32",
+                            header: "AKSI",
+                            headerClassName: "text-center w-24",
+                            className: "text-center w-24",
                             render: (user: User) => (
-                                <div className="flex items-center justify-center gap-2">
-                                    {permissions.includes("edit-user") && (
+                                <div className="flex items-center justify-center gap-1.5">
+                                    {canEdit && (
                                         <Link
-                                            href={route(
-                                                "be.users.edit",
-                                                user.id,
-                                            )}
-                                            className="p-2.5 text-slate-400 hover:text-brand-blue-600 hover:bg-brand-blue-50 rounded-xl active:scale-90 transition-all cursor-pointer inline-flex items-center"
+                                            href={route("be.users.edit", user.id)}
+                                            className="p-1.5 text-slate-400 hover:text-brand-blue-600 hover:bg-brand-blue-50 dark:hover:bg-slate-700 rounded-lg active:scale-95 transition-all cursor-pointer inline-flex items-center"
+                                            title="Edit Pengguna"
                                         >
-                                            <Edit2 size={16} />
+                                            <Edit2 size={15} />
                                         </Link>
                                     )}
-                                    {permissions.includes("delete-user") && (
+                                    {canDelete && (
                                         <button
-                                            onClick={() =>
-                                                openDeleteModal(user)
-                                            }
-                                            className="p-2.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl active:scale-90 transition-all cursor-pointer"
+                                            onClick={() => openDeleteModal(user)}
+                                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg active:scale-95 transition-all cursor-pointer"
+                                            title="Hapus Pengguna"
                                         >
-                                            <Trash2 size={16} />
+                                            <Trash2 size={15} />
                                         </button>
                                     )}
                                 </div>
@@ -252,49 +330,52 @@ export default function Index({ users, filters }: IndexProps) {
                         },
                     ]}
                     data={localUsers.data}
+                    emptyMessage="Tidak ada pengguna yang cocok dengan filter pencarian."
                 />
 
                 {/* Pagination Section */}
-                <div className="p-6 border-t border-slate-50 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-6 bg-slate-50/20 dark:bg-slate-700/20">
+                <div className="p-5 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-800/50 rounded-b-3xl text-xs text-slate-500 dark:text-slate-400">
                     {/* Kiri: Info Data */}
-                    <p className="text-sm text-slate-500 dark:text-slate-200">
+                    <p>
                         Menampilkan{" "}
-                        <span className="font-bold text-slate-800 dark:text-slate-200">
+                        <strong className="text-slate-800 dark:text-slate-200">
                             {localUsers.from ?? 0}
-                        </span>{" "}
+                        </strong>{" "}
                         sampai{" "}
-                        <span className="font-bold text-slate-800 dark:text-slate-200">
+                        <strong className="text-slate-800 dark:text-slate-200">
                             {localUsers.to ?? 0}
-                        </span>{" "}
+                        </strong>{" "}
                         dari{" "}
-                        <span className="font-bold text-slate-800 dark:text-slate-200">
+                        <strong className="text-slate-800 dark:text-slate-200">
                             {localUsers.total}
-                        </span>{" "}
-                        data
+                        </strong>{" "}
+                        pengguna
                     </p>
 
                     {/* Tengah: Per Page Selector */}
-                    <div className="flex items-center gap-3 text-sm text-slate-400">
-                        <span>Tampilkan</span>
+                    <div className="flex items-center gap-2">
+                        <span>Tampilkan:</span>
                         <select
                             value={perPage}
-                            onChange={(e) =>
-                                setPerPage(parseInt(e.target.value))
-                            }
-                            className="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-3 focus:ring-brand-blue-500/10 focus:border-brand-blue-500 block py-1.5 px-3 transition-all outline-none cursor-pointer dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600"
+                            onChange={(e) => setPerPage(Number(e.target.value))}
+                            className="bg-white border border-slate-200 text-slate-700 text-xs rounded-xl focus:ring-2 focus:ring-brand-blue-500/20 focus:border-brand-blue-500 py-1.5 px-2.5 transition-all outline-none cursor-pointer dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600 font-semibold"
                         >
                             <option value="5">5</option>
                             <option value="10">10</option>
-                            <option value="20">20</option>
+                            <option value="25">25</option>
                             <option value="50">50</option>
                             <option value="100">100</option>
                         </select>
+                        <span>per halaman</span>
                     </div>
 
                     {/* Kanan: Pagination */}
                     <Pagination
                         links={localUsers.links}
-                        onPageChange={(url) => fetchData(url)}
+                        onPageChange={(url) => {
+                            if (!url) return;
+                            fetchData(url);
+                        }}
                     />
                 </div>
             </Card>
@@ -302,9 +383,20 @@ export default function Index({ users, filters }: IndexProps) {
             {/* Modal Konfirmasi Hapus */}
             <ConfirmationModal
                 show={showDeleteModal}
-                processing={processing}
+                processing={isDeleting}
                 title="Hapus Pengguna"
-                message={`Apakah Anda yakin ingin menghapus user ini? Semua data terkait pengguna ini akan dihapus secara permanen.`}
+                message={
+                    selectedUser ? (
+                        <span>
+                            Apakah Anda yakin ingin menghapus akun pengguna{" "}
+                            <strong>{selectedUser.name}</strong> (@{selectedUser.username})? Semua data akses terkait akun ini akan dihapus secara permanen.
+                        </span>
+                    ) : (
+                        "Apakah Anda yakin ingin menghapus user ini?"
+                    )
+                }
+                confirmText="Ya, Hapus Pengguna"
+                confirmVariant="danger"
                 onConfirm={handleDelete}
                 onCancel={() => setShowDeleteModal(false)}
             />

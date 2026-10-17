@@ -247,7 +247,7 @@ export default function Index({ jukir, kecamatanList = [], filters }: IndexProps
                         {
                             header: "Nama",
                             className:
-                                "text-slate-800 font-bold dark:text-slate-200 w-48",
+                                "text-slate-800 font-bold dark:text-slate-200 w-64",
                             render: (item: Jukir) => {
                                 const wilayah = item.wilayah_parkir || item.wilayahParkir;
                                 return (
@@ -277,16 +277,17 @@ export default function Index({ jukir, kecamatanList = [], filters }: IndexProps
                             },
                         },
                         {
+                            header: "Alamat",
+                            className:
+                                "text-slate-600 dark:text-slate-300 text-sm w-64",
+                            render: (item: Jukir) => item.alamat,
+                        },
+                        {
                             header: "No. HP",
+                            headerClassName: "w-24",
                             className:
                                 "text-slate-600 dark:text-slate-300 text-sm",
                             render: (item: Jukir) => item.nohp,
-                        },
-                        {
-                            header: "Alamat",
-                            className:
-                                "text-slate-600 dark:text-slate-300 text-sm max-w-xs",
-                            render: (item: Jukir) => item.alamat,
                         },
                         {
                             header: "Target Harian",

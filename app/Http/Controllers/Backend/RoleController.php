@@ -39,13 +39,52 @@ class RoleController extends Controller
     }
 
     /**
+     * Mengelompokkan hak akses (permissions) secara dinamis berdasarkan modul
+     */
+    protected function getGroupedPermissions()
+    {
+        $moduleLabels = [
+            'user' => 'Manajemen User & Akun',
+            'role' => 'Manajemen Role & Hak Akses',
+            'profile' => 'Profil Pengguna',
+            'wilayah-parkir' => 'Wilayah Parkir',
+            'struktur-organisasi' => 'Struktur Organisasi',
+            'tarif-parkir' => 'Tarif Parkir & Karcis',
+            'panduan-jukir' => 'Panduan Juru Parkir',
+            'galeri-foto' => 'Galeri Foto & Dokumentasi',
+            'berita' => 'Berita & Pengumuman',
+            'jukir' => 'Data Juru Parkir',
+            'setoran-harian' => 'Setoran Harian',
+        ];
+
+        return Permission::orderBy('name', 'asc')->get()->groupBy(function ($permission) use ($moduleLabels) {
+            $name = $permission->name;
+
+            // Prioritas pengecekan modul gabungan / spesifik
+            if (str_contains($name, 'user') || str_contains($name, 'role')) {
+                return 'User & Role Management';
+            }
+
+            foreach ($moduleLabels as $slug => $label) {
+                if (str_contains($name, $slug)) {
+                    return $label;
+                }
+            }
+
+            // Fallback otomatis: hilangkan prefix action (view/create/edit/delete/manage) lalu format Title Case
+            $cleaned = preg_replace('/^(view|create|edit|delete|manage)-/', '', $name);
+            return ucwords(str_replace('-', ' ', $cleaned));
+        });
+    }
+
+    /**
      * Show the form for creating a new role.
      */
     public function create()
     {
-        $permissions = Permission::all();
         return Inertia::render('Backend/Roles/Create', [
-            'permissions' => $permissions,
+            'groupedPermissions' => $this->getGroupedPermissions(),
+            'permissions' => Permission::all(),
         ]);
     }
 
@@ -67,11 +106,11 @@ class RoleController extends Controller
      */
     public function edit(Role $role)
     {
-        $permissions = Permission::all();
         $role->load('permissions');
         return Inertia::render('Backend/Roles/Edit', [
             'role' => $role,
-            'permissions' => $permissions,
+            'groupedPermissions' => $this->getGroupedPermissions(),
+            'permissions' => Permission::all(),
         ]);
     }
 

@@ -34,6 +34,18 @@ export default function Pagination({ links = [], onPageChange, variant = "primar
         warning: "hover:border-yellow-500 hover:text-yellow-600",
     };
 
+    const formatLabel = (label: string) => {
+        if (!label) return "";
+        let text = label;
+        if (text.toLowerCase().includes("previous")) {
+            text = text.replace(/previous/gi, "Sebelumnya");
+        }
+        if (text.toLowerCase().includes("next")) {
+            text = text.replace(/next/gi, "Berikutnya");
+        }
+        return text;
+    };
+
     return (
         <div className="flex flex-wrap gap-1 dark:bg-slate-900/40 dark:border-slate-700 dark:shadow-slate-700/50">
             {links.map((link, key) =>
@@ -41,7 +53,7 @@ export default function Pagination({ links = [], onPageChange, variant = "primar
                     <div
                         key={key}
                         className="px-4 py-2 text-sm text-slate-400 border border-slate-100 rounded-xl bg-slate-50/50 cursor-not-allowed dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600"
-                        dangerouslySetInnerHTML={{ __html: link.label }}
+                        dangerouslySetInnerHTML={{ __html: formatLabel(link.label) }}
                     />
                 ) : onPageChange ? (
                     <button
@@ -56,7 +68,7 @@ export default function Pagination({ links = [], onPageChange, variant = "primar
                             }
                         `}
                         onClick={() => link.url && onPageChange(link.url)}
-                        dangerouslySetInnerHTML={{ __html: link.label }}
+                        dangerouslySetInnerHTML={{ __html: formatLabel(link.label) }}
                     />
                 ) : (
                     <Link
@@ -70,7 +82,7 @@ export default function Pagination({ links = [], onPageChange, variant = "primar
                             }
                         `}
                         href={link.url}
-                        dangerouslySetInnerHTML={{ __html: link.label }}
+                        dangerouslySetInnerHTML={{ __html: formatLabel(link.label) }}
                     />
                 )
             )}

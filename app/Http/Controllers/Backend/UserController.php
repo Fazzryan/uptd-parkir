@@ -18,22 +18,49 @@ class UserController extends Controller
     }
     public function index(Request $request)
     {
-        $perPage = $request->per_page ?? 10;
+        $perPage = (int) $request->input('per_page', 10);
         
-        $users = User::query()
-            ->with(['roles']) // Removed skpd
-            ->when($request->search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('username', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
-            })
-            ->latest()
+        $query = User::query()
+            ->with(['roles:id,name']);
+
+        // Filter Pencarian (Nama, Username, Email, atau Role)
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhereHas('roles', function ($r) use ($search) {
+                      $r->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Filter Berdasarkan Role Tertentu
+        if ($role = $request->input('role')) {
+            $query->whereHas('roles', function ($r) use ($role) {
+                $r->where('name', $role);
+            });
+        }
+
+        $users = $query->latest('id')
             ->paginate($perPage)
             ->withQueryString();
         
+        // Return JSON jika request via AJAX / axios
+        if ($request->wantsJson()) {
+            return response()->json($users);
+        }
+
+        $rolesList = \Spatie\Permission\Models\Role::orderBy('name', 'asc')->get(['id', 'name']);
+
         return Inertia::render('Backend/Users/Index', [
             'users' => $users,
-            'filters' => $request->only(['search', 'per_page'])
+            'rolesList' => $rolesList,
+            'filters' => [
+                'search' => $request->input('search', ''),
+                'role' => $request->input('role', ''),
+                'per_page' => $perPage,
+            ],
         ]);
     }
 

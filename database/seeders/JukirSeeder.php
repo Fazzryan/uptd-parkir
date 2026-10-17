@@ -181,7 +181,7 @@ class JukirSeeder extends Seeder
                                 'password' => Hash::make('password123'),
                             ]
                         );
-                        $user->assignRole('user');
+                        $user->assignRole('jukir');
 
                         // 3. Buat Profil Juru Parkir (Format: 4HURUF_WILAYAH-NAMA-4RANDOM)
                         $kodeKecMap = [

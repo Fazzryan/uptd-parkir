@@ -8,10 +8,11 @@ import { ArrowLeft } from "lucide-react";
 import { Permission } from "@/types/model";
 
 interface CreateProps {
-    permissions: Permission[];
+    groupedPermissions: Record<string, Permission[]>;
+    permissions?: Permission[];
 }
 
-export default function Create({ permissions }: CreateProps) {
+export default function Create({ groupedPermissions = {}, permissions = [] }: CreateProps) {
     const { data, setData, post, processing, errors } = useForm({
         name: "",
         permissions: [] as string[],
@@ -92,40 +93,7 @@ export default function Create({ permissions }: CreateProps) {
                         )}
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {Object.entries(
-                                permissions.reduce(
-                                    (acc, permission) => {
-                                        // Grouping logic
-                                        let group = "Lainnya";
-                                        const name = permission.name;
-
-                                        if (
-                                            name.includes("user") ||
-                                            name.includes("role")
-                                        )
-                                            group = "User & Role Management";
-                                        else if (name.includes("wilayah-parkir"))
-                                            group = "Wilayah Parkir";
-                                        else if (name.includes("struktur-organisasi"))
-                                            group = "Struktur Organisasi";
-                                        else if (name.includes("tarif-parkir"))
-                                            group = "Tarif Parkir & Karcis";
-                                        else if (name.includes("panduan-jukir"))
-                                            group = "Panduan Jukir";
-                                        else if (name.includes("galeri-foto"))
-                                            group = "Galeri Foto";
-                                        else if (name.includes("berita"))
-                                            group = "Berita & Pengumuman";
-                                        else if (name.includes("profile"))
-                                            group = "Profil User";
-
-                                        if (!acc[group]) acc[group] = [];
-                                        acc[group].push(permission);
-                                        return acc;
-                                    },
-                                    {} as Record<string, Permission[]>,
-                                ),
-                            ).map(([groupName, groupPermissions]) => {
+                            {Object.entries(groupedPermissions).map(([groupName, groupPermissions]) => {
                                 const groupPermissionNames =
                                     groupPermissions.map((p) => p.name);
                                 const isAllSelected =
@@ -232,7 +200,7 @@ export default function Create({ permissions }: CreateProps) {
                             })}
                         </div>
 
-                        {permissions.length === 0 && (
+                        {Object.keys(groupedPermissions).length === 0 && (
                             <p className="text-slate-500 text-sm italic dark:text-slate-400">
                                 Belum ada permission yang tersedia di sistem.
                             </p>
