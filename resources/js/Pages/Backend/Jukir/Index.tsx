@@ -295,7 +295,7 @@ export default function Index({ jukir, kecamatanList = [], filters }: IndexProps
                                 const activeTarget = item.targets && item.targets.length > 0 ? item.targets[0] : null;
                                 const targetNominal = activeTarget?.target_per_hari ? Number(activeTarget.target_per_hari) : null;
                                 return targetNominal ? (
-                                    <span className="inline-flex items-center gap-1 text-xs font-bold text-brand-green-700 bg-brand-green-50 px-2.5 py-1 rounded-full dark:bg-brand-green-950/60 dark:text-brand-green-400 border border-brand-green-200/60 dark:border-brand-green-800/60">
+                                    <span className="inline-flex items-center gap-1 text-xs font-bold text-brand-green-700 bg-brand-green-50 px-2.5 py-1 rounded-full dark:bg-brand-green-700/60 dark:text-brand-green-400 border border-brand-green-200/60 dark:border-brand-green-800/60">
                                         Rp {targetNominal.toLocaleString("id-ID")}
                                         <span className="text-[10px] text-brand-green-600/80 dark:text-brand-green-400/80 font-normal">/hr</span>
                                     </span>

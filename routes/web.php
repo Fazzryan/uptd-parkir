@@ -50,6 +50,8 @@ Route::middleware(['auth'])->prefix('dashboard')->name('be.')->group(function ()
     Route::resource('setoran-harian', SetoranHarianController::class)
         ->names('setoran-harian');
 
+    Route::get('setoran-harian/{kode_jukir}/detail-setoran', [SetoranHarianController::class, 'detailSetoran'])->name('setoran-harian.detail-setoran');
+
     Route::resource('data-jukir', JukirController::class)
         ->names('data-jukir');
 

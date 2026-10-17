@@ -8,11 +8,7 @@ import {
     ArrowLeft,
     User as UserIcon,
     MapPin,
-    ShieldCheck,
-    Navigation,
     ExternalLink,
-    CheckCircle2,
-    XCircle,
     Info,
     Edit3,
     Maximize2,
@@ -20,7 +16,7 @@ import {
     Clock,
     Coins,
 } from "lucide-react";
-import { Jukir, User, WilayahParkir } from "@/types/model";
+import { Jukir } from "@/types/model";
 
 interface ShowProps {
     jukir: Jukir;
@@ -185,98 +181,7 @@ export default function Show({ jukir }: ShowProps) {
                         </div>
                     </Card>
 
-                    {/* 2. Kartu Titik Wilayah Penugasan (Di atas Akun Login) */}
-                    <Card>
-                        <div className="p-5 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50 dark:border-slate-800 flex items-center justify-between">
-                            <div className="flex items-center gap-2.5">
-                                <div className="p-2 rounded-xl bg-brand-blue-50 text-brand-blue-600 dark:bg-brand-blue-950/60 dark:text-brand-blue-400">
-                                    <MapPin size={20} />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-base text-slate-800 dark:text-slate-200">
-                                        Titik Lokasi Penugasan
-                                    </h3>
-                                    <p className="text-xs text-slate-400 dark:text-slate-500">
-                                        Lokasi tugas operasional parkir
-                                    </p>
-                                </div>
-                            </div>
-                            {wilayah && (
-                                <Badge
-                                    type={jukir.status === "Aktif" ? "success" : "danger"}
-                                >
-                                    {jukir.status}
-                                </Badge>
-                            )}
-                        </div>
-
-                        <div className="p-5">
-                            {!wilayah ? (
-                                <div className="py-6 px-4 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl text-center bg-slate-50/40 dark:bg-slate-800/30">
-                                    <MapPin size={22} className="mx-auto mb-1.5 text-slate-400" />
-                                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5">
-                                        Belum Ada Titik Penugasan
-                                    </p>
-                                    <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
-                                        Petugas ini belum ditentukan lokasi operasionalnya.
-                                    </p>
-                                    <Button
-                                        variant="secondary"
-                                        size="sm"
-                                        href={route("be.data-jukir.edit", jukir.kode_jukir || jukir.id)}
-                                    >
-                                        <Edit3 size={13} />
-                                        <span>Tentukan Lokasi</span>
-                                    </Button>
-                                </div>
-                            ) : (
-                                <div className="space-y-1 text-xs sm:text-sm">
-                                    {/* Nama Titik / Jalan */}
-                                    <div className="grid grid-cols-[95px_12px_1fr] items-baseline">
-                                        <span className="text-slate-500 dark:text-slate-400 font-medium">Nama Jalan</span>
-                                        <span className="text-slate-400 text-center">:</span>
-                                        <span className="font-bold text-slate-800 dark:text-slate-100 leading-snug">
-                                            {wilayah.nama_jalan}
-                                        </span>
-                                    </div>
-
-                                    {/* Kecamatan */}
-                                    <div className="grid grid-cols-[95px_12px_1fr] items-baseline">
-                                        <span className="text-slate-500 dark:text-slate-400 font-medium">Wilayah</span>
-                                        <span className="text-slate-400 text-center">:</span>
-                                        <span className="font-semibold text-slate-700 dark:text-slate-200">
-                                         {wilayah.kecamatan?.nama_kecamatan || "Kab. Tasikmalaya"}
-                                        </span>
-                                    </div>
-
-                                    {/* Koordinat GPS & Peta */}
-                                    <div className="grid grid-cols-[95px_12px_1fr] items-baseline">
-                                        <span className="text-slate-500 dark:text-slate-400 font-medium">Koordinat</span>
-                                        <span className="text-slate-400 text-center">:</span>
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            <span className=" text-xs text-slate-600 dark:text-slate-300">
-                                                {wilayah.latitude && wilayah.longitude
-                                                    ? `${wilayah.latitude}, ${wilayah.longitude}`
-                                                    : "Belum diset"}
-                                            </span>
-                                            {wilayah.latitude && wilayah.longitude && (
-                                                <a
-                                                    href={`https://www.google.com/maps?q=${wilayah.latitude},${wilayah.longitude}`}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-blue-600 hover:text-brand-blue-700 dark:text-brand-blue-400 underline"
-                                                >
-                                                    <span>(Buka Maps)</span>
-                                                </a>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </Card>
-
-                    {/* 3. Kartu Akun Login Sistem */}
+                    {/* 2. Kartu Akun Login Sistem */}
                     <Card>
                         <div className="p-5 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50 dark:border-slate-800 flex items-center justify-between">
                             <div className="flex items-center gap-2.5">
@@ -333,9 +238,104 @@ export default function Show({ jukir }: ShowProps) {
                     </Card>
                 </div>
 
-                {/* Kolom Kanan: 2 Kolom (Target & Riwayat) */}
+                {/* Kolom Kanan: 2 Kolom (Titik Lokasi, Target & Riwayat Transaksi) */}
                 <div className="lg:col-span-2 space-y-6">
-                    {/* Target Retribusi Parkir Card */}
+                    {/* 1. Kartu Titik Wilayah Penugasan (Dipindahkan ke Grid Kanan) */}
+                    <Card>
+                        <div className="p-5 sm:p-6 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50 dark:border-slate-800 flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                                <div className="p-2 rounded-xl bg-brand-blue-50 text-brand-blue-600 dark:bg-brand-blue-950/60 dark:text-brand-blue-400">
+                                    <MapPin size={20} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-base text-slate-800 dark:text-slate-200">
+                                        Titik Lokasi Penugasan
+                                    </h3>
+                                    <p className="text-xs text-slate-400 dark:text-slate-500">
+                                        Lokasi tugas operasional parkir jukir di lapangan
+                                    </p>
+                                </div>
+                            </div>
+                            {wilayah && (
+                                <Badge
+                                    type={jukir.status === "Aktif" ? "success" : "danger"}
+                                >
+                                    {jukir.status}
+                                </Badge>
+                            )}
+                        </div>
+
+                        <div className="p-6">
+                            {!wilayah ? (
+                                <div className="py-6 px-4 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl text-center bg-slate-50/40 dark:bg-slate-800/30">
+                                    <MapPin size={22} className="mx-auto mb-1.5 text-slate-400" />
+                                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5">
+                                        Belum Ada Titik Penugasan
+                                    </p>
+                                    <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
+                                        Petugas ini belum ditentukan lokasi operasionalnya.
+                                    </p>
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        href={route("be.data-jukir.edit", jukir.kode_jukir || jukir.id)}
+                                    >
+                                        <Edit3 size={13} />
+                                        <span>Tentukan Lokasi</span>
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {/* Nama Titik / Jalan */}
+                                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 dark:bg-slate-800 dark:border-slate-700">
+                                        <span className="text-xs font-medium text-slate-400 dark:text-slate-500 block mb-1">
+                                            Nama Jalan / Titik Lokasi
+                                        </span>
+                                        <p className="text-base font-bold text-slate-800 dark:text-slate-100">
+                                            {wilayah.nama_jalan}
+                                        </p>
+                                    </div>
+
+                                    {/* Wilayah / Kecamatan */}
+                                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 dark:bg-slate-800 dark:border-slate-700">
+                                        <span className="text-xs font-medium text-slate-400 dark:text-slate-500 block mb-1">
+                                            Kecamatan / Wilayah
+                                        </span>
+                                        <p className="text-base font-bold text-slate-800 dark:text-slate-100">
+                                            {wilayah.kecamatan?.nama_kecamatan || "Kab. Tasikmalaya"}
+                                        </p>
+                                    </div>
+
+                                    {/* Koordinat GPS & Peta */}
+                                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 dark:bg-slate-800 dark:border-slate-700 flex flex-col justify-between">
+                                        <div>
+                                            <span className="text-xs font-medium text-slate-400 dark:text-slate-500 block mb-1">
+                                                Koordinat GPS
+                                            </span>
+                                            <p className="text-xs font-mono font-semibold text-slate-700 dark:text-slate-300">
+                                                {wilayah.latitude && wilayah.longitude
+                                                    ? `${wilayah.latitude}, ${wilayah.longitude}`
+                                                    : "Belum diset"}
+                                            </p>
+                                        </div>
+                                        {wilayah.latitude && wilayah.longitude && (
+                                            <a
+                                                href={`https://www.google.com/maps?q=${wilayah.latitude},${wilayah.longitude}`}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-blue-600 hover:text-brand-blue-700 dark:text-brand-blue-400 mt-2"
+                                            >
+                                                <span>Buka di Google Maps</span>
+                                                <ExternalLink size={13} />
+                                            </a>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </Card>
+
+                    {/* 2. Target Retribusi Parkir Card */}
                     <Card>
                         <div className="p-5 sm:p-6 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50 dark:border-slate-800 flex items-center justify-between">
                             <div className="flex items-center gap-2.5">
@@ -414,8 +414,8 @@ export default function Show({ jukir }: ShowProps) {
                         </div>
                     </Card>
 
+                    {/* 3. Kartu Buku Catatan & Riwayat Transaksi Setoran */}
                     <Card>
-                        {/* Header Riwayat & Aktivitas */}
                         <div className="p-5 sm:p-6 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50 dark:border-slate-800 flex items-center justify-between">
                             <div className="flex items-center gap-2.5">
                                 <div className="p-2 rounded-xl bg-brand-blue-50 text-brand-blue-600 dark:bg-brand-blue-950/60 dark:text-brand-blue-400">
@@ -423,27 +423,33 @@ export default function Show({ jukir }: ShowProps) {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-base text-slate-800 dark:text-slate-200">
-                                        Riwayat & Aktivitas Operasional
+                                        Buku Catatan & Riwayat Setoran
                                     </h3>
                                     <p className="text-xs text-slate-400 dark:text-slate-500">
-                                        Catatan setoran retribusi harian dan rekap aktivitas petugas di lapangan
+                                        Rekapitulasi pembukuan setoran tunai & transaksi QRIS Bank BJB
                                     </p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Konten Riwayat / Empty State Placeholder */}
                         <div className="p-6 sm:p-8">
-                            <div className="p-8 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl text-center bg-slate-50/40 dark:bg-slate-800/30">
-                                <div className="w-12 h-12 rounded-full bg-brand-blue-50 dark:bg-slate-700 flex items-center justify-center text-brand-blue-600 dark:text-brand-blue-400 mx-auto mb-3">
-                                    <Clock size={24} />
+                            <div className="p-6 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl bg-gradient-to-br from-slate-50 to-brand-blue-50/30 dark:from-slate-800/50 dark:to-slate-800/20 flex flex-col sm:flex-row items-center justify-between gap-6">
+                                <div className="space-y-1.5 text-center sm:text-left">
+                                    <h4 className="text-base font-bold text-slate-800 dark:text-slate-100">
+                                        Buku Catatan Finansial Juru Parkir
+                                    </h4>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 max-w-lg leading-relaxed">
+                                        Seluruh rekam jejak pembayaran retribusi, perhitungan sisa tunggakan, cetak kuitansi, dan mutasi kas tunai/QRIS dikelola secara terpusat pada modul Setoran Harian.
+                                    </p>
                                 </div>
-                                <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1">
-                                    Belum Ada Riwayat Transaksi & Log
-                                </h4>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
-                                    Data setoran karcis retribusi parkir dan log kehadiran petugas ini akan otomatis tercatat dan terakumulasi di sini saat operasional transaksi lapangan berjalan.
-                                </p>
+
+                                <Link
+                                    href={route("be.setoran-harian.detail-setoran", jukir.kode_jukir || jukir.id)}
+                                    className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-bold text-xs bg-brand-blue-600 hover:bg-brand-blue-700 text-white shadow-md shadow-brand-blue-200 dark:shadow-none transition-all active:scale-95 shrink-0"
+                                >
+                                    <span>Buka Buku Catatan & Transaksi Lengkap</span>
+                                    <ExternalLink size={14} />
+                                </Link>
                             </div>
                         </div>
                     </Card>
