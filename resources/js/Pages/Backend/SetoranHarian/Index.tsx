@@ -9,6 +9,7 @@ import TextInput from "@/Components/Form/TextInput";
 import TextArea from "@/Components/Form/TextArea";
 import SelectSearch from "@/Components/Form/SelectSearch";
 import Modal from "@/Components/UI/Modal";
+import SimulasiNotice from "@/Components/UI/SimulasiNotice";
 import { Head, Link, useForm, router, usePage } from "@inertiajs/react";
 import {
     Search,
@@ -406,6 +407,9 @@ export default function Index({
     return (
         <MainLayout>
             <Head title="Daftar Pembayaran Retribusi Parkir" />
+
+            {/* Floating Toastr Fixed di Sudut Kiri Atas (Status Fitur Simulasi) */}
+            <SimulasiNotice />
 
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">

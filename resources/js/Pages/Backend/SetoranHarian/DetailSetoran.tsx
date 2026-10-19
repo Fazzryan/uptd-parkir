@@ -10,6 +10,7 @@ import TextArea from "@/Components/Form/TextArea";
 import SelectSearch from "@/Components/Form/SelectSearch";
 import Modal from "@/Components/UI/Modal";
 import ConfirmationModal from "@/Components/UI/ConfirmationModal";
+import SimulasiNotice from "@/Components/UI/SimulasiNotice";
 import Pagination from "@/Components/Data/Pagination";
 import { Head, Link, useForm, router, usePage } from "@inertiajs/react";
 import {
@@ -348,6 +349,9 @@ export default function DetailSetoran({
     return (
         <MainLayout>
             <Head title={`Buku Catatan Setoran - ${jukir.nama}`} />
+
+            {/* Floating Toastr Fixed di Sudut Kiri Atas (Status Fitur Simulasi) */}
+            <SimulasiNotice />
 
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
