@@ -315,7 +315,7 @@ export default function DetailSetoran({
             preserveScroll: true,
             onSuccess: () => {
                 setShowDeleteModal(false);
-                setItemToDelete(null);
+                setTimeout(() => setItemToDelete(null), 300);
                 fetchData();
             },
             onFinish: () => setIsDeleting(false),
@@ -1147,10 +1147,7 @@ export default function DetailSetoran({
                     )
                 }
                 onConfirm={handleDeleteSetoran}
-                onCancel={() => {
-                    setShowDeleteModal(false);
-                    setItemToDelete(null);
-                }}
+                onCancel={() => setShowDeleteModal(false)}
                 processing={isDeleting}
                 confirmText="Ya, Batalkan Setoran"
                 confirmVariant="danger"
